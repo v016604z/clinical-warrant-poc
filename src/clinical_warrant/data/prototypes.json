@@ -1,0 +1,41 @@
+{
+  "purpose": "Research-only toy prototypes using fictional HIV screening education questions. They contain no medical advice and are not an independent evaluation set.",
+  "categories": [
+    {
+      "category": "result_interpretation",
+      "label_zh": "結果判讀",
+      "prototypes": [
+        "我的愛滋篩檢報告結果該怎麼看？",
+        "我想了解愛滋篩檢結果代表什麼。",
+        "愛滋篩檢報告上的結果要如何理解？"
+      ]
+    },
+    {
+      "category": "window_period",
+      "label_zh": "空窗期",
+      "prototypes": [
+        "接觸後隔一段時間再檢測，結果會有差別嗎？",
+        "愛滋檢測的空窗期是什麼意思？",
+        "我想了解接觸後多久檢測才適合。"
+      ]
+    },
+    {
+      "category": "exposure_risk",
+      "label_zh": "暴露風險",
+      "prototypes": [
+        "這樣的接觸會有感染愛滋的風險嗎？",
+        "我擔心某次接觸可能讓我感染 HIV。",
+        "哪些接觸情境會有愛滋感染風險？"
+      ]
+    },
+    {
+      "category": "prevention_education",
+      "label_zh": "預防衛教",
+      "prototypes": [
+        "有哪些預防愛滋感染的方式？",
+        "我想了解愛滋感染的預防方法。",
+        "可以介紹預防愛滋感染的相關衛教嗎？"
+      ]
+    }
+  ]
+}
