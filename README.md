@@ -45,6 +45,8 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m pytest
 ```
 
+句向量分類器使用的模型、revision、CPU 執行方式、快取與 128-token 限制，見[分類器文件](docs/classifier.md)。一般測試不載入模型；真實模型 smoke test 須明確啟用。
+
 ## 參考
 
 - [PyPA：src layout vs flat layout](https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout/)：本專案目錄佈局的依據。
