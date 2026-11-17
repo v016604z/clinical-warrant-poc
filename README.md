@@ -25,7 +25,7 @@ clinical-warrant-poc/
 └── README.md
 ```
 
-目前已建立可安裝的 Python 套件與命令列入口。`decide` 與 `evaluate` 僅保留未來階段的參數介面；目前會明確回報尚未實作，不會產生決策或評估結果。
+目前已建立可安裝的 Python 套件與命令列入口。`decide` 可讀取 JSON 並輸出三態決策；`evaluate` 保留至第六階段實作。
 
 ## 開發
 
@@ -46,6 +46,8 @@ python -m venv .venv
 ```
 
 句向量分類器使用的模型、revision、CPU 執行方式、快取與 128-token 限制，見[分類器文件](docs/classifier.md)。一般測試不載入模型；真實模型 smoke test 須明確啟用。
+
+單筆決策 CLI 的 JSON 格式、三態優先順序與限制見[決策 CLI 文件](docs/decision-cli.md)。
 
 ## 參考
 
