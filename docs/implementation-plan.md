@@ -1,6 +1,6 @@
 # Clinical Warrant PoC：6 個 commit 完成基礎框架
 
-本文件規劃後續實作階段；目前只定義方案與驗收條件，不代表框架或功能已完成。六個 Conventional Commit 是未來的工作切點。每階段相關驗證通過後，才進行該階段 commit。
+本文件記錄原定實作方案與驗收條件；六個階段均已完成實作與驗收。前五階段 commit 對照及第六階段提交訊息見文末。各階段方案保留作為設計和驗收依據。
 
 ## 需求依據與範圍
 
@@ -42,14 +42,14 @@ CLI 契約：
 
 ## 規則與決策優先順序
 
-三項檢核各自回報通過、未通過或未定；因前置資料不足而未執行的檢核標記為未定並跳過，不得當作通過。適用性因必要資料缺漏而無法判斷時，維持未定，交由資料充分性結果導向補問。
+三項檢核各自回報 pass、fail、undetermined 或 skipped。Case Sufficiency 在確認缺少必要欄位時為 fail；Rule Applicability 因所需資料缺漏而無法判斷時為 undetermined；skipped 表示依優先順序未執行該檢核。
 
 決策順序如下：
 
 1. 分類未知（低於門檻或無法取得有效分類）時，輸出 `restrict`，理由為 `unknown_intent`。
 2. 只依明示的 `requested_scope` 判斷範圍；值不是明確的 `education` 時，輸出 `restrict`，理由為 `scope_mismatch`。不另從 `query` 推斷用途或判斷越界。
-3. 個案資料足夠且規則明確不適用時，輸出 `restrict`，理由為 `rule_not_applicable`。
-4. 類別已知且範圍內，但缺少該類必要個案欄位時，輸出 `need_more_info`，並列出缺漏欄位。
+3. 已知類別且範圍內，若已有資料足以確認玩具規則條件不符合，即使仍缺少無關必要欄位，也輸出 `restrict`，reason 為 `rule_not_applicable`。
+4. 已知類別且範圍內，若尚未確認規則不適用且必要欄位缺漏，輸出 `need_more_info`，並列出所需補齊欄位。
 5. 只有分類已知、範圍符合、必要欄位齊全且三項檢核皆通過時，輸出 `allow_education`。
 
 未知分類或範圍越界優先於缺資料；不應為越界情境要求補充資料。模擬規則不得設定真實醫療風險判定或時間門檻，也不得宣稱醫學正確性。
@@ -65,7 +65,7 @@ CLI 契約：
 | 5 | `feat(warrant): 串接三項檢核與命令列決策` | 實作 Case Sufficiency、Rule Applicability、Response Scope、優先序與 `decide` CLI。 | 決策 label、reason codes、missing fields、各檢核狀態符合本文件矩陣；輸入或模型錯誤非零退出且不產生決策。 |
 | 6 | `test(evaluation): 新增情境評估與執行文件` | 實作 JSONL 評估器、逐筆與彙總報告、錯誤明細及執行說明。 | 測試集涵蓋本文件矩陣；可記錄調整前後結果；README 說明安裝、首次下載、CLI、測試與限制。 |
 
-每階段通過該階段驗收與相關測試後，依六階段建立對應本機 commit，不 push。本次僅新增方案文件，未執行 commit。
+每階段通過驗收與審閱後，依序建立該階段本機 commit，不 push。
 
 ## 最小測試矩陣與交付條件
 
@@ -76,7 +76,7 @@ CLI 契約：
 | 四類各有標準問句與至少兩種語意改寫 | 分到對應類別；類別及 score 可檢視。 |
 | 低相似度或未知問題 | `restrict`，reason 為 `unknown_intent`。 |
 | 類別已知且完整資料、模擬規則適用 | 三檢核通過，決策為 `allow_education`。 |
-| 類別已知但必要欄位缺漏 | `need_more_info`，`missing_fields` 與預期完全一致；因資料不足未執行的 check 為未定。 |
+| 類別已知且必要欄位缺漏 | `need_more_info`；Case Sufficiency 為 fail；Rule Applicability 若所需資料缺漏則為 undetermined，若已確認條件符合則為 pass。 |
 | 完整資料但規則條件明確不符合 | `restrict`，reason 為 `rule_not_applicable`。 |
 | 明確越出 education scope | `restrict`，reason 為 `scope_mismatch`。 |
 | unknown 同時缺少 case 欄位 | 優先 `restrict / unknown_intent`，不錯誤要求補問。 |
@@ -85,3 +85,16 @@ CLI 契約：
 單元測試以固定或假 embeddings 測試分類、規則與決策，確保一般測試離線可執行；另提供一次真實中文 encoder 整合測試，需由使用者明確啟動，允許首次下載模型。評估輸出至少包含分類準確率、未知率、決策準確率、缺欄位比對結果及逐筆錯誤明細。調整 prototypes、門檻或規則時，保留可比較的調整前後結果；不預設或保證任何準確率，也不將小型模擬評估解讀為臨床驗證。
 
 最終交付包含 Python 套件與 CLI、模擬規則及情境、pytest 測試、JSONL 評估輸出、README 執行說明與本計畫。模型權重、快取、真實病患資料、衛教生成、網站/API/資料庫與醫院串接均不在交付範圍。
+
+## 階段實作對照
+
+前五階段以表列 SHA 對照，第六階段以本次提交訊息識別。
+
+| 階段 | 提交 | 紀錄 |
+|---|---|---|
+| 1 | `7f81070` | 提案、實作方案與階段驗收標準。 |
+| 2 | `f7d83b2` | Python 套件、開發環境與 CLI 骨架。 |
+| 3 | `fcd8b85` | JSON 契約、模擬規則與套件資料。 |
+| 4 | `6635d55` | 句向量分類器與 unknown 判斷。 |
+| 5 | `9fe62ad` | 三項 warrant 檢核與 `decide` CLI。 |
+| 6 | `test(evaluation): 新增情境評估與執行文件` | 實作與驗收已完成：20 筆合成案例、分類/unknown/決策/欄位/理由指標與逐筆錯誤報告；README、評估文件與 CLI 說明已同步。 |

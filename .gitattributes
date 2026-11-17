@@ -1,0 +1,2 @@
+/evaluation/*.jsonl text eol=lf
+/docs/results/baseline/* text eol=lf

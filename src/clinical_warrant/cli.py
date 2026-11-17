@@ -4,6 +4,9 @@ from __future__ import annotations
 
 import argparse
 from collections.abc import Sequence
+import hashlib
+import json
+import math
 from pathlib import Path
 import sys
 from typing import Callable
@@ -11,6 +14,11 @@ from typing import Callable
 from clinical_warrant import __version__
 from clinical_warrant.classifier import DEFAULT_THRESHOLD, ClassifierError, QuestionClassifier
 from clinical_warrant.contracts import ContractError, DecisionInput, DecisionResult
+from clinical_warrant.evaluation import (
+    EvaluationError,
+    evaluate_cases,
+    load_evaluation_jsonl,
+)
 from clinical_warrant.warrant import WarrantEngine, WarrantError
 
 
@@ -19,7 +27,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="clinical-warrant",
         description="Clinical Warrant PoC command-line interface.",
-        epilog="evaluate is reserved for a later project stage and is not implemented yet.",
+        epilog="evaluate runs a user-provided labeled JSONL scenario dataset.",
     )
     parser.add_argument(
         "--version", action="version", version=f"%(prog)s {__version__}"
@@ -30,11 +38,10 @@ def build_parser() -> argparse.ArgumentParser:
     decide.add_argument("--input", required=True, metavar="FILE")
     decide.add_argument("--threshold", type=float, default=DEFAULT_THRESHOLD)
 
-    evaluate = commands.add_parser(
-        "evaluate", help="Evaluate scenarios (not implemented yet)"
-    )
+    evaluate = commands.add_parser("evaluate", help="Evaluate a JSONL scenario dataset")
     evaluate.add_argument("--input", required=True, metavar="FILE")
     evaluate.add_argument("--output", required=True, metavar="DIR")
+    evaluate.add_argument("--threshold", type=_threshold, default=DEFAULT_THRESHOLD)
     return parser
 
 
@@ -43,7 +50,7 @@ def main(
     *,
     classifier_factory: Callable[..., QuestionClassifier] | None = None,
 ) -> int:
-    """Run ``decide`` or report that the future-stage evaluator is unavailable."""
+    """Run one decision or evaluate a complete JSONL dataset."""
     parser = build_parser()
     args = parser.parse_args(argv)
     if args.command is None:
@@ -51,7 +58,7 @@ def main(
         return 0
 
     if args.command == "evaluate":
-        parser.error("'evaluate' is not implemented yet; no evaluation was run.")
+        return _evaluate(args, classifier_factory=classifier_factory)
 
     try:
         request = DecisionInput.from_json(
@@ -77,3 +84,52 @@ def main(
         return 1
     print(result.to_json())
     return 0
+
+
+def _evaluate(args, *, classifier_factory: Callable[..., QuestionClassifier] | None) -> int:
+    try:
+        raw_bytes = Path(args.input).read_bytes()
+        text = raw_bytes.decode("utf-8-sig")
+        cases = load_evaluation_jsonl(text)
+    except (OSError, UnicodeError, EvaluationError) as error:
+        print(f"error: invalid evaluation input: {error}", file=sys.stderr)
+        return 2
+
+    factory = classifier_factory or QuestionClassifier.from_pretrained
+    try:
+        classifier = factory(threshold=args.threshold)
+        engine = WarrantEngine(classifier)
+        run = evaluate_cases(
+            cases,
+            engine,
+            args.output,
+            threshold=args.threshold,
+            dataset_sha256=hashlib.sha256(raw_bytes).hexdigest(),
+        )
+    except Exception as error:
+        print(f"error: evaluation failed: {error}", file=sys.stderr)
+        return 1
+
+    print(
+        json.dumps(
+            {
+                "run_id": run["run_id"],
+                "run_dir": run["run_dir"],
+                "total_cases": run["summary"]["total_cases"],
+                "metrics": run["summary"]["metrics"],
+            },
+            ensure_ascii=True,
+            separators=(",", ":"),
+        )
+    )
+    return 0
+
+
+def _threshold(value: str) -> float:
+    try:
+        threshold = float(value)
+    except ValueError as error:
+        raise argparse.ArgumentTypeError("threshold must be a finite number from -1 to 1") from error
+    if not math.isfinite(threshold) or not -1.0 <= threshold <= 1.0:
+        raise argparse.ArgumentTypeError("threshold must be a finite number from -1 to 1")
+    return threshold

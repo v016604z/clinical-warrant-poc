@@ -14,7 +14,7 @@ def test_package_version_is_available() -> None:
     assert __version__ == version("clinical-warrant-poc")
 
 
-def test_help_lists_reserved_commands(capsys: pytest.CaptureFixture[str]) -> None:
+def test_help_lists_commands(capsys: pytest.CaptureFixture[str]) -> None:
     with pytest.raises(SystemExit) as error:
         main(["--help"])
 
@@ -22,17 +22,122 @@ def test_help_lists_reserved_commands(capsys: pytest.CaptureFixture[str]) -> Non
     output = capsys.readouterr().out
     assert "decide" in output
     assert "evaluate" in output
-    assert "not implemented yet" in output
+    assert "labeled JSONL scenario dataset" in output
 
 
-def test_reserved_command_fails_clearly(capsys: pytest.CaptureFixture[str]) -> None:
-    with pytest.raises(SystemExit) as error:
-        main(["evaluate", "--input", "unused.json", "--output", "unused-output"])
+def test_evaluate_writes_machine_readable_report_and_returns_zero_on_mismatches(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    source = tmp_path / "cases.jsonl"
+    records = [
+        {
+            "id": case_id,
+            "input": valid_input(),
+            "expected": {
+                "category": category,
+                "decision": "allow_education",
+                "missing_fields": [],
+                "reason_codes": ["all_checks_passed"],
+            },
+        }
+        for case_id, category in [
+            ("one", "result_interpretation"),
+            ("intentional-mismatch", "prevention_education"),
+        ]
+    ]
+    source.write_text(
+        "".join(json.dumps(record, ensure_ascii=False) + "\n" for record in records),
+        encoding="utf-8",
+    )
+    calls = []
 
-    assert error.value.code == 2
-    error_text = capsys.readouterr().err
-    assert "evaluate" in error_text
-    assert "not implemented yet" in error_text
+    def factory(*, threshold: float):
+        calls.append(threshold)
+        return FixedClassifier()
+
+    exit_code = main(
+        ["evaluate", "--input", str(source), "--output", str(tmp_path / "reports")],
+        classifier_factory=factory,
+    )
+    output = capsys.readouterr()
+
+    assert exit_code == 0
+    assert output.err == ""
+    assert calls == [0.5]
+    payload = json.loads(output.out)
+    report_dir = Path(payload["run_dir"])
+    summary = json.loads((report_dir / "summary.json").read_text(encoding="utf-8"))
+    assert payload["total_cases"] == summary["total_cases"] == 2
+    assert summary["metrics"]["classification_accuracy"]["value"] == 0.5
+    predictions = (report_dir / "predictions.jsonl").read_text(encoding="utf-8").splitlines()
+    assert len(predictions) == 2
+    assert json.loads(predictions[0])["input"]["query"] == valid_input()["query"]
+    errors = (report_dir / "errors.jsonl").read_text(encoding="utf-8").splitlines()
+    assert len(errors) == 1
+    assert json.loads(errors[0])["id"] == "intentional-mismatch"
+    assert summary["metadata"]["rule_sha256"]
+    assert summary["metadata"]["prototype_sha256"] is None
+    assert summary["metadata"]["model_id"] is None
+
+
+def test_evaluate_invalid_dataset_fails_before_classifier_load(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    source = tmp_path / "bad.jsonl"
+    source.write_text('{"id":"broken"}\n', encoding="utf-8")
+    calls = []
+
+    def factory(**kwargs):
+        calls.append(kwargs)
+        raise AssertionError("invalid dataset must not load the model")
+
+    exit_code = main(
+        ["evaluate", "--input", str(source), "--output", str(tmp_path / "reports")],
+        classifier_factory=factory,
+    )
+    output = capsys.readouterr()
+
+    assert exit_code == 2
+    assert output.out == ""
+    assert "line 1" in output.err
+    assert calls == []
+
+
+def test_evaluate_model_failure_emits_no_report_or_stdout(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    source = tmp_path / "cases.jsonl"
+    source.write_text(
+        json.dumps(
+            {
+                "id": "one",
+                "input": valid_input(),
+                "expected": {
+                    "category": "result_interpretation",
+                    "decision": "allow_education",
+                    "missing_fields": [],
+                    "reason_codes": ["all_checks_passed"],
+                },
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    reports = tmp_path / "reports"
+
+    def failing_factory(**kwargs):
+        raise ClassifierError("model unavailable")
+
+    exit_code = main(
+        ["evaluate", "--input", str(source), "--output", str(reports)],
+        classifier_factory=failing_factory,
+    )
+    output = capsys.readouterr()
+
+    assert exit_code == 1
+    assert output.out == ""
+    assert "model unavailable" in output.err
+    assert not reports.exists()
 
 
 class FixedClassifier:
