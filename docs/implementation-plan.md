@@ -98,3 +98,9 @@ CLI 契約：
 | 4 | `6635d55` | 句向量分類器與 unknown 判斷。 |
 | 5 | `9fe62ad` | 三項 warrant 檢核與 `decide` CLI。 |
 | 6 | `test(evaluation): 新增情境評估與執行文件` | 實作與驗收已完成：20 筆合成案例、分類/unknown/決策/欄位/理由指標與逐筆錯誤報告；README、評估文件與 CLI 說明已同步。 |
+
+## 後續架構階段：Layered Architecture + Modular Monolith
+
+以下是六階段 PoC 交付後新增的架構整理，不改寫前述歷史方案、commit 對照或 baseline。程式依 classification、decision、evaluation 業務能力分模組；需要時在模組內分 domain/application/infrastructure。共用契約與純 catalog 型別放在 `shared/domain`，JSON catalog loader 放在 `infrastructure/catalog.py`，CLI adapter 位於 `interfaces/cli.py`，依賴由 `bootstrap/composition.py` 組裝。分類模型/cache 與評估報告 I/O 留在各自模組的 infrastructure。
+
+重構維持單一 Python distribution 與 CLI，不改決策/JSON 契約、模型識別或 cache identity；既有 root-level import modules 作為相容 facade。架構與依賴方向詳見[軟體架構文件](architecture.md)。本階段的完成狀態以實際程式遷移、測試與安裝包資源驗證為準。

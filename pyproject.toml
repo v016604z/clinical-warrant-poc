@@ -19,7 +19,7 @@ model = [
 ]
 
 [project.scripts]
-clinical-warrant = "clinical_warrant.cli:main"
+clinical-warrant = "clinical_warrant.interfaces.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

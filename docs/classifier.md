@@ -26,12 +26,14 @@ model extra 固定 `sentence-transformers==6.3.0`、`transformers==5.20.2` 與 `
 安裝 model extra 後，可直接在 Python 呼叫分類器：
 
 ```python
-from clinical_warrant.classifier import QuestionClassifier
+from clinical_warrant.bootstrap.composition import build_warrant_engine
 
-classifier = QuestionClassifier.from_pretrained(threshold=0.5)
-result = classifier.classify("有哪些預防愛滋感染的方式？")
+engine = build_warrant_engine(threshold=0.5)
+result = engine.classifier.classify("有哪些預防愛滋感染的方式？")
 print(result.category.value, result.similarity)
 ```
+
+`build_warrant_engine()` 由組裝層建立真實 encoder、catalog 與快取。分類模組公開 API `clinical_warrant.modules.classification.QuestionClassifier` 採依賴注入，建構時需提供 encoder 與 prototypes；`clinical_warrant.classifier.QuestionClassifier.from_pretrained()` 則保留為舊程式的相容 wrapper。分層與相容策略見[架構文件](architecture.md)。
 
 以下 PowerShell 指令會把 prototype 快取放在被 Git 忽略的專案 `.venv/model-cache`；模型權重沿用 Hugging Face 預設快取。指令也會明確啟用真實模型 smoke test：
 

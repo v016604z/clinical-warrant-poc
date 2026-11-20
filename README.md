@@ -12,13 +12,16 @@ clinical-warrant-poc/
 │   └── synthetic_hiv_cases.jsonl  # 獨立的合成評估資料
 ├── pyproject.toml             # 套件、CLI 與 pytest 設定
 ├── src/clinical_warrant/
-│   ├── catalog.py             # package prototypes、rules 與 fixtures
-│   ├── classifier.py          # 句向量分類與 unknown 判斷
-│   ├── contracts.py           # JSON/dataclass 輸入輸出契約
-│   ├── evaluation.py          # JSONL 評估與報告
-│   ├── cli.py                 # decide 與 evaluate 命令
-│   ├── warrant.py             # 三項檢核與三態決策
-│   └── data/                  # 套件內研究用途 JSON 資料
+│   ├── modules/                # 依業務能力劃分的模組化單體
+│   │   ├── classification/    # 分類公開 API；內含 domain/application/infrastructure
+│   │   ├── decision/          # warrant 決策公開 API；內含 application
+│   │   └── evaluation/        # 情境評估公開 API；含 application/infrastructure
+│   ├── shared/domain/         # 共用契約與 catalog 純型別/驗證
+│   ├── infrastructure/        # 共用 JSON catalog loader
+│   ├── interfaces/cli.py      # CLI adapter
+│   ├── bootstrap/             # 組裝應用程式與 adapters
+│   ├── data/                  # 套件內研究用途 JSON 資料
+│   └── classifier.py 等       # 舊匯入路徑的相容 facade
 ├── tests/                     # 離線單元及 CLI 測試
 ├── docs/                      # 設計、評估與執行文件
 ├── .gitignore
@@ -49,6 +52,8 @@ python -m venv .venv
 ```
 
 句向量分類器使用的模型、revision、CPU 執行方式、快取與 128-token 限制，見[分類器文件](docs/classifier.md)。一般測試不載入模型；真實模型 smoke test 須明確啟用。
+
+程式分層、模組公開 API、依賴方向與舊匯入路徑的相容策略，見[架構文件](docs/architecture.md)。
 
 單筆決策 CLI 的 JSON 格式、三態優先順序與限制見[決策 CLI 文件](docs/decision-cli.md)。
 
