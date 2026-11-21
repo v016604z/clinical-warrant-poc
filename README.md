@@ -10,6 +10,10 @@ A proof-of-concept for clinical warrant-based response decision support using se
 clinical-warrant-poc/
 ├── evaluation/
 │   └── synthetic_hiv_cases.jsonl  # 獨立的合成評估資料
+├── datasets/
+│   └── tw_cdc_hiv_qa/          # CDC 愛滋 QA 蒐集輸出（raw、逐題資料與 manifest）
+├── tools/
+│   └── crawl_cdc_hiv_qa.py     # 限定 CDC 愛滋主題範圍的資料蒐集器
 ├── pyproject.toml             # 套件、CLI 與 pytest 設定
 ├── src/clinical_warrant/
 │   ├── modules/                # 依業務能力劃分的模組化單體
@@ -57,6 +61,8 @@ python -m venv .venv
 程式分層、模組公開 API、依賴方向與 Python import 入口，見[架構文件](docs/architecture.md)。本次重構移除了六個舊 root-level Python imports；請改用新的模組公開 API或組裝入口。
 
 單筆決策 CLI 的 JSON 格式、三態優先順序與限制見[決策 CLI 文件](docs/decision-cli.md)。
+
+CDC 愛滋公開問答的蒐集範圍、執行方式、原始快照與資料使用限制見[資料蒐集說明](docs/data-collection.md)。
 
 ## 情境評估
 
