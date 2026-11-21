@@ -1,9 +1,10 @@
 # Clinical Warrant PoC｜可複用的 RAG Knowledge Base 資料處理 Pipeline 實作計畫
 
-> **性質**：待實作計畫（不是已完成紀錄）  
+> **性質**：實作計畫；Commit 1 定義文件規格，Commit 2–6 待實作。\
 > **參考專案**：[v016604z/clinical-warrant-poc](https://github.com/v016604z/clinical-warrant-poc)  
 > **參考風格**：[`docs/implementation-plan.md`](https://github.com/v016604z/clinical-warrant-poc/blob/main/docs/implementation-plan.md)  
-> **預期存放位置**：`docs/rag-kb-pipeline-plan.md`  
+> **存放位置**：`docs/clinical_warrant_rag_kb_pipeline_plan.md`\
+> **正式資料契約**：[RAG Knowledge Base 資料契約 v1](rag-kb-schema.md)\
 > **實作規模**：最多 **6 個本機 commit**，每階段獨立驗收，不自動 push。  
 > **資料基準**：2026-11-21 `main` 分支，`datasets/tw_cdc_hiv_qa/qa.jsonl` 共 119 筆。
 
@@ -88,7 +89,7 @@ clinical-warrant-poc/
 │   ├── test_kb_merge.py
 │   └── test_kb_cli_e2e.py
 └── docs/
-    ├── rag-kb-pipeline-plan.md       # 本文件
+    ├── clinical_warrant_rag_kb_pipeline_plan.md # 本文件
     ├── rag-kb-schema.md             # 契約與版本說明
     └── rag-kb-usage.md              # 使用與擴充指南
 ```
@@ -124,104 +125,19 @@ CDC qa.jsonl ──────► cdc_qa Adapter ─────┐
 
 ## 4. 統一資料契約（Schema v1）
 
-### 4.1 SourceRecord：Adapter 的最小輸出
+正式欄位、型別、必填／nullable 規則及可計算範例以 [資料契約 v1](rag-kb-schema.md) 為準；本節摘要三個處理邊界。
 
-所有 Adapter 都必須提供：
+| 契約 | 責任 | 重要規則 |
+| --- | --- | --- |
+| SourceRecord | Adapter 將原始來源映射為通用紀錄，保留未清洗正文、身分、權利與 provenance。 | dataset_id＋source_record_id 提供穩定來源身分；必要資料缺失不得默默產生正常文件。 |
+| KnowledgeDocument | 完整清洗後文件，保留來源、附件與品質／人工審查狀態。 | document_id 與內容無關；document_version 對清洗正文及語意欄位作 SHA-256，原始 QA payload 與整頁快照 hash 分欄保存。 |
+| KnowledgeChunk | 通過索引準入的文件片段，供下游 Indexer 使用。 | text 必須等於 Document 的 code point 區間切片；保留 document_id、版本與引用，ID 由版本、設定和區間決定。 |
 
-- `dataset_id`：來源命名空間，例如 `tw_cdc_hiv_qa`、`hospital_guideline_2026`。
-- `source_record_id`：該來源內可穩定識別的 ID；不可使用輸入行號作唯一依據。
-- `document_type`：如 `faq`、`guideline_section`、`article`、`plain_text`。
-- `title`、`content`：來源原始標題與主體內容（可為 HTML 或純文字）。
-- `content_type`：`text/plain` 或 `text/html`；需對應實際內容。
-- `provenance`：來源機構、`source_locator`（URL 或可重現的文件/頁碼定位）、更新日期、擷取日期、原始內容 hash/快照（可提供時）。
-- `metadata`：可擴充的原始分類、語言、附件、使用條件等欄位。
+契約文件列出 CDC 現有欄位映射，以及非醫療通用 JSONL 的完整 `SourceRecord → KnowledgeDocument → KnowledgeChunk` 範例，包含真實 hash、設定指紋和 offset。非 FAQ 型別不需要 question/answer；離線來源可使用可重現文件定位，不能製造假 URL。
 
-缺少必要來源身分或主體內容時不得默默產出正常文件；必須記錄拒收原因。
+來源更名、內容版本、清洗規則版本與執行時間分別管理；schema 定義精確 canonical JSON 與 hash 投影。相同本文版本但不同 provenance、權利、metadata 或審查紀錄，不得任選一筆丟棄證據，merge 預設回報 metadata conflict。內容版本不包含審查時間，人工放行仍須綁定文件版本與來源指紋。
 
-### 4.2 KnowledgeDocument：通用、可引用的清洗後文件
-
-**範例：CDC FAQ 的預期輸出**（省略部分 hash）：
-
-```json
-{
-  "schema_version": "1.0",
-  "document_id": "tw_cdc_hiv_qa:76f858054012e21104c75e82264da5757947b329ad70a828782eca92790c884a",
-  "document_version": "sha256:<clean-content-hash>",
-  "document_type": "faq",
-  "title": "與愛滋病患聊天，會不會被感染？",
-  "content_text": "問題：與愛滋病患聊天，會不會被感染？\n回答：不會。愛滋病毒的傳染須透由體液、血液的交換，空氣並不是愛滋病毒的傳染途徑，且唾液也不會造成傳染。",
-  "language": "zh-Hant",
-  "source": {
-    "dataset_id": "tw_cdc_hiv_qa",
-    "publisher": "衛生福利部疾病管制署",
-    "source_record_id": "76f858054012e21104c75e82264da5757947b329ad70a828782eca92790c884a",
-    "source_locator": "https://www.cdc.gov.tw/Category/QAPage/tN3OCfprezBUk9jVnWC8Yg#heading5507",
-    "source_updated_at": "2019-08-13",
-    "collected_at_utc": "2026-11-21T11:47:48Z",
-    "raw_snapshot": "raw/b2723c08e2e8180a-c457d6794e24d0aa.html",
-    "raw_content_sha256": "<original-content-hash>",
-    "attribution": "資料來源：衛生福利部疾病管制署"
-  },
-  "metadata": {
-    "source_category": "認識愛滋／不會傳染的途徑"
-  },
-  "attachments": [],
-  "quality": {
-    "status": "ready",
-    "flags": ["cms_noise_removed"],
-    "review_status": "unreviewed"
-  }
-}
-```
-
-> `document_id = dataset_id + ":" + source_record_id`；內容更正應產生新 `document_version`，**不要因為清洗後文字改變就產生新 document_id**。CDC 原 `id` 由頁面 URL + 正規化問題組成，問題文字改版時原 ID 可能改變；若需追蹤這類更名，應記錄 `supersedes` 或人工對應關係，而非假設其永遠穩定。
->
-> `document_version` 建議是清洗後標準內容與相關結構的 SHA-256；另保留**原始** `content_sha256`，避免混淆來源 hash 與衍生 hash。
-
-### 4.3 KnowledgeChunk：供 RAG 索引的最小單位
-
-```json
-{
-  "schema_version": "1.0",
-  "chunk_id": "<deterministic-chunk-id>",
-  "document_id": "tw_cdc_hiv_qa:<source-record-id>",
-  "document_version": "sha256:<clean-content-hash>",
-  "chunk_index": 0,
-  "text": "問題：...\n回答：...",
-  "char_start": 0,
-  "char_end": 120,
-  "source_locator": "https://www.cdc.gov.tw/Category/QAPage/...#heading5507",
-  "metadata": {
-    "dataset_id": "tw_cdc_hiv_qa",
-    "document_type": "faq",
-    "source_category": "認識愛滋／不會傳染的途徑",
-    "source_updated_at": "2019-08-13"
-  }
-}
-```
-
-- `text` 須和 `KnowledgeDocument.content_text[char_start:char_end]` 一致；**範例中 `char_end` 為示意值，不是實際字元長度**。
-- `chunk_id` 由 `document_id`、版本、chunking 設定指紋及 chunk index/offset 決定；相同輸入與設定，重跑須得到相同 IDs 與文本。
-- chunk 不能失去 `document_id`、資料來源與可引用定位；URL 片段 anchor 若失效，仍應可回到來源頁及原始快照。
-- `metadata` 是通用索引欄位，額外的來源專屬屬性可另保留，不任意丟棄。
-
-### 4.4 `generic_jsonl` 的輸入範例
-
-```json
-{
-  "id": "article-001",
-  "title": "示範資料標題",
-  "text": "這是一篇來自其他合法來源的示範文字。",
-  "source_name": "Example Publisher",
-  "source_url": "https://example.org/articles/001",
-  "updated_at": "2026-11-01",
-  "category": "示範主題"
-}
-```
-
-透過命令列指定 `--dataset-id example_articles` 與 JSON 欄位映射設定（可使用此預設欄位組合）後，得到**相同的 KnowledgeDocument / KnowledgeChunk 契約**。本次驗證時必須至少實際整合一個此類 fixture，而不只撰寫介面宣告。
-
-對無 URL 的離線 PDF 衍生內容，未來 Adapter 可提供 `source_locator`（例如文件識別 + 頁碼）代替 URL，但必須保證可以溯源；不能製造假的網頁地址。
+本次 Commit 1 僅交付本計畫、正式 schema 與 README 文件入口；不表示 Adapter、清洗器、chunking 或 KB CLI 已完成。既有原始 qa.jsonl、manifest.json、raw 與其他來源資料一律不覆寫。
 
 ## 5. Pipeline 的處理政策
 
@@ -250,7 +166,7 @@ CDC qa.jsonl ──────► cdc_qa Adapter ─────┐
 - FAQ **優先保留完整 QA 為單一 chunk**，避免將問題與答案拆開。若超過可設定長度，先按標題、段落、清單項目切分，再必要時依句子切分。
 - 長度參數（例如 `max_chars=1200`、`overlap_chars=100`）需放在設定，作為**初始工程預設**而非最佳檢索參數。日後可由 RAG 指標調整。
 - 不截斷超長內容而不報告；切分後應能追溯原文區間並檢查覆蓋率。
-- **精確去重**：同一 `document_id` + 同一版本不可重複入庫；不同版本不得無聲覆蓋。
+- **精確去重**：同一 `document_id` + 同一版本且整份標準文件相同才去重；metadata／來源／權利／審查差異預設報衝突，不同版本不得無聲覆蓋。
 - **跨來源重複**：不同機構可能刊登相同文字；預設保留各自的 `document_id` 與來源紀錄，標記內容 hash 相同，避免去重後失去原始出處。
 - 併入同一 Knowledge Base 時需能區分文件身分、版本與來源，並輸出重複/衝突統計。
 
