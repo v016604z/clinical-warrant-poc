@@ -2,8 +2,9 @@ from dataclasses import replace
 
 import pytest
 
-from clinical_warrant.catalog import load_research_catalog
-from clinical_warrant.contracts import (
+from clinical_warrant.bootstrap.composition import build_warrant_engine
+from clinical_warrant.infrastructure.catalog import load_research_catalog
+from clinical_warrant.shared.domain.contracts import (
     CheckKind,
     CheckStatus,
     ClassificationResult,
@@ -12,7 +13,7 @@ from clinical_warrant.contracts import (
     QuestionType,
     ReasonCode,
 )
-from clinical_warrant.warrant import WarrantEngine, WarrantError
+from clinical_warrant.modules.decision import WarrantEngine, WarrantError
 
 
 class FixedClassifier:
@@ -23,13 +24,31 @@ class FixedClassifier:
         return self.result
 
 
+def test_bootstrap_injects_packaged_rules_into_decision_engine() -> None:
+    engine = build_warrant_engine(
+        classifier_factory=lambda *, threshold: FixedClassifier(
+            QuestionType.RESULT_INTERPRETATION
+        )
+    )
+
+    assert len(engine.rules_by_type) == 4
+    assert engine.decide(
+        DecisionInput(
+            "test query",
+            {"scenario_id": "synthetic", "toy_rule_flag": "applicable"},
+            "education",
+        )
+    ).decision is Decision.ALLOW_EDUCATION
+
+
 def decide(
     category: QuestionType,
     case: dict,
     requested_scope: str = "education",
 ):
     request = DecisionInput("模擬問題", case, requested_scope)
-    return WarrantEngine(FixedClassifier(category)).decide(request)
+    catalog = load_research_catalog()
+    return WarrantEngine(FixedClassifier(category), rules=catalog.rules).decide(request)
 
 
 @pytest.mark.parametrize(

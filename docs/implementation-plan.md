@@ -103,4 +103,8 @@ CLI 契約：
 
 以下是六階段 PoC 交付後新增的架構整理，不改寫前述歷史方案、commit 對照或 baseline。程式依 classification、decision、evaluation 業務能力分模組；需要時在模組內分 domain/application/infrastructure。共用契約與純 catalog 型別放在 `shared/domain`，JSON catalog loader 放在 `infrastructure/catalog.py`，CLI adapter 位於 `interfaces/cli.py`，依賴由 `bootstrap/composition.py` 組裝。分類模型/cache 與評估報告 I/O 留在各自模組的 infrastructure。
 
-重構維持單一 Python distribution 與 CLI，不改決策/JSON 契約、模型識別或 cache identity；既有 root-level import modules 作為相容 facade。架構與依賴方向詳見[軟體架構文件](architecture.md)。本階段的完成狀態以實際程式遷移、測試與安裝包資源驗證為準。
+重構維持單一 Python distribution 與 CLI，不改決策/JSON 契約、模型識別或 cache identity。架構與依賴方向詳見[軟體架構文件](architecture.md)。本階段的完成狀態以實際程式遷移、測試與安裝包資源驗證為準。
+
+## 後續清理：移除舊 root-level imports
+
+在模組 API 與組裝入口完成後，移除 `clinical_warrant.catalog`、`classifier`、`cli`、`contracts`、`evaluation`、`warrant` 六個舊 imports。這是有意的 Python import 相容性變更；CLI 命令、`python -m clinical_warrant`、JSON 契約及既有 baseline 歷史紀錄維持原樣。新程式請改用[軟體架構文件](architecture.md)列出的模組公開 API、shared domain types、adapters 或 bootstrap。

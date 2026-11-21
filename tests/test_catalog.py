@@ -1,13 +1,13 @@
 import pytest
 
-from clinical_warrant.catalog import (
+from clinical_warrant.shared.domain.catalog import (
     CatalogError,
-    load_research_catalog,
     validate_mock_cases,
     validate_prototypes,
     validate_rules,
 )
-from clinical_warrant.contracts import QuestionType
+from clinical_warrant.infrastructure.catalog import load_research_catalog
+from clinical_warrant.shared.domain.contracts import QuestionType
 
 
 def test_packaged_catalog_loads_outside_repository_directory(monkeypatch, tmp_path) -> None:

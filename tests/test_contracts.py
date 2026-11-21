@@ -3,7 +3,7 @@ from copy import deepcopy
 
 import pytest
 
-from clinical_warrant.contracts import (
+from clinical_warrant.shared.domain.contracts import (
     CheckKind,
     CheckResult,
     CheckStatus,

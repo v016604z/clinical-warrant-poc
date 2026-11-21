@@ -92,6 +92,37 @@ def test_business_modules_do_not_import_each_others_internals() -> None:
                     )
 
 
+def test_source_and_tests_do_not_import_removed_legacy_modules() -> None:
+    legacy = tuple(
+        f"clinical_warrant.{name}"
+        for name in ("catalog", "classifier", "cli", "contracts", "evaluation", "warrant")
+    )
+    roots = [PACKAGE, Path(__file__).parent]
+    for root in roots:
+        for path in root.rglob("*.py"):
+            if path == Path(__file__):
+                continue
+            if root == PACKAGE:
+                imports = _imports(path)
+            else:
+                tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+                imports = (
+                    (alias.name, ())
+                    for node in ast.walk(tree)
+                    if isinstance(node, ast.Import)
+                    for alias in node.names
+                )
+                imports = list(imports) + [
+                    (node.module or "", tuple(alias.name for alias in node.names))
+                    for node in ast.walk(tree)
+                    if isinstance(node, ast.ImportFrom) and node.level == 0
+                ]
+            for imported, _names in imports:
+                assert not any(
+                    imported == module or imported.startswith(module + ".") for module in legacy
+                ), f"{path} imports removed module {imported}"
+
+
 def test_import_checker_accepts_public_and_rejects_private_cross_module_imports() -> None:
     allowed = list(_imports_from_source(
         "from clinical_warrant.modules.decision import WarrantEngine",

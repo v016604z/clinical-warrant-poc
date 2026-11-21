@@ -27,6 +27,8 @@ $env:CLINICAL_WARRANT_CACHE = Join-Path (Get-Location) ".venv\model-cache"
 - [predictions.jsonl](predictions.jsonl)：每筆輸入、預期值與實際結果
 - [errors.jsonl](errors.jsonl)：不符預期的案例
 
+`summary.json` 內的 `encoder_type` 與 `classifier_type` 是該次 baseline 執行時的歷史 metadata，保留當時記錄的 Python 路徑，不代表目前仍提供相同 imports。
+
 ## 本次結果
 
 - 分類正確率：19/20（95%）

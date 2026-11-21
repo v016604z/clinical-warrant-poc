@@ -6,17 +6,25 @@ import types
 
 import pytest
 
-from clinical_warrant.catalog import PrototypeCategory
-from clinical_warrant.classifier import (
+from clinical_warrant.shared.domain.catalog import PrototypeCategory
+from clinical_warrant.shared.domain.contracts import QuestionType
+from clinical_warrant.modules.classification import ClassifierError, QuestionClassifier as CoreQuestionClassifier
+from clinical_warrant.modules.classification.application.classifier import (
+    DEFAULT_THRESHOLD,
+    _cosine_similarity,
+)
+from clinical_warrant.modules.classification.infrastructure.model_encoder import (
     MODEL_ID,
     MODEL_MAX_SEQUENCE_LENGTH,
     MODEL_REVISION,
-    ClassifierError,
-    QuestionClassifier,
     SentenceTransformerEncoder,
-    _cosine_similarity,
 )
-from clinical_warrant.contracts import QuestionType
+from clinical_warrant.modules.classification.infrastructure.prototype_cache import (
+    FilePrototypeVectorCache,
+    default_cache_dir,
+)
+from clinical_warrant.modules.classification.infrastructure import prototype_cache
+from clinical_warrant.bootstrap.composition import build_warrant_engine
 
 
 KNOWN_CATEGORIES = tuple(
@@ -28,6 +36,13 @@ def make_prototypes(suffix: str = "original") -> tuple[PrototypeCategory, ...]:
     return tuple(
         PrototypeCategory(category, category.value, (f"prototype:{category.value}:{suffix}",))
         for category in KNOWN_CATEGORIES
+    )
+
+
+def make_classifier(encoder, *, prototypes, threshold=DEFAULT_THRESHOLD, cache_dir=None):
+    cache = FilePrototypeVectorCache(cache_dir) if cache_dir is not None else None
+    return CoreQuestionClassifier(
+        encoder, prototypes=prototypes, threshold=threshold, cache=cache
     )
 
 
@@ -61,6 +76,28 @@ def test_model_identity_is_an_immutable_hub_revision() -> None:
     assert re.fullmatch(r"[0-9a-f]{40}", MODEL_REVISION)
 
 
+def test_cache_uses_configured_default_directory(monkeypatch, tmp_path) -> None:
+    monkeypatch.setenv("CLINICAL_WARRANT_CACHE", str(tmp_path))
+
+    cache = FilePrototypeVectorCache()
+
+    assert default_cache_dir() == tmp_path
+    assert cache.cache_file == tmp_path / "prototype-vectors.json"
+
+
+def test_cache_atomic_write_failure_cleans_temporary_file(monkeypatch, tmp_path) -> None:
+    cache = FilePrototypeVectorCache(tmp_path)
+
+    def fail_replace(*args):
+        raise OSError("synthetic replace failure")
+
+    monkeypatch.setattr(prototype_cache.os, "replace", fail_replace)
+    with pytest.raises(ClassifierError, match="could not write prototype cache"):
+        cache.write({"model_id": "test"}, [[1.0, 0.0]])
+
+    assert list(tmp_path.iterdir()) == []
+
+
 def test_classifier_uses_highest_prototype_cosine_for_category(tmp_path) -> None:
     prototypes = make_prototypes()
     prototypes = (
@@ -80,7 +117,7 @@ def test_classifier_uses_highest_prototype_cosine_for_category(tmp_path) -> None
         "query": [0.9, 0.1, 0.0, 0.0],
     }
     encoder = FakeEncoder(vectors)
-    classifier = QuestionClassifier(encoder, prototypes=prototypes, cache_dir=tmp_path)
+    classifier = make_classifier(encoder, prototypes=prototypes, cache_dir=tmp_path)
 
     result = classifier.classify("query")
 
@@ -100,7 +137,7 @@ def test_classifier_uses_highest_prototype_cosine_for_category(tmp_path) -> None
 def test_each_question_category_can_win(winner, query_vector, tmp_path) -> None:
     prototypes = make_prototypes()
     vectors = orthogonal_mapping(prototypes, query_vector)
-    result = QuestionClassifier(
+    result = make_classifier(
         FakeEncoder(vectors), prototypes=prototypes, cache_dir=tmp_path
     ).classify("query")
 
@@ -113,7 +150,7 @@ def test_negative_similarity_below_threshold_returns_unknown(tmp_path) -> None:
     for category in KNOWN_CATEGORIES:
         vectors[f"prototype:{category.value}:original"] = [1.0, 0.0, 0.0, 0.0]
     encoder = FakeEncoder(vectors)
-    classifier = QuestionClassifier(encoder, prototypes=prototypes, cache_dir=tmp_path)
+    classifier = make_classifier(encoder, prototypes=prototypes, cache_dir=tmp_path)
 
     result = classifier.classify("query")
 
@@ -124,7 +161,7 @@ def test_negative_similarity_below_threshold_returns_unknown(tmp_path) -> None:
 def test_similarity_equal_to_threshold_remains_known(tmp_path) -> None:
     prototypes = make_prototypes()
     encoder = FakeEncoder(orthogonal_mapping(prototypes, [1.0, 0.0, 0.0, 0.0]))
-    classifier = QuestionClassifier(
+    classifier = make_classifier(
         encoder, threshold=1.0, prototypes=prototypes, cache_dir=tmp_path
     )
 
@@ -136,7 +173,7 @@ def test_similarity_equal_to_threshold_remains_known(tmp_path) -> None:
 @pytest.mark.parametrize("threshold", [True, float("nan"), float("inf"), -1.01, 1.01])
 def test_invalid_threshold_is_rejected(threshold, tmp_path) -> None:
     with pytest.raises(ValueError, match="threshold"):
-        QuestionClassifier(
+        make_classifier(
             FakeEncoder({}), threshold=threshold, prototypes=make_prototypes(), cache_dir=tmp_path
         )
 
@@ -163,7 +200,7 @@ def test_invalid_prototype_vector_output_is_rejected(
     prototypes = make_prototypes()
     encoder = FakeEncoder({})
     encoder.encode = lambda texts: prototype_vectors
-    classifier = QuestionClassifier(encoder, prototypes=prototypes, cache_dir=tmp_path)
+    classifier = make_classifier(encoder, prototypes=prototypes, cache_dir=tmp_path)
 
     with pytest.raises(ClassifierError, match=error_message):
         classifier.classify("query")
@@ -176,7 +213,7 @@ def test_invalid_prototype_vector_output_is_rejected(
 def test_invalid_query_vectors_are_rejected(query_vector, tmp_path) -> None:
     prototypes = make_prototypes()
     vectors = orthogonal_mapping(prototypes, query_vector)
-    classifier = QuestionClassifier(
+    classifier = make_classifier(
         FakeEncoder(vectors), prototypes=prototypes, cache_dir=tmp_path
     )
 
@@ -187,7 +224,7 @@ def test_invalid_query_vectors_are_rejected(query_vector, tmp_path) -> None:
 def test_encoder_failure_is_reported_instead_of_unknown(tmp_path) -> None:
     prototypes = make_prototypes()
     encoder = FakeEncoder({}, failure=RuntimeError("encoder unavailable"))
-    classifier = QuestionClassifier(encoder, prototypes=prototypes, cache_dir=tmp_path)
+    classifier = make_classifier(encoder, prototypes=prototypes, cache_dir=tmp_path)
 
     with pytest.raises(ClassifierError, match="prototype encoding failed"):
         classifier.classify("query")
@@ -196,13 +233,13 @@ def test_encoder_failure_is_reported_instead_of_unknown(tmp_path) -> None:
 def test_cache_hit_reuses_prototype_vectors_but_encodes_each_query(tmp_path) -> None:
     prototypes = make_prototypes()
     encoder_a = FakeEncoder(orthogonal_mapping(prototypes, [1.0, 0.0, 0.0, 0.0]))
-    QuestionClassifier(encoder_a, prototypes=prototypes, cache_dir=tmp_path).classify("query")
+    make_classifier(encoder_a, prototypes=prototypes, cache_dir=tmp_path).classify("query")
     assert len(encoder_a.calls) == 2  # prototype batch and query
     cache_text = (tmp_path / "prototype-vectors.json").read_text(encoding="utf-8")
     assert "query" not in cache_text
 
     encoder_b = FakeEncoder(orthogonal_mapping(prototypes, [0.0, 1.0, 0.0, 0.0]))
-    result = QuestionClassifier(
+    result = make_classifier(
         encoder_b, prototypes=prototypes, cache_dir=tmp_path
     ).classify("query")
 
@@ -218,7 +255,7 @@ def test_cache_invalidates_when_model_or_prototype_identity_changes(
 ) -> None:
     prototypes = make_prototypes()
     first = FakeEncoder(orthogonal_mapping(prototypes, [1.0, 0.0, 0.0, 0.0]))
-    QuestionClassifier(first, prototypes=prototypes, cache_dir=tmp_path).classify("query")
+    make_classifier(first, prototypes=prototypes, cache_dir=tmp_path).classify("query")
 
     if identity_change == "revision":
         second_prototypes = prototypes
@@ -243,7 +280,7 @@ def test_cache_invalidates_when_model_or_prototype_identity_changes(
         )
         second = FakeEncoder(vectors)
 
-    QuestionClassifier(
+    make_classifier(
         second, prototypes=second_prototypes, cache_dir=tmp_path
     ).classify("query")
     assert len(second.calls) == 2
@@ -256,7 +293,7 @@ def test_corrupt_cache_is_rebuilt(tmp_path, corrupt_bytes) -> None:
     cache_file.write_bytes(corrupt_bytes)
     encoder = FakeEncoder(orthogonal_mapping(prototypes, [1.0, 0.0, 0.0, 0.0]))
 
-    QuestionClassifier(encoder, prototypes=prototypes, cache_dir=tmp_path).classify("query")
+    make_classifier(encoder, prototypes=prototypes, cache_dir=tmp_path).classify("query")
 
     assert len(encoder.calls) == 2
     assert json.loads(cache_file.read_text(encoding="utf-8"))["vectors"]
@@ -265,14 +302,14 @@ def test_corrupt_cache_is_rebuilt(tmp_path, corrupt_bytes) -> None:
 def test_malformed_cache_vectors_are_rebuilt(tmp_path) -> None:
     prototypes = make_prototypes()
     first = FakeEncoder(orthogonal_mapping(prototypes, [1.0, 0.0, 0.0, 0.0]))
-    QuestionClassifier(first, prototypes=prototypes, cache_dir=tmp_path).classify("query")
+    make_classifier(first, prototypes=prototypes, cache_dir=tmp_path).classify("query")
     cache_file = tmp_path / "prototype-vectors.json"
     payload = json.loads(cache_file.read_text(encoding="utf-8"))
     payload["vectors"][0] = [0.0, 0.0, 0.0, 0.0]
     cache_file.write_text(json.dumps(payload), encoding="utf-8")
 
     second = FakeEncoder(orthogonal_mapping(prototypes, [0.0, 1.0, 0.0, 0.0]))
-    QuestionClassifier(second, prototypes=prototypes, cache_dir=tmp_path).classify("query")
+    make_classifier(second, prototypes=prototypes, cache_dir=tmp_path).classify("query")
 
     assert len(second.calls) == 2
 
@@ -281,7 +318,7 @@ def test_real_encoder_missing_dependency_has_clear_error(monkeypatch, tmp_path) 
     monkeypatch.setitem(sys.modules, "sentence_transformers", None)
 
     with pytest.raises(ClassifierError, match="install the project model extra"):
-        QuestionClassifier.from_pretrained(cache_dir=tmp_path)
+        SentenceTransformerEncoder(cache_dir=tmp_path)
 
 
 def test_sentence_transformer_adapter_pins_cpu_backend_revision_and_length(
@@ -340,13 +377,16 @@ def test_real_encoder_import_runtime_failure_has_clear_error(monkeypatch, tmp_pa
     assert isinstance(error.value.__cause__, OSError)
 
 
-def test_from_pretrained_validates_threshold_before_loading_adapter(monkeypatch, tmp_path) -> None:
-    def should_not_load(**kwargs):
+def test_bootstrap_validates_threshold_before_loading_adapter(monkeypatch) -> None:
+    def should_not_load(*args, **kwargs):
         pytest.fail("invalid threshold must fail before model loading")
 
-    monkeypatch.setattr("clinical_warrant.classifier.SentenceTransformerEncoder", should_not_load)
+    monkeypatch.setattr(
+        "clinical_warrant.bootstrap.composition.SentenceTransformerEncoder",
+        should_not_load,
+    )
     with pytest.raises(ValueError, match="threshold"):
-        QuestionClassifier.from_pretrained(threshold=True, cache_dir=tmp_path)
+        build_warrant_engine(threshold=True)
 
 
 @pytest.mark.parametrize(
@@ -367,7 +407,7 @@ def test_cosine_is_stable_for_extreme_finite_vectors(left, right, expected) -> N
     reason="set RUN_SENTENCE_TRANSFORMER_SMOKE=1 to download/load the pinned real model",
 )
 def test_real_encoder_chinese_smoke() -> None:
-    classifier = QuestionClassifier.from_pretrained()
+    classifier = build_warrant_engine().classifier
     result = classifier.classify("有哪些預防愛滋感染的方式？")
 
     assert result.category is QuestionType.PREVENTION_EDUCATION

@@ -3,8 +3,8 @@ from pathlib import Path
 
 import pytest
 
-from clinical_warrant.catalog import load_research_catalog
-from clinical_warrant.contracts import (
+from clinical_warrant.infrastructure.catalog import load_research_catalog
+from clinical_warrant.shared.domain.contracts import (
     CheckKind,
     CheckResult,
     CheckStatus,
@@ -15,13 +15,16 @@ from clinical_warrant.contracts import (
     QuestionType,
     ReasonCode,
 )
-from clinical_warrant.evaluation import (
+from clinical_warrant.modules.evaluation.application.evaluation import (
+    DecisionEngine,
     EvaluationCase,
     EvaluationError,
     ExpectedResult,
     evaluate_cases,
     load_evaluation_jsonl,
 )
+from clinical_warrant.bootstrap.composition import evaluate_scenarios
+from clinical_warrant.modules.evaluation.infrastructure.report_writer import publish_report
 
 
 DATASET = Path(__file__).parents[1] / "evaluation" / "synthetic_hiv_cases.jsonl"
@@ -58,6 +61,27 @@ def _line(case_id: str, *, expected: dict | None = None) -> str:
                 "reason_codes": ["all_checks_passed"],
             },
         }
+    )
+
+
+def _evaluate_pure(
+    cases: tuple[EvaluationCase, ...],
+    engine: DecisionEngine,
+    *,
+    threshold: float = 0.5,
+    dataset_sha256: str = "hash",
+) -> dict:
+    return evaluate_cases(
+        cases,
+        engine,
+        threshold=threshold,
+        dataset_sha256=dataset_sha256,
+        package_version="0.1.0",
+        core_dependencies={
+            "sentence-transformers": None,
+            "transformers": None,
+            "torch": None,
+        },
     )
 
 
@@ -154,13 +178,13 @@ def test_metrics_errors_and_confusion_are_counted_without_treating_unknown_as_fa
         ]
     )
 
-    run = evaluate_cases(
+    report_data = _evaluate_pure(
         cases,
         engine,
-        tmp_path / "reports",
         threshold=0.5,
         dataset_sha256="dataset-hash",
     )
+    run = publish_report(report_data, tmp_path / "reports")
     summary = run["summary"]
     report = Path(run["run_dir"])
 
@@ -173,6 +197,8 @@ def test_metrics_errors_and_confusion_are_counted_without_treating_unknown_as_fa
     assert summary["metrics"]["unknown_rate"]["value"] == 0.5
     assert summary["confusion_counts"]["unknown"]["unknown"] == 1
     assert summary["counts"]["cases_with_any_mismatch"] == 0
+    assert (report / "summary.json").is_file()
+    assert len((report / "predictions.jsonl").read_text(encoding="utf-8").splitlines()) == 2
     assert (report / "errors.jsonl").read_text(encoding="utf-8") == ""
     assert summary["metadata"]["dataset_sha256"] == "dataset-hash"
 
@@ -190,7 +216,7 @@ def test_mismatches_are_written_as_case_details_and_do_not_fail_run(tmp_path: Pa
         ]
     )
 
-    run = evaluate_cases(
+    run = evaluate_scenarios(
         cases, engine, tmp_path, threshold=0.5, dataset_sha256="hash"
     )
 
@@ -226,7 +252,7 @@ def test_missing_fields_and_reason_codes_compare_as_sets(tmp_path: Path) -> None
         ]
     )
 
-    run = evaluate_cases(cases, engine, tmp_path, threshold=0.5, dataset_sha256="hash")
+    run = evaluate_scenarios(cases, engine, tmp_path, threshold=0.5, dataset_sha256="hash")
 
     error_path = Path(run["run_dir"]) / "errors.jsonl"
     assert error_path.read_text(encoding="utf-8") == ""
@@ -248,7 +274,7 @@ def test_incorrect_unknown_prediction_is_counted_in_full_case_denominators(
         ]
     )
 
-    run = evaluate_cases(
+    run = evaluate_scenarios(
         cases, engine, tmp_path, threshold=0.5, dataset_sha256="hash"
     )
 
@@ -267,7 +293,7 @@ def test_engine_failure_leaves_no_report_and_one_engine_is_reused(tmp_path: Path
     )
 
     with pytest.raises(EvaluationError, match="case 'second' failed"):
-        evaluate_cases(cases, engine, output, threshold=0.5, dataset_sha256="hash")
+        evaluate_scenarios(cases, engine, output, threshold=0.5, dataset_sha256="hash")
 
     assert engine.calls == 2
     assert not output.exists()
@@ -277,14 +303,14 @@ def test_repeated_evaluation_preserves_each_run(tmp_path: Path) -> None:
     cases = load_evaluation_jsonl(_line("one"))
     output = tmp_path / "reports"
 
-    run1 = evaluate_cases(
+    run1 = evaluate_scenarios(
         cases,
         SequenceEngine([_result(QuestionType.RESULT_INTERPRETATION, Decision.ALLOW_EDUCATION)]),
         output,
         threshold=0.5,
         dataset_sha256="hash",
     )
-    run2 = evaluate_cases(
+    run2 = evaluate_scenarios(
         cases,
         SequenceEngine([_result(QuestionType.RESULT_INTERPRETATION, Decision.ALLOW_EDUCATION)]),
         output,
@@ -304,7 +330,7 @@ def test_publish_failure_removes_only_new_temporary_run_and_preserves_old_report
     cases = load_evaluation_jsonl(_line("one"))
     output = tmp_path / "reports"
     engine_result = _result(QuestionType.RESULT_INTERPRETATION, Decision.ALLOW_EDUCATION)
-    existing = evaluate_cases(
+    existing = evaluate_scenarios(
         cases,
         SequenceEngine([engine_result]),
         output,
@@ -320,7 +346,7 @@ def test_publish_failure_removes_only_new_temporary_run_and_preserves_old_report
 
     monkeypatch.setattr(Path, "replace", fail_temporary_publish)
     with pytest.raises(EvaluationError, match="synthetic atomic publish failure"):
-        evaluate_cases(
+        evaluate_scenarios(
             cases,
             SequenceEngine([engine_result]),
             output,
@@ -335,7 +361,7 @@ def test_publish_failure_removes_only_new_temporary_run_and_preserves_old_report
 
 def test_metadata_does_not_claim_default_catalog_for_injected_engine(tmp_path: Path) -> None:
     cases = load_evaluation_jsonl(_line("injected"))
-    run = evaluate_cases(
+    run = evaluate_scenarios(
         cases,
         SequenceEngine([_result(QuestionType.RESULT_INTERPRETATION, Decision.ALLOW_EDUCATION)]),
         tmp_path,
@@ -360,7 +386,7 @@ def test_requested_threshold_must_match_exposed_classifier_threshold(tmp_path: P
     engine.classifier = type("ClassifierMetadata", (), {"threshold": 0.7})()
 
     with pytest.raises(EvaluationError, match="does not match classifier threshold"):
-        evaluate_cases(cases, engine, tmp_path, threshold=0.5, dataset_sha256="hash")
+        evaluate_scenarios(cases, engine, tmp_path, threshold=0.5, dataset_sha256="hash")
 
     assert engine.calls == 0
     assert list(tmp_path.iterdir()) == []

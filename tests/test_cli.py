@@ -5,9 +5,9 @@ from pathlib import Path
 import pytest
 
 from clinical_warrant import __version__
-from clinical_warrant.classifier import ClassifierError
-from clinical_warrant.cli import main
-from clinical_warrant.contracts import DecisionResult, QuestionType
+from clinical_warrant.modules.classification import ClassifierError
+from clinical_warrant.interfaces.cli import main
+from clinical_warrant.shared.domain.contracts import DecisionResult, QuestionType
 
 
 def test_package_version_is_available() -> None:
@@ -142,7 +142,7 @@ def test_evaluate_model_failure_emits_no_report_or_stdout(
 
 class FixedClassifier:
     def classify(self, query: str):
-        from clinical_warrant.contracts import ClassificationResult
+        from clinical_warrant.shared.domain.contracts import ClassificationResult
 
         assert query
         return ClassificationResult(QuestionType.RESULT_INTERPRETATION, 0.91)

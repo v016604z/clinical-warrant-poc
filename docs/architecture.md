@@ -15,11 +15,11 @@ clinical_warrant/
 ├── interfaces/cli.py         # argparse CLI adapter
 ├── bootstrap/composition.py  # 依賴與 adapters 的組裝位置
 ├── data/                     # prototypes、rules 與 mock cases
-└── classifier.py、warrant.py、evaluation.py、catalog.py、contracts.py
-                              # 舊匯入路徑的相容 facade
+├── __init__.py               # 套件版本
+└── __main__.py               # python -m clinical_warrant 入口
 ```
 
-模組公開 API 從各模組的 `__init__.py` 匯出：分類位於 `clinical_warrant.modules.classification`，決策位於 `clinical_warrant.modules.decision`，評估位於 `clinical_warrant.modules.evaluation`。消費者應優先依賴這些入口，而不是模組內部的 application 或 infrastructure 路徑。
+模組公開 API 從各模組的 `__init__.py` 匯出：分類位於 `clinical_warrant.modules.classification`，決策位於 `clinical_warrant.modules.decision`，評估位於 `clinical_warrant.modules.evaluation`。使用 `clinical_warrant.bootstrap.composition.build_warrant_engine()` 組裝 encoder、catalog、cache 與決策引擎；CLI script 與 `python -m clinical_warrant` 是命令列入口。消費者應依賴模組公開 API 或組裝入口，不直接依賴模組內部 infrastructure。
 
 ## 依賴方向
 
@@ -40,9 +40,9 @@ flowchart LR
 
 各模組只建立實際需要的層，不為了目錄對稱新增空 package。跨模組互動透過公開 API 與共享 domain types；不要直接使用其他模組的 infrastructure 實作。
 
-## 相容性
+## Python imports 與外部介面
 
 - 保留 `clinical-warrant` script、`python -m clinical_warrant`、`decide`/`evaluate` 命令，以及既有 JSON 欄位、決策值、reason codes、退出碼與輸出語意。
-- 根 package 下原有 `classifier`、`warrant`、`evaluation`、`catalog`、`contracts` 路徑保留為薄 facade，轉送至新的模組 API。新程式碼使用上述模組公開 API；舊路徑維持既有呼叫相容。
+- 移除根 package 的六個舊模組 `clinical_warrant.catalog`、`classifier`、`cli`、`contracts`、`evaluation`、`warrant`。使用這些 Python imports 的程式需遷移至 `clinical_warrant.modules.classification`、`modules.decision`、`modules.evaluation`、`shared.domain`、`infrastructure.catalog` 或 `interfaces.cli`；建立正式應用時可從 `bootstrap.composition` 組裝。
 - 套件仍採 `src` layout，`clinical_warrant.data` 的 JSON 需隨 wheel/sdist 打包；catalog loader 不依賴目前工作目錄。
 - 這次調整只改程式內部邊界，不改 model ID/revision、prototype cache identity 或輸出格式。

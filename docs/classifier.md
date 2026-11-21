@@ -33,7 +33,7 @@ result = engine.classifier.classify("有哪些預防愛滋感染的方式？")
 print(result.category.value, result.similarity)
 ```
 
-`build_warrant_engine()` 由組裝層建立真實 encoder、catalog 與快取。分類模組公開 API `clinical_warrant.modules.classification.QuestionClassifier` 採依賴注入，建構時需提供 encoder 與 prototypes；`clinical_warrant.classifier.QuestionClassifier.from_pretrained()` 則保留為舊程式的相容 wrapper。分層與相容策略見[架構文件](architecture.md)。
+`build_warrant_engine()` 由組裝層建立真實 encoder、catalog 與快取。分類模組公開 API `clinical_warrant.modules.classification.QuestionClassifier` 採依賴注入，建構時需提供 encoder 與 prototypes。舊的 `clinical_warrant.classifier` Python import 已移除；請改用此公開 API或組裝入口。分層與公開入口見[架構文件](architecture.md)。
 
 以下 PowerShell 指令會把 prototype 快取放在被 Git 忽略的專案 `.venv/model-cache`；模型權重沿用 Hugging Face 預設快取。指令也會明確啟用真實模型 smoke test：
 

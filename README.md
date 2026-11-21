@@ -21,7 +21,8 @@ clinical-warrant-poc/
 │   ├── interfaces/cli.py      # CLI adapter
 │   ├── bootstrap/             # 組裝應用程式與 adapters
 │   ├── data/                  # 套件內研究用途 JSON 資料
-│   └── classifier.py 等       # 舊匯入路徑的相容 facade
+│   ├── __init__.py            # 套件版本
+│   └── __main__.py            # python -m clinical_warrant 入口
 ├── tests/                     # 離線單元及 CLI 測試
 ├── docs/                      # 設計、評估與執行文件
 ├── .gitignore
@@ -53,7 +54,7 @@ python -m venv .venv
 
 句向量分類器使用的模型、revision、CPU 執行方式、快取與 128-token 限制，見[分類器文件](docs/classifier.md)。一般測試不載入模型；真實模型 smoke test 須明確啟用。
 
-程式分層、模組公開 API、依賴方向與舊匯入路徑的相容策略，見[架構文件](docs/architecture.md)。
+程式分層、模組公開 API、依賴方向與 Python import 入口，見[架構文件](docs/architecture.md)。本次重構移除了六個舊 root-level Python imports；請改用新的模組公開 API或組裝入口。
 
 單筆決策 CLI 的 JSON 格式、三態優先順序與限制見[決策 CLI 文件](docs/decision-cli.md)。
 
