@@ -47,6 +47,14 @@ def _is_public_cross_import(target: str, imported: str, names: tuple[str, ...]) 
     return imported == public_module and set(names).issubset(_public_api(target))
 
 
+def _is_own_domain_import(path: Path, imported: str) -> bool:
+    relative = path.relative_to(PACKAGE)
+    if relative.parts[0] != "modules":
+        return False
+    own_domain = f"clinical_warrant.modules.{relative.parts[1]}.domain"
+    return imported == own_domain or imported.startswith(own_domain + ".")
+
+
 def test_shared_domain_does_not_depend_on_application_or_infrastructure() -> None:
     forbidden = ("clinical_warrant.modules", "clinical_warrant.infrastructure",
                  "clinical_warrant.interfaces", "clinical_warrant.bootstrap")
@@ -59,7 +67,21 @@ def test_shared_domain_does_not_depend_on_application_or_infrastructure() -> Non
     ]
     for path in domain_files:
         for imported, _names in _imports(path):
+            if _is_own_domain_import(path, imported):
+                continue
             assert not imported.startswith(forbidden), f"{path.name} imports {imported}"
+
+
+def test_domain_import_exception_only_covers_the_same_module_domain() -> None:
+    path = PACKAGE / "modules" / "knowledge_base" / "domain" / "policies.py"
+    assert _is_own_domain_import(path, "clinical_warrant.modules.knowledge_base.domain.contracts")
+    for imported in ("clinical_warrant.modules.knowledge_base.domainx",
+                     "clinical_warrant.modules.knowledge_base.application.preparation",
+                     "clinical_warrant.modules.knowledge_base.infrastructure.cleaning",
+                     "clinical_warrant.modules.decision.domain.policy"):
+        assert not _is_own_domain_import(path, imported)
+    shared = PACKAGE / "shared" / "domain" / "contracts.py"
+    assert not _is_own_domain_import(shared, "clinical_warrant.modules.knowledge_base.domain.contracts")
 
 
 def test_application_does_not_depend_on_infrastructure_or_interfaces() -> None:

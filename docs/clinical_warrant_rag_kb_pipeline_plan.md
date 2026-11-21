@@ -1,6 +1,6 @@
 # Clinical Warrant PoC｜可複用的 RAG Knowledge Base 資料處理 Pipeline 實作計畫
 
-> **性質**：Commit 1–2 已完成文件規格、資料契約與來源 Adapter；Commit 3–6 待實作，KB CLI 尚未實作。\
+> **性質**：Commit 1–3 已完成規格、契約、來源 Adapter、文字清洗與文件品質檢核；Commit 4–6 待實作，KB CLI 尚未實作。\
 > **參考專案**：[v016604z/clinical-warrant-poc](https://github.com/v016604z/clinical-warrant-poc)  
 > **參考風格**：[`docs/implementation-plan.md`](https://github.com/v016604z/clinical-warrant-poc/blob/main/docs/implementation-plan.md)  
 > **存放位置**：`docs/clinical_warrant_rag_kb_pipeline_plan.md`\
@@ -137,7 +137,7 @@ CDC qa.jsonl ──────► cdc_qa Adapter ─────┐
 
 來源更名、內容版本、清洗規則版本與執行時間分別管理；schema 定義精確 canonical JSON 與 hash 投影。相同本文版本但不同 provenance、權利、metadata 或審查紀錄，不得任選一筆丟棄證據，merge 預設回報 metadata conflict。內容版本不包含審查時間，人工放行仍須綁定文件版本與來源指紋。
 
-本次 Commit 1 僅交付本計畫、正式 schema 與 README 文件入口；不表示 Adapter、清洗器、chunking 或 KB CLI 已完成。既有原始 qa.jsonl、manifest.json、raw 與其他來源資料一律不覆寫。
+Commit 1 交付本計畫、正式 schema 與 README 文件入口；Commit 2–3 新增資料契約、來源 Adapter、文字清洗與文件品質檢核，chunking 與 KB CLI 尚未實作。既有原始 qa.jsonl、manifest.json、raw 與其他來源資料一律不覆寫。
 
 ## 5. Pipeline 的處理政策
 

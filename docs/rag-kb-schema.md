@@ -1,6 +1,6 @@
 # RAG Knowledge Base 資料契約 v1
 
-本文件是[實作計畫](clinical_warrant_rag_kb_pipeline_plan.md) Commit 1 定義的規範。`schema_version` 固定為字串 `"1.0"`；Commit 2 提供契約驗證與 SourceRecord Adapter，清洗、切分、完整 run 驗證與 CLI 留待後續 Commit。目前的 `kb build/merge/validate` 是預期介面。
+本文件是[實作計畫](clinical_warrant_rag_kb_pipeline_plan.md) Commit 1 定義的規範。`schema_version` 固定為字串 `"1.0"`；Commit 2–3 提供契約驗證、SourceRecord Adapter、文字清洗與文件品質檢核；切分、完整 run／快照驗證與 CLI 留待後續 Commit。目前的 `kb build/merge/validate` 是預期介面。
 
 ## 1. 用途、來源與權限
 
@@ -316,6 +316,33 @@ HTML 先移除 Comment/script/style 和確認的 CMS 節點，再保留段落、
 FAQ 優先完整 QA；其他型別優先保留完整文件。超過 max_chars 時使用原文區間，依標題／段落、清單、句子邊界選擇不超上限的最遠切點；沒有合法邊界才以 code point 上限切分。下一片段依 overlap_chars 回退，須確保 start 前進；長清單項目也不能截掉尾端。不得對片段另做 strip、改寫或補標題。具體邊界選擇與回退規則由 `algorithm_version` 鎖定，變動需升版。所有片段必須滿足第 2.3 節，區間聯集覆蓋全文，允許重疊但不能有缺口；不得默默截斷。1200/100 是初始工程預設，後續可依檢索指標調整。
 
 來源更新日期未知或偏舊只記錄審查提示，不直接認定內容錯誤。時間敏感項加 time_sensitive；若政策要求審查則 needs_review。staleness 的判定參考日與門檻必須是明確輸入設定，保存於 manifest，不能偷偷使用現在日期影響可重現輸出。ready 與 approved 各自獨立，附件、權利或時間審查的放行依第 2.2 節紀錄。
+
+### 5.1 Commit 3 的 Python 清洗與品質 API
+
+`clean_source_record(source)` 依 content_type/cleaning_profile 回傳 frozen `CleanedContent(title, body_text, flags, cleaning_version, review_flags=())`。review_flags 必須為 flags 子集，明確標記 table、無法保真的清單、HTML 結構或殘留模板需要審查；一般 comment/script/style 移除記錄不因此阻擋。
+
+`prepare_document(source, cleaner=..., policy=..., input_locator=None, line_number=None)` 回傳 `PreparationResult(document, issues, cleaning_version, quality_version)`。application 僅依賴注入的 TextCleaner，不包含來源名稱分支；輸出完整 KnowledgeDocument，不產生 chunks 或 run。空清洗標題／正文或無法符合 Document 契約時，document 為 None，issues 含可追溯的 error；不得製造假的合法文件。issues 中每項 QualityIssue 均可 `to_dict()`，包含第 6 節的完整來源／行號欄位，未指定 input_locator 時使用 source_locator。
+
+可接續前節 Adapter 範例執行：
+
+```python
+from clinical_warrant.modules.knowledge_base import QualityPolicy, clean_source_record, prepare_document
+
+policy = QualityPolicy(as_of="2026-11-22", stale_after_days=1095)
+prepared = prepare_document(
+    examples[0], cleaner=clean_source_record, policy=policy,
+    input_locator="tests/fixtures/kb_generic.jsonl", line_number=1,
+)
+document = prepared.document
+assert document is not None
+assert document.content_text == "示例\n甲乙"
+assert document.quality["status"] == "ready"
+issues = [issue.to_dict() for issue in prepared.issues]
+```
+
+as_of 與 stale_after_days 必須明確提供，policy 可 `to_dict()` 保存有效設定。舊／未知來源日期只加 `staleness_review`／`source_date_missing` 提示，不單憑年份排除；時間敏感詞只加 time_sensitive，`require_time_sensitive_review` 預設 False，顯式 True 時才以該提示阻擋。這是可重現的文字提示規則，不判斷醫療內容是否過時。未納入附件且正文實際指向附件／下表時加 attachment_dependency 並 needs_review；僅有延伸閱讀附件不一律阻擋。unknown 權利隔離、prohibited 排除，均不自動核准。
+
+原始 payload hash 保留在 document.source；document_version 是第 3 節語意投影的新 hash，不是純 text hash；cleaning_version 與 quality_version 由 PreparationResult 分別提供，後續 run manifest 必須保存。準備流程不讀 snapshot bytes，有快照時一律記 `snapshot_not_verified` warning；ready 只代表本階段通過，不代表完整 run 可發布。已知既有 raw 快照與 manifest digest 的差異不在此階段修正或宣稱驗證通過。
 
 ## 6. 合併、錯誤與 run 輸出
 

@@ -64,7 +64,7 @@ python -m venv .venv
 
 CDC 愛滋公開問答的蒐集範圍、執行方式、原始快照與資料使用限制見[資料蒐集說明](docs/data-collection.md)。
 
-可複用 RAG Knowledge Base 的六階段工作見[實作計畫](docs/clinical_warrant_rag_kb_pipeline_plan.md)；來源、文件與區塊契約及版本策略見[資料契約 v1](docs/rag-kb-schema.md)。目前已完成資料契約與來源 Adapter；清洗、切分、KB Pipeline 與 `kb build/merge/validate` 留待後續階段實作。
+可複用 RAG Knowledge Base 的六階段工作見[實作計畫](docs/clinical_warrant_rag_kb_pipeline_plan.md)；來源、文件與區塊契約及版本策略見[資料契約 v1](docs/rag-kb-schema.md)。目前已完成資料契約、來源 Adapter、文字清洗與文件品質檢核的 Python API；切分、完整 run／快照驗證與 `kb build/merge/validate` 留待後續階段實作。
 
 ## 情境評估
 

@@ -19,7 +19,14 @@ from clinical_warrant.modules.knowledge_base import (
     KnowledgeChunk,
     KnowledgeDocument,
     SourceRecord,
+    CleanedContent,
+    PreparationResult,
+    QualityIssue,
+    QualityPolicy,
+    TextCleaner,
+    clean_source_record,
     parse_json_object,
+    prepare_document,
 )
 
 
@@ -41,6 +48,12 @@ def test_business_module_public_apis_are_available() -> None:
     assert GenericJsonlAdapter is not None
     assert KnowledgeDocument is not None
     assert KnowledgeChunk is not None
+    assert CleanedContent is not None
+    assert PreparationResult is not None
+    assert QualityIssue is not None
+    assert QualityPolicy is not None
+    assert TextCleaner is not None
+    assert callable(clean_source_record) and callable(prepare_document)
     assert parse_json_object('{"kind":"fixture"}') == {"kind": "fixture"}
 
 
