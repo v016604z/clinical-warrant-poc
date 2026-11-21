@@ -3,6 +3,9 @@ __pycache__/
 *.py[codz]
 *$py.class
 
+# Local evaluation report output
+/evaluation-runs/
+
 # C extensions
 *.so
 

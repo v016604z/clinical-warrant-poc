@@ -1,0 +1,29 @@
+{
+  "purpose": "Toy rule metadata for software-flow tests only. The marker values are synthetic labels and have no medical or clinical meaning.",
+  "rules": [
+    {
+      "rule_id": "toy-result-interpretation-v1",
+      "question_type": "result_interpretation",
+      "required_case_fields": ["scenario_id", "toy_rule_flag"],
+      "applies_when": {"field": "toy_rule_flag", "equals": "applicable"}
+    },
+    {
+      "rule_id": "toy-window-period-v1",
+      "question_type": "window_period",
+      "required_case_fields": ["scenario_id", "toy_rule_flag"],
+      "applies_when": {"field": "toy_rule_flag", "equals": "applicable"}
+    },
+    {
+      "rule_id": "toy-exposure-risk-v1",
+      "question_type": "exposure_risk",
+      "required_case_fields": ["scenario_id", "toy_rule_flag"],
+      "applies_when": {"field": "toy_rule_flag", "equals": "applicable"}
+    },
+    {
+      "rule_id": "toy-prevention-education-v1",
+      "question_type": "prevention_education",
+      "required_case_fields": ["scenario_id", "toy_rule_flag"],
+      "applies_when": {"field": "toy_rule_flag", "equals": "applicable"}
+    }
+  ]
+}

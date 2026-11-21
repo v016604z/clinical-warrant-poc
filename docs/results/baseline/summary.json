@@ -1,0 +1,109 @@
+{
+  "schema_version": "1.0",
+  "metadata": {
+    "run_id": "20261117T075228Z-010393c0db",
+    "created_at_utc": "2026-11-17T07:52:28.171631+00:00",
+    "threshold": 0.5,
+    "threshold_source": "classifier",
+    "model_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+    "model_revision": "e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+    "prototype_sha256": "7dddada9019050c9a18f29256d23d7ee64648c611929b572aa182baf84c06be1",
+    "prototype_identity_source": "classifier.prototypes",
+    "rule_sha256": "a8cc7747e3fc3e850a488b903f5172034a2d59f8b132090e3ba4beea70dbda73",
+    "rule_identity_source": "engine.rules_by_type",
+    "dataset_sha256": "2e17820e2ac7319b0f6fdf61ef0685138bd6466fefef7e16368c9eec882cfb43",
+    "unique_query_count": 20,
+    "encoder_type": "clinical_warrant.classifier.SentenceTransformerEncoder",
+    "classifier_type": "clinical_warrant.classifier.QuestionClassifier",
+    "model_identity_source": "encoder_metadata",
+    "package_version": "0.1.0",
+    "core_dependencies": {
+      "sentence-transformers": "6.3.0",
+      "transformers": "5.20.2",
+      "torch": "2.14.1+cpu"
+    }
+  },
+  "total_cases": 20,
+  "metrics": {
+    "classification_accuracy": {
+      "numerator": 19,
+      "denominator": 20,
+      "value": 0.95
+    },
+    "unknown_rate": {
+      "numerator": 2,
+      "denominator": 20,
+      "value": 0.1
+    },
+    "decision_accuracy": {
+      "numerator": 20,
+      "denominator": 20,
+      "value": 1.0
+    },
+    "missing_fields_accuracy": {
+      "numerator": 20,
+      "denominator": 20,
+      "value": 1.0
+    },
+    "reason_codes_accuracy": {
+      "numerator": 20,
+      "denominator": 20,
+      "value": 1.0
+    }
+  },
+  "counts": {
+    "classification_correct": 19,
+    "unknown_predictions": 2,
+    "decision_correct": 20,
+    "missing_fields_match": 20,
+    "reason_codes_match": 20,
+    "reason_codes_mismatch": 0,
+    "cases_with_any_mismatch": 1
+  },
+  "confusion_counts": {
+    "result_interpretation": {
+      "result_interpretation": 6,
+      "window_period": 1,
+      "exposure_risk": 0,
+      "prevention_education": 0,
+      "unknown": 0
+    },
+    "window_period": {
+      "result_interpretation": 0,
+      "window_period": 4,
+      "exposure_risk": 0,
+      "prevention_education": 0,
+      "unknown": 0
+    },
+    "exposure_risk": {
+      "result_interpretation": 0,
+      "window_period": 0,
+      "exposure_risk": 4,
+      "prevention_education": 0,
+      "unknown": 0
+    },
+    "prevention_education": {
+      "result_interpretation": 0,
+      "window_period": 0,
+      "exposure_risk": 0,
+      "prevention_education": 3,
+      "unknown": 0
+    },
+    "unknown": {
+      "result_interpretation": 0,
+      "window_period": 0,
+      "exposure_risk": 0,
+      "prevention_education": 0,
+      "unknown": 2
+    }
+  },
+  "metric_definitions": {
+    "classification_accuracy": "correct categories / total cases",
+    "unknown_rate": "predicted unknown categories / total cases",
+    "decision_accuracy": "matching decisions / total cases",
+    "missing_fields_accuracy": "exact set matches / total cases",
+    "reason_codes_accuracy": "exact set matches / total cases",
+    "missing_fields_and_reason_codes": "compared as unordered sets; report arrays retain their original order",
+    "similarity": "cosine similarity, not a probability; null means unavailable"
+  }
+}

@@ -1,0 +1,312 @@
+{
+  "schema_version": 1,
+  "source": "Taiwan CDC HIV knowledge and prevention pages",
+  "scope_root": "https://www.cdc.gov.tw/Category/List/qTp6DeK3rmOlqcVc7diAkA",
+  "scope_routes": [
+    {
+      "path": "/Category/List/qTp6DeK3rmOlqcVc7diAkA",
+      "label": "愛滋知識與預防篇",
+      "kind": "category",
+      "url": "https://www.cdc.gov.tw/Category/List/qTp6DeK3rmOlqcVc7diAkA"
+    },
+    {
+      "path": "/Category/List/1FuOwO6RRWN2gq9ULJ1Srw",
+      "label": "認識愛滋",
+      "kind": "category",
+      "url": "https://www.cdc.gov.tw/Category/List/1FuOwO6RRWN2gq9ULJ1Srw"
+    },
+    {
+      "path": "/Category/QAPage/SpEUrQI64Q_EV_DI8NsYTw",
+      "label": "認識愛滋／愛滋病毒與愛滋病",
+      "kind": "qa",
+      "url": "https://www.cdc.gov.tw/Category/QAPage/SpEUrQI64Q_EV_DI8NsYTw"
+    },
+    {
+      "path": "/Category/QAPage/YXJ9H8_nDgSuviJ6pA7_aA",
+      "label": "認識愛滋／傳染途徑",
+      "kind": "qa",
+      "url": "https://www.cdc.gov.tw/Category/QAPage/YXJ9H8_nDgSuviJ6pA7_aA"
+    },
+    {
+      "path": "/Category/QAPage/tN3OCfprezBUk9jVnWC8Yg",
+      "label": "認識愛滋／不會傳染的途徑",
+      "kind": "qa",
+      "url": "https://www.cdc.gov.tw/Category/QAPage/tN3OCfprezBUk9jVnWC8Yg"
+    },
+    {
+      "path": "/Category/QAPage/My0uZvjAFs11NWjujWXvBg",
+      "label": "認識愛滋／空窗期",
+      "kind": "qa",
+      "url": "https://www.cdc.gov.tw/Category/QAPage/My0uZvjAFs11NWjujWXvBg"
+    },
+    {
+      "path": "/Category/QAPage/fV5yD36S7dZuzHVcqFgQ-Q",
+      "label": "認識愛滋／可能感染的症狀",
+      "kind": "qa",
+      "url": "https://www.cdc.gov.tw/Category/QAPage/fV5yD36S7dZuzHVcqFgQ-Q"
+    },
+    {
+      "path": "/Category/MPage/Y4wiJu8wKZ_zDKN5efu9KQ",
+      "label": "愛滋篩檢服務",
+      "kind": "qa",
+      "url": "https://www.cdc.gov.tw/Category/MPage/Y4wiJu8wKZ_zDKN5efu9KQ"
+    },
+    {
+      "path": "/Category/QAPage/qcdRrymODh9YF69ewsA5Qw",
+      "label": "預防母子垂直感染",
+      "kind": "qa",
+      "url": "https://www.cdc.gov.tw/Category/QAPage/qcdRrymODh9YF69ewsA5Qw"
+    },
+    {
+      "path": "/Category/QAPage/NmDr6gAiK-xPxaejvJ-Lqw",
+      "label": "藥癮愛滋減害",
+      "kind": "qa",
+      "url": "https://www.cdc.gov.tw/Category/QAPage/NmDr6gAiK-xPxaejvJ-Lqw"
+    },
+    {
+      "path": "/Category/QAPage/PGwKHMNjHuzGO9hgvJKK4w",
+      "label": "PrEP／認識PrEP",
+      "kind": "qa",
+      "url": "https://www.cdc.gov.tw/Category/QAPage/PGwKHMNjHuzGO9hgvJKK4w"
+    },
+    {
+      "path": "/Category/QAPage/pzjkJa4dgVjdk6emQjM-3g",
+      "label": "PrEP／PrEP計畫服務",
+      "kind": "qa",
+      "url": "https://www.cdc.gov.tw/Category/QAPage/pzjkJa4dgVjdk6emQjM-3g"
+    },
+    {
+      "path": "/Category/QAPage/JQc1_rTZWlHX9-hw4U_4yg",
+      "label": "PEP／暴露後預防性投藥",
+      "kind": "qa",
+      "url": "https://www.cdc.gov.tw/Category/QAPage/JQc1_rTZWlHX9-hw4U_4yg"
+    }
+  ],
+  "robots": {
+    "url": "https://www.cdc.gov.tw/robots.txt",
+    "status": 200,
+    "sha256": "5bbb44bb2bdf25e0d8f67e0fc007ff4121b56d49461c4128bab5a815f2d6c937",
+    "etag": "\"a27cc61b263dc1:0\"",
+    "last_modified": "Tue, 02 Dec 2025 17:35:09 GMT"
+  },
+  "reuse_policy_urls": [
+    "https://www.cdc.gov.tw/Category/FPage/TxkBIR9agw_IBRRmvn9TcQ",
+    "https://www.cdc.gov.tw/Category/FPage/rvmij-b1qdDYyX_Olv67VQ"
+  ],
+  "attribution": "Source: Taiwan Centers for Disease Control (CDC Taiwan); see each source_url.",
+  "started_at_utc": "2026-11-21T11:50:34Z",
+  "completed_at_utc": "2026-11-21T11:50:35Z",
+  "complete": true,
+  "pages": [
+    {
+      "url": "https://www.cdc.gov.tw/Category/List/qTp6DeK3rmOlqcVc7diAkA",
+      "kind": "category",
+      "category": "愛滋知識與預防篇",
+      "status": 200,
+      "fetched_at_utc": "2026-11-21T11:50:35Z",
+      "qa_count": 0,
+      "resumed_from_cache": true,
+      "etag": null,
+      "last_modified": null,
+      "html_sha256": "a0b09d860e380bd3e0c8f0d2526b688675f84f30e7239b45dfad9eb03ca247a3",
+      "raw_snapshot": "raw/49c3c2ea4cef6ce9-a0b09d860e380bd3.html"
+    },
+    {
+      "url": "https://www.cdc.gov.tw/Category/List/1FuOwO6RRWN2gq9ULJ1Srw",
+      "kind": "category",
+      "category": "認識愛滋",
+      "status": 200,
+      "fetched_at_utc": "2026-11-21T11:50:35Z",
+      "qa_count": 0,
+      "resumed_from_cache": true,
+      "etag": null,
+      "last_modified": null,
+      "html_sha256": "a470d24d0fa2ed09c640351b496cfdf4f5c5d81675c7beb558ce7edf16b86d8f",
+      "raw_snapshot": "raw/9984372f51b64d69-a470d24d0fa2ed09.html"
+    },
+    {
+      "url": "https://www.cdc.gov.tw/Category/QAPage/SpEUrQI64Q_EV_DI8NsYTw",
+      "kind": "qa",
+      "category": "認識愛滋／愛滋病毒與愛滋病",
+      "status": 200,
+      "fetched_at_utc": "2026-11-21T11:50:35Z",
+      "qa_count": 7,
+      "resumed_from_cache": true,
+      "etag": null,
+      "last_modified": null,
+      "html_sha256": "9971e7e6ac06e06d3c868bb4782bf75f3a63ea267efc84a547d4e1fbb17e98c2",
+      "raw_snapshot": "raw/7eff5af8cf58e2cd-9971e7e6ac06e06d.html"
+    },
+    {
+      "url": "https://www.cdc.gov.tw/Category/QAPage/YXJ9H8_nDgSuviJ6pA7_aA",
+      "kind": "qa",
+      "category": "認識愛滋／傳染途徑",
+      "status": 200,
+      "fetched_at_utc": "2026-11-21T11:50:35Z",
+      "qa_count": 21,
+      "resumed_from_cache": true,
+      "etag": null,
+      "last_modified": null,
+      "html_sha256": "b3ca1af880de616147b6bed8c3778dc99ac23296ef5663eb04c3a3fa35f519c6",
+      "raw_snapshot": "raw/8bdc4a997c348360-b3ca1af880de6161.html"
+    },
+    {
+      "url": "https://www.cdc.gov.tw/Category/QAPage/tN3OCfprezBUk9jVnWC8Yg",
+      "kind": "qa",
+      "category": "認識愛滋／不會傳染的途徑",
+      "status": 200,
+      "fetched_at_utc": "2026-11-21T11:50:35Z",
+      "qa_count": 14,
+      "resumed_from_cache": true,
+      "etag": null,
+      "last_modified": null,
+      "html_sha256": "c457d6794e24d0aad749865209ee2989bf052683c5eceb40bacd1c59111e6a0f",
+      "raw_snapshot": "raw/b2723c08e2e8180a-c457d6794e24d0aa.html"
+    },
+    {
+      "url": "https://www.cdc.gov.tw/Category/QAPage/My0uZvjAFs11NWjujWXvBg",
+      "kind": "qa",
+      "category": "認識愛滋／空窗期",
+      "status": 200,
+      "fetched_at_utc": "2026-11-21T11:50:35Z",
+      "qa_count": 3,
+      "resumed_from_cache": true,
+      "etag": null,
+      "last_modified": null,
+      "html_sha256": "76bc83c24a781d95bd683bf65d05273ce9832e9011d3d00e052e9026951e4510",
+      "raw_snapshot": "raw/0c5cb96bc25609a4-76bc83c24a781d95.html"
+    },
+    {
+      "url": "https://www.cdc.gov.tw/Category/QAPage/fV5yD36S7dZuzHVcqFgQ-Q",
+      "kind": "qa",
+      "category": "認識愛滋／可能感染的症狀",
+      "status": 200,
+      "fetched_at_utc": "2026-11-21T11:50:35Z",
+      "qa_count": 2,
+      "resumed_from_cache": true,
+      "etag": null,
+      "last_modified": null,
+      "html_sha256": "11346b8fb6aa7045914beaab1459c580d25da84525b72dde70d6c30fb57615aa",
+      "raw_snapshot": "raw/fdef2eff83bd8264-11346b8fb6aa7045.html"
+    },
+    {
+      "url": "https://www.cdc.gov.tw/Category/MPage/Y4wiJu8wKZ_zDKN5efu9KQ",
+      "kind": "qa",
+      "category": "愛滋篩檢服務",
+      "status": 200,
+      "fetched_at_utc": "2026-11-21T11:50:35Z",
+      "qa_count": 9,
+      "resumed_from_cache": true,
+      "etag": null,
+      "last_modified": null,
+      "html_sha256": "607fbdc4b98a816bf063e4a4282b7ae402f13dd5c06ef491a475683d9f449dd4",
+      "raw_snapshot": "raw/08983977d21cb240-607fbdc4b98a816b.html"
+    },
+    {
+      "url": "https://www.cdc.gov.tw/Category/QAPage/qcdRrymODh9YF69ewsA5Qw",
+      "kind": "qa",
+      "category": "預防母子垂直感染",
+      "status": 200,
+      "fetched_at_utc": "2026-11-21T11:50:35Z",
+      "qa_count": 12,
+      "resumed_from_cache": true,
+      "etag": null,
+      "last_modified": null,
+      "html_sha256": "a4ea573b3a744338ad19c301546c23f2bec679bab00f17740d6132c6977b4233",
+      "raw_snapshot": "raw/c7e55ab9fa3ac156-a4ea573b3a744338.html"
+    },
+    {
+      "url": "https://www.cdc.gov.tw/Category/QAPage/NmDr6gAiK-xPxaejvJ-Lqw",
+      "kind": "qa",
+      "category": "藥癮愛滋減害",
+      "status": 200,
+      "fetched_at_utc": "2026-11-21T11:50:35Z",
+      "qa_count": 10,
+      "resumed_from_cache": true,
+      "etag": null,
+      "last_modified": null,
+      "html_sha256": "46f9f6193ddc9c8d24e6da22024786403b5fa121905616e2e516a7a00d807824",
+      "raw_snapshot": "raw/19c693fd131b6fb3-46f9f6193ddc9c8d.html"
+    },
+    {
+      "url": "https://www.cdc.gov.tw/Category/QAPage/PGwKHMNjHuzGO9hgvJKK4w",
+      "kind": "qa",
+      "category": "PrEP／認識PrEP",
+      "status": 200,
+      "fetched_at_utc": "2026-11-21T11:50:35Z",
+      "qa_count": 20,
+      "resumed_from_cache": true,
+      "etag": null,
+      "last_modified": null,
+      "html_sha256": "069f03226e556febe723a741364f2e27123b72894c02b132b69592cd111ad24e",
+      "raw_snapshot": "raw/bd41b6dd124ea379-069f03226e556feb.html"
+    },
+    {
+      "url": "https://www.cdc.gov.tw/Category/QAPage/pzjkJa4dgVjdk6emQjM-3g",
+      "kind": "qa",
+      "category": "PrEP／PrEP計畫服務",
+      "status": 200,
+      "fetched_at_utc": "2026-11-21T11:50:35Z",
+      "qa_count": 9,
+      "resumed_from_cache": true,
+      "etag": null,
+      "last_modified": null,
+      "html_sha256": "0562d79ebd9c3dae2d7940fee485dfc058ac5bf60fe9e023a19a96c9b924fd78",
+      "raw_snapshot": "raw/7a9292230e9a619e-0562d79ebd9c3dae.html"
+    },
+    {
+      "url": "https://www.cdc.gov.tw/Category/QAPage/JQc1_rTZWlHX9-hw4U_4yg",
+      "kind": "qa",
+      "category": "PEP／暴露後預防性投藥",
+      "status": 200,
+      "fetched_at_utc": "2026-11-21T11:50:35Z",
+      "qa_count": 12,
+      "resumed_from_cache": true,
+      "etag": null,
+      "last_modified": null,
+      "html_sha256": "e7f741f50f6d1b13e65a193e79696d27b4469b33ef2d5836dd878b2f18cf7930",
+      "raw_snapshot": "raw/1ff3ea148c1bb2e6-e7f741f50f6d1b13.html"
+    }
+  ],
+  "page_hashes": {
+    "https://www.cdc.gov.tw/Category/List/qTp6DeK3rmOlqcVc7diAkA": "a0b09d860e380bd3e0c8f0d2526b688675f84f30e7239b45dfad9eb03ca247a3",
+    "https://www.cdc.gov.tw/Category/List/1FuOwO6RRWN2gq9ULJ1Srw": "a470d24d0fa2ed09c640351b496cfdf4f5c5d81675c7beb558ce7edf16b86d8f",
+    "https://www.cdc.gov.tw/Category/QAPage/SpEUrQI64Q_EV_DI8NsYTw": "9971e7e6ac06e06d3c868bb4782bf75f3a63ea267efc84a547d4e1fbb17e98c2",
+    "https://www.cdc.gov.tw/Category/QAPage/YXJ9H8_nDgSuviJ6pA7_aA": "b3ca1af880de616147b6bed8c3778dc99ac23296ef5663eb04c3a3fa35f519c6",
+    "https://www.cdc.gov.tw/Category/QAPage/tN3OCfprezBUk9jVnWC8Yg": "c457d6794e24d0aad749865209ee2989bf052683c5eceb40bacd1c59111e6a0f",
+    "https://www.cdc.gov.tw/Category/QAPage/My0uZvjAFs11NWjujWXvBg": "76bc83c24a781d95bd683bf65d05273ce9832e9011d3d00e052e9026951e4510",
+    "https://www.cdc.gov.tw/Category/QAPage/fV5yD36S7dZuzHVcqFgQ-Q": "11346b8fb6aa7045914beaab1459c580d25da84525b72dde70d6c30fb57615aa",
+    "https://www.cdc.gov.tw/Category/MPage/Y4wiJu8wKZ_zDKN5efu9KQ": "607fbdc4b98a816bf063e4a4282b7ae402f13dd5c06ef491a475683d9f449dd4",
+    "https://www.cdc.gov.tw/Category/QAPage/qcdRrymODh9YF69ewsA5Qw": "a4ea573b3a744338ad19c301546c23f2bec679bab00f17740d6132c6977b4233",
+    "https://www.cdc.gov.tw/Category/QAPage/NmDr6gAiK-xPxaejvJ-Lqw": "46f9f6193ddc9c8d24e6da22024786403b5fa121905616e2e516a7a00d807824",
+    "https://www.cdc.gov.tw/Category/QAPage/PGwKHMNjHuzGO9hgvJKK4w": "069f03226e556febe723a741364f2e27123b72894c02b132b69592cd111ad24e",
+    "https://www.cdc.gov.tw/Category/QAPage/pzjkJa4dgVjdk6emQjM-3g": "0562d79ebd9c3dae2d7940fee485dfc058ac5bf60fe9e023a19a96c9b924fd78",
+    "https://www.cdc.gov.tw/Category/QAPage/JQc1_rTZWlHX9-hw4U_4yg": "e7f741f50f6d1b13e65a193e79696d27b4469b33ef2d5836dd878b2f18cf7930"
+  },
+  "policy_provenance": [
+    {
+      "url": "https://www.cdc.gov.tw/Category/FPage/TxkBIR9agw_IBRRmvn9TcQ",
+      "status": 200,
+      "fetched_at_utc": "2026-11-21T11:47:38Z",
+      "html_sha256": "8c8521aa3feeec52c4cbe2b964e1868e90f066a09fcd81307d1d827ff2652a84",
+      "raw_snapshot": "raw/policy-63c1864d91d6-8c8521aa3feeec52.html",
+      "etag": null,
+      "last_modified": null,
+      "resumed_from_cache": true
+    },
+    {
+      "url": "https://www.cdc.gov.tw/Category/FPage/rvmij-b1qdDYyX_Olv67VQ",
+      "status": 200,
+      "fetched_at_utc": "2026-11-21T11:47:40Z",
+      "html_sha256": "330c84a689395294e832dba2795212f7227ff8260e4c72932b60bd860282a4b5",
+      "raw_snapshot": "raw/policy-f56b1634b013-330c84a689395294.html",
+      "etag": null,
+      "last_modified": null,
+      "resumed_from_cache": true
+    }
+  ],
+  "duplicates_skipped": 0,
+  "errors": [],
+  "previous_snapshot_started_at_utc": "2026-11-21T11:47:35Z",
+  "qa_count": 119
+}
