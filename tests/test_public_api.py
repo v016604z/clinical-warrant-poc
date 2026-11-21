@@ -12,6 +12,15 @@ from clinical_warrant.modules.evaluation import (
     evaluate_cases,
     load_evaluation_jsonl,
 )
+from clinical_warrant.modules.knowledge_base import (
+    CdcQaAdapter,
+    GenericJsonlAdapter,
+    KnowledgeBaseValidationError,
+    KnowledgeChunk,
+    KnowledgeDocument,
+    SourceRecord,
+    parse_json_object,
+)
 
 
 def test_business_module_public_apis_are_available() -> None:
@@ -26,6 +35,13 @@ def test_business_module_public_apis_are_available() -> None:
     assert EvaluationError is not None
     assert evaluate_cases is not None
     assert load_evaluation_jsonl is not None
+    assert issubclass(KnowledgeBaseValidationError, ValueError)
+    assert SourceRecord is not None
+    assert CdcQaAdapter is not None
+    assert GenericJsonlAdapter is not None
+    assert KnowledgeDocument is not None
+    assert KnowledgeChunk is not None
+    assert parse_json_object('{"kind":"fixture"}') == {"kind": "fixture"}
 
 
 def test_cli_interface_exposes_help_and_version_commands(capsys) -> None:

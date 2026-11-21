@@ -5,7 +5,7 @@ from pathlib import Path
 
 
 PACKAGE = Path(__file__).parents[1] / "src" / "clinical_warrant"
-BUSINESS_MODULES = {"classification", "decision", "evaluation"}
+BUSINESS_MODULES = {"classification", "decision", "evaluation", "knowledge_base"}
 
 
 def _imports_from_source(source: str, current_module: str):

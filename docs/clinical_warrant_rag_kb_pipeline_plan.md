@@ -1,6 +1,6 @@
 # Clinical Warrant PoC｜可複用的 RAG Knowledge Base 資料處理 Pipeline 實作計畫
 
-> **性質**：實作計畫；Commit 1 定義文件規格，Commit 2–6 待實作。\
+> **性質**：Commit 1–2 已完成文件規格、資料契約與來源 Adapter；Commit 3–6 待實作，KB CLI 尚未實作。\
 > **參考專案**：[v016604z/clinical-warrant-poc](https://github.com/v016604z/clinical-warrant-poc)  
 > **參考風格**：[`docs/implementation-plan.md`](https://github.com/v016604z/clinical-warrant-poc/blob/main/docs/implementation-plan.md)  
 > **存放位置**：`docs/clinical_warrant_rag_kb_pipeline_plan.md`\

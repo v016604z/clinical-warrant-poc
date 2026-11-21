@@ -1,6 +1,6 @@
 # RAG Knowledge Base 資料契約 v1
 
-本文件是[實作計畫](clinical_warrant_rag_kb_pipeline_plan.md) Commit 1 的規範。`schema_version` 固定為字串 `"1.0"`；後續 Commit 才實作 Adapter、驗證、清洗、切分與 CLI。目前的 `kb build/merge/validate` 是預期介面。
+本文件是[實作計畫](clinical_warrant_rag_kb_pipeline_plan.md) Commit 1 定義的規範。`schema_version` 固定為字串 `"1.0"`；Commit 2 提供契約驗證與 SourceRecord Adapter，清洗、切分、完整 run 驗證與 CLI 留待後續 Commit。目前的 `kb build/merge/validate` 是預期介面。
 
 ## 1. 用途、來源與權限
 
@@ -146,6 +146,8 @@ dataset_id 不含冒號，因此組合 ID 無歧義；禁止以輸入順序、Py
 
 以下各 JSON 是完整的最小範例；來源為本專案虛構測試文字，無外部授權推論。generic_jsonl 預設將 id/title/text/source_name/source_url/updated_at/category 映射至 record ID/title/content/publisher/locator/updated date/source_category；來源權利及語言由明確設定提供。使用離線 source_locator 時，以 mapping 將來源欄位指向 source_locator，不能偽造 URL。映射檔與完整設定一併存入 manifest；未知欄位保留 metadata，映射衝突／缺必要欄位拒收。通用來源未指定 document_type 時缺省為 `plain_text`；此例明確設定 document_type=`article`、dataset-id=`example_articles`、language=`zh-Hant`、profile=`plain_v1`，權利設定僅對本專案自行撰寫文字的 `fixture_validation` 用途明確 allowed，不推論 CDC 或其他來源已獲准使用；未提供擷取時間及快照時使用 null。
 
+mapping JSON 的方向固定為「上述邏輯欄名 → 原輸入頂層 key」，例如 `{"id":"record_key","text":"body"}`；僅覆寫指定項，其餘維持同名預設。key 按字面比對，不執行 dot path、模板或任意運算。未知邏輯欄名、非字串欄名及有效 mapping 中多個邏輯欄指向同一來源 key 均拒收。id/title/text/source_name/source_url 必須有值；updated_at 缺省 null，category 缺省不寫入 metadata。未消耗的來源欄位完整放在 `metadata.source_fields`，避免與核心欄位或 source_category 互相覆蓋。`dataset_id`、型別、語言、content_type/profile、擷取時間、署名與 rights 由 Adapter 設定提供，不從額外欄位偷偷覆寫。支援的 profile 對應為 `plain_v1 → text/plain`、`html_v1 → text/html`、`cdc_faq_html_v1 → faq + text/html`；HTML 不可沿用純文字預設 profile。
+
 原始 JSONL 的一行（此例將 source_url 欄位映射為離線定位）：
 
 <!-- example: generic_input -->
@@ -277,6 +279,33 @@ KnowledgeChunk：本文共 5 個 code points，完整區間 `[0:5]`：
   }
 }
 ```
+
+### 4.3 Commit 2 的 Python Adapter API
+
+`adapt(record)` 回傳一筆 SourceRecord；`read_jsonl(path)` 逐筆回傳，遇到非法 UTF-8、BOM、空行、非 object、重複 key、非有限數值、無效 Unicode 或來源驗證錯誤時，拋出含檔案路徑及行號的 KnowledgeBaseValidationError，不靜默跳過。設定錯誤在建立 Adapter 時拒收。這一階段只映射來源並驗證 QA payload hash；CDC snapshot 路徑及 manifest digest 僅驗證形狀／對應，不讀 raw bytes，不能宣稱已核對快照完整性。完整 snapshot hash 驗證與索引準入仍屬後續 Pipeline 工作。
+
+在專案根目錄、已安裝套件的 Python 環境可執行：
+
+```python
+import json
+from pathlib import Path
+from clinical_warrant.modules.knowledge_base import CdcQaAdapter, GenericJsonlAdapter
+
+rights = {
+    "status": "recorded", "statement": "本專案自行撰寫的非醫療測試文字。",
+    "policy_locators": [], "intended_use": "fixture_validation", "usage_decision": "allowed",
+}
+generic = GenericJsonlAdapter(
+    dataset_id="example_articles", attribution="Example Publisher", rights=rights,
+    document_type="article", language="zh-Hant",
+)
+examples = list(generic.read_jsonl("tests/fixtures/kb_generic.jsonl"))
+manifest = json.loads(Path("datasets/tw_cdc_hiv_qa/manifest.json").read_text(encoding="utf-8"))
+cdc = CdcQaAdapter(manifest, intended_use="research_reference", usage_decision="unknown")
+source_records = list(cdc.read_jsonl("datasets/tw_cdc_hiv_qa/qa.jsonl"))
+```
+
+可將 mapping 檔以公開 `parse_json_object` 解析後傳入 GenericJsonlAdapter 的 `mapping`。CDC 保留 `metadata.policy_provenance`、原 `metadata.source_attachments` 及未映射的 `metadata.source_fields`；來源或政策內容不因適配而遺失。`usage_decision="unknown"` 明確表示尚未完成用途判定，不會由 recorded 自動放行。這些 API 不執行清洗、品質狀態判定、切分或 KB CLI。
 
 ## 5. 清洗、切分與索引準入
 
