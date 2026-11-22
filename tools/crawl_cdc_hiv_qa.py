@@ -482,7 +482,7 @@ def collect(output_dir: Path, *, resume: bool = False, client: HttpClient | None
 
 def main(argv: Iterable[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Collect the Taiwan CDC HIV knowledge and prevention pages.")
-    parser.add_argument("--output-dir", type=Path, required=True, help="new snapshot directory (for example datasets/tw_cdc_hiv_qa)")
+    parser.add_argument("--output-dir", type=Path, required=True, help="new snapshot directory (for example src/clinical_warrant/data/tw_cdc_hiv_qa_new)")
     parser.add_argument("--resume", action="store_true", help="reuse hash-verified raw pages and fetch only missing pages; use a new output directory for a fresh snapshot")
     args = parser.parse_args(argv)
     try:

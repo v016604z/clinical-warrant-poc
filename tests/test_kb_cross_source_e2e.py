@@ -8,7 +8,7 @@ from clinical_warrant.interfaces.cli import main
 
 
 ROOT = Path(__file__).parents[1]
-CDC_ROOT = ROOT / "datasets" / "tw_cdc_hiv_qa"
+CDC_ROOT = ROOT / "src" / "clinical_warrant" / "data" / "tw_cdc_hiv_qa"
 AS_OF = "2026-11-22"
 STALE_AFTER_DAYS = "10000"
 CHUNK_FILES = (

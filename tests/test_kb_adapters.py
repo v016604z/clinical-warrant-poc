@@ -15,7 +15,7 @@ from clinical_warrant.modules.knowledge_base.domain.contracts import KnowledgeBa
 
 
 ROOT = Path(__file__).parents[1]
-CDC_ROOT = ROOT / "datasets" / "tw_cdc_hiv_qa"
+CDC_ROOT = ROOT / "src" / "clinical_warrant" / "data" / "tw_cdc_hiv_qa"
 FIXTURE = Path(__file__).parent / "fixtures" / "kb_generic.jsonl"
 
 

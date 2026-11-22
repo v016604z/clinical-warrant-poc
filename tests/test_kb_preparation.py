@@ -235,7 +235,7 @@ def test_repeated_preparation_has_stable_content_version_issues_and_source(sourc
 def test_cdc_119_cleaned_documents_keep_hash_identity_and_isolate_attachment(policy):
     from clinical_warrant.modules.knowledge_base.infrastructure.cleaning import clean_source_record
 
-    root = ROOT / "datasets" / "tw_cdc_hiv_qa"
+    root = ROOT / "src" / "clinical_warrant" / "data" / "tw_cdc_hiv_qa"
     source_bytes = (root / "qa.jsonl").read_bytes()
     manifest_bytes = (root / "manifest.json").read_bytes()
     manifest = json.loads(manifest_bytes)

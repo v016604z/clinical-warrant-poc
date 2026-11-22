@@ -6,7 +6,7 @@
 
 產物供 RAG Indexer 使用，保存證據文本及來源；不產生 embeddings、向量索引、醫療決策或 gold labels。CDC FAQ 是公開衛教參考語料，不是患者 query 或經專家審定的答案，清洗通過不表示臨床正確。測試只用公開或虛構資料，不含患者個資。
 
-CDC 蒐集範圍、署名要求、開放宣告與著作權例外沿用[資料蒐集說明](data-collection.md)及[資料集說明](../datasets/tw_cdc_hiv_qa/README.md)。既有 [manifest](../datasets/tw_cdc_hiv_qa/manifest.json) 的 `reuse_policy_urls`、`attribution`、`policy_provenance` 是本次快照的權利證據，不代表目前網站政策已重新確認。不得把 CDC 全站標為 CC BY 4.0，也不得暗示 CDC 背書。
+CDC 蒐集範圍、署名要求、開放宣告與著作權例外沿用[資料蒐集說明](data-collection.md)及[資料集說明](../src/clinical_warrant/data/tw_cdc_hiv_qa/README.md)。既有 [manifest](../src/clinical_warrant/data/tw_cdc_hiv_qa/manifest.json) 的 `reuse_policy_urls`、`attribution`、`policy_provenance` 是本次快照的權利證據，不代表目前網站政策已重新確認。不得把 CDC 全站標為 CC BY 4.0，也不得暗示 CDC 背書。
 
 每個來源須保留 publisher、署名、使用條件或政策定位，並針對明確的 intended_use 記錄使用判定；不得自行猜測授權。rights.status 只表示依據是否已記錄，不能直接決定允許使用。只有 `status="recorded"`、`usage_decision="allowed"` 且條件已具備，才可能通過權利準入。依據或判定未知時以 `needs_review/rights_unknown` 隔離；`usage_decision="prohibited"` 優先設為 `excluded/rights_prohibited`，不可人工繞過。第三方或另有標示的內容依其條件處理。KB 本身與程式碼的授權不可取代來源內容權利。
 
@@ -125,7 +125,7 @@ dataset_id 不含冒號，因此組合 ID 無歧義；禁止以輸入順序、Py
 
 ### 4.1 CDC 既有輸入
 
-以 [qa.jsonl](../datasets/tw_cdc_hiv_qa/qa.jsonl)、同一 source root 的 manifest 和 raw 為輸入，不重新爬取。保留原始 119 筆；計數須執行時讀取，不能硬編碼通用邏輯。
+以 [qa.jsonl](../src/clinical_warrant/data/tw_cdc_hiv_qa/qa.jsonl)、同一 source root 的 manifest 和 raw 為輸入，不重新爬取。保留原始 119 筆；計數須執行時讀取，不能硬編碼通用邏輯。
 
 | CDC 欄位／資料 | SourceRecord 目的欄位 |
 | --- | --- |
@@ -300,9 +300,9 @@ generic = GenericJsonlAdapter(
     document_type="article", language="zh-Hant",
 )
 examples = list(generic.read_jsonl("tests/fixtures/kb_generic.jsonl"))
-manifest = json.loads(Path("datasets/tw_cdc_hiv_qa/manifest.json").read_text(encoding="utf-8"))
+manifest = json.loads(Path("src/clinical_warrant/data/tw_cdc_hiv_qa/manifest.json").read_text(encoding="utf-8"))
 cdc = CdcQaAdapter(manifest, intended_use="research_reference", usage_decision="unknown")
-source_records = list(cdc.read_jsonl("datasets/tw_cdc_hiv_qa/qa.jsonl"))
+source_records = list(cdc.read_jsonl("src/clinical_warrant/data/tw_cdc_hiv_qa/qa.jsonl"))
 ```
 
 可將 mapping 檔以公開 `parse_json_object` 解析後傳入 GenericJsonlAdapter 的 `mapping`。CDC 保留 `metadata.policy_provenance`、原 `metadata.source_attachments` 及未映射的 `metadata.source_fields`；來源或政策內容不因適配而遺失。`usage_decision="unknown"` 明確表示尚未完成用途判定，不會由 recorded 自動放行。這些 API 不執行清洗、品質狀態判定、切分或 KB CLI。
@@ -361,7 +361,7 @@ build / merge 的正式 run 包含以下檔案，空集合也輸出空 JSONL。b
 
 report 必須可對帳：build 的 `input_count = document_count + rejected_count + duplicate_count`，三個品質狀態數總和等於 document_count；merge 額外分列各輸入文件／chunk 數、去重、隔離與衝突，正式 document_count 只計通過準入者，不用 CDC 固定筆數當成功條件。每一筆衍生紀錄的來源關係均由其 identity 和 manifest 的來源資料集／輸入檔定位追溯。
 
-輸出不得指向來源檔或來源根目錄；新 run 已存在即失敗。先在同一檔案系統的暫存目錄產出、驗證全部內容與 hash，通過後才原子發布，避免半成品成為正式 KB。不覆寫 datasets 中 qa.jsonl、manifest.json、raw 或既有 run。單筆失敗保留 issues/rejected 於失敗診斷目錄；strict 有 error 時非零退出，不發布 complete=true；非 strict 可發布已排除錯誤紀錄的完整 run，但拒收與計數必須如實揭露。merge conflict 預設為整次失敗，不可靜默套用非 strict 放行。
+輸出不得指向來源檔或來源根目錄；新 run 已存在即失敗。先在同一檔案系統的暫存目錄產出、驗證全部內容與 hash，通過後才原子發布，避免半成品成為正式 KB。不覆寫來源目錄中的 qa.jsonl、manifest.json、raw 或既有 run。單筆失敗保留 issues/rejected 於失敗診斷目錄；strict 有 error 時非零退出，不發布 complete=true；非 strict 可發布已排除錯誤紀錄的完整 run，但拒收與計數必須如實揭露。merge conflict 預設為整次失敗，不可靜默套用非 strict 放行。
 
 ## 7. 後續實作驗收案例
 
@@ -390,6 +390,6 @@ Commit 1 原先驗證文件範例、hash/offset 與連結；KB CLI、run IO 與 
 CLI 會先比對 CDC manifest 所列頁面與政策快照的實際 bytes hash，並將驗證過的 evidence hash 記入 run。Document 的 `snapshot_not_verified` 仍表示 preparation 不自行讀取快照 artifact；這與 CLI 的來源證據驗證分屬不同階段。
 
 ```powershell
-clinical-warrant kb build --adapter cdc_qa --source-root datasets/tw_cdc_hiv_qa --input datasets/tw_cdc_hiv_qa/qa.jsonl --output-dir evaluation-runs/kb-cdc --intended-use local_reference --usage-decision unknown --as-of 2026-11-22 --stale-after-days 1095
+clinical-warrant kb build --adapter cdc_qa --source-root src/clinical_warrant/data/tw_cdc_hiv_qa --input src/clinical_warrant/data/tw_cdc_hiv_qa/qa.jsonl --output-dir evaluation-runs/kb-cdc --intended-use local_reference --usage-decision unknown --as-of 2026-11-22 --stale-after-days 1095
 clinical-warrant kb validate --dataset evaluation-runs/kb-cdc
 ```

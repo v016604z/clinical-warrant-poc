@@ -65,7 +65,7 @@ def test_input_reader_rejects_blank_duplicate_nonfinite_and_nonobject_rows(tmp_p
 
 def test_cdc_adapter_config_records_explicit_use_and_policy_evidence():
     manifest = json.loads((Path(__file__).parents[1] /
-                           "datasets/tw_cdc_hiv_qa/manifest.json").read_text(encoding="utf-8"))
+                           "src/clinical_warrant/data/tw_cdc_hiv_qa/manifest.json").read_text(encoding="utf-8"))
     config = CdcQaAdapter(manifest, intended_use="local_test", usage_decision="unknown").to_config()
     assert config["type"] == "cdc_qa"
     assert config["settings"]["cleaning_profile"] == "cdc_faq_html_v1"
@@ -167,7 +167,7 @@ def test_generic_cli_build_validate_merge_and_strict_failure(tmp_path, capsys):
 
 
 def test_offline_cdc_cli_build_and_validate(tmp_path, capsys):
-    root = Path(__file__).parents[1] / "datasets" / "tw_cdc_hiv_qa"
+    root = Path(__file__).parents[1] / "src" / "clinical_warrant" / "data" / "tw_cdc_hiv_qa"
     run = tmp_path / "cdc-run"
     assert main([
         "kb", "build", "--adapter", "cdc_qa", "--source-root", str(root),
@@ -186,7 +186,7 @@ def test_offline_cdc_cli_build_and_validate(tmp_path, capsys):
 
 
 def test_cdc_snapshot_hash_mismatch_is_rejected_with_diagnostics(tmp_path, capsys):
-    original = Path(__file__).parents[1] / "datasets" / "tw_cdc_hiv_qa"
+    original = Path(__file__).parents[1] / "src" / "clinical_warrant" / "data" / "tw_cdc_hiv_qa"
     source_root = tmp_path / "cdc-source"
     shutil.copytree(original, source_root)
     manifest = json.loads((source_root / "manifest.json").read_text(encoding="utf-8"))

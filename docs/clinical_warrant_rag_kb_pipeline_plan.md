@@ -6,7 +6,7 @@
 > **存放位置**：`docs/clinical_warrant_rag_kb_pipeline_plan.md`\
 > **正式資料契約**：[RAG Knowledge Base 資料契約 v1](rag-kb-schema.md)\
 > **實作規模**：最多 **6 個本機 commit**，每階段獨立驗收，不自動 push。  
-> **資料基準**：2026-11-21 `main` 分支，`datasets/tw_cdc_hiv_qa/qa.jsonl` 共 119 筆。
+> **資料基準**：2026-11-21 蒐集的 119 筆資料，現位於 `src/clinical_warrant/data/tw_cdc_hiv_qa/qa.jsonl`。
 
 ## 1. 目標與研究定位
 
@@ -37,7 +37,7 @@
 
 ## 2. 現有資料盤點與待解決問題
 
-來源：[`datasets/tw_cdc_hiv_qa/`](https://github.com/v016604z/clinical-warrant-poc/tree/main/datasets/tw_cdc_hiv_qa)。
+來源：[`src/clinical_warrant/data/tw_cdc_hiv_qa/`](https://github.com/v016604z/clinical-warrant-poc/tree/main/src/clinical_warrant/data/tw_cdc_hiv_qa)。
 
 | 項目 | 目前觀察 | 本計畫處理方式 |
 |---|---|---|
@@ -57,13 +57,12 @@
 
 ```text
 clinical-warrant-poc/
-├── datasets/
-│   ├── tw_cdc_hiv_qa/                # 既有來源（immutable）
-│   │   ├── qa.jsonl
-│   │   ├── manifest.json
-│   │   └── raw/
-│   └── ...                           # 未來其他來源的原始輸入
 ├── src/clinical_warrant/
+│   ├── data/
+│   │   └── tw_cdc_hiv_qa/           # 既有來源（immutable）
+│   │       ├── qa.jsonl
+│   │       ├── manifest.json
+│   │       └── raw/
 │   ├── modules/
 │   │   └── knowledge_base/
 │   │       ├── __init__.py           # 模組公開 API
@@ -187,8 +186,8 @@ Commit 1 交付本計畫、正式 schema 與 README 文件入口；Commit 2–3 
 # 由已存在的 CDC 119 筆來源建立一個不可覆寫的 run
 clinical-warrant kb build `
   --adapter cdc_qa `
-  --input datasets/tw_cdc_hiv_qa/qa.jsonl `
-  --source-root datasets/tw_cdc_hiv_qa `
+  --input src/clinical_warrant/data/tw_cdc_hiv_qa/qa.jsonl `
+  --source-root src/clinical_warrant/data/tw_cdc_hiv_qa `
   --intended-use local_reference `
   --usage-decision unknown `
   --as-of 2026-11-22 `
@@ -291,6 +290,6 @@ kb-runs/<run-id>/
 - [`docs/implementation-plan.md`](https://github.com/v016604z/clinical-warrant-poc/blob/main/docs/implementation-plan.md)：既有 6 階段 commit 的架構與驗收風格。
 - [`docs/architecture.md`](https://github.com/v016604z/clinical-warrant-poc/blob/main/docs/architecture.md)：Modular Monolith、Layered Architecture 與依賴方向。
 - [`docs/data-collection.md`](https://github.com/v016604z/clinical-warrant-poc/blob/main/docs/data-collection.md)：CDC 蒐集範圍、原始快照、來源政策。
-- [`datasets/tw_cdc_hiv_qa/qa.jsonl`](https://github.com/v016604z/clinical-warrant-poc/blob/main/datasets/tw_cdc_hiv_qa/qa.jsonl)：119 筆既有 FAQ。
-- [`datasets/tw_cdc_hiv_qa/manifest.json`](https://github.com/v016604z/clinical-warrant-poc/blob/main/datasets/tw_cdc_hiv_qa/manifest.json)：來源狀態、hash、頁面與計數。
+- [`src/clinical_warrant/data/tw_cdc_hiv_qa/qa.jsonl`](https://github.com/v016604z/clinical-warrant-poc/blob/main/src/clinical_warrant/data/tw_cdc_hiv_qa/qa.jsonl)：119 筆既有 FAQ。
+- [`src/clinical_warrant/data/tw_cdc_hiv_qa/manifest.json`](https://github.com/v016604z/clinical-warrant-poc/blob/main/src/clinical_warrant/data/tw_cdc_hiv_qa/manifest.json)：來源狀態、hash、頁面與計數。
 - [`tools/crawl_cdc_hiv_qa.py`](https://github.com/v016604z/clinical-warrant-poc/blob/main/tools/crawl_cdc_hiv_qa.py)：既有爬蟲與來源解析器。

@@ -172,7 +172,7 @@ class _Visible(HTMLParser):
 
 
 def test_119_cdc_records_remove_comments_preserve_numbers_lists_and_original_sources():
-    root = Path(__file__).parents[1] / "datasets" / "tw_cdc_hiv_qa"
+    root = Path(__file__).parents[1] / "src" / "clinical_warrant" / "data" / "tw_cdc_hiv_qa"
     paths = [root / "qa.jsonl", root / "manifest.json"]
     before = {path: hashlib.sha256(path.read_bytes()).hexdigest() for path in paths}
     adapter = CdcQaAdapter(json.loads(paths[1].read_text(encoding="utf-8")), intended_use="research_reference", usage_decision="unknown")

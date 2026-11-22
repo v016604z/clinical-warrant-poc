@@ -7,7 +7,7 @@
 以下命令只讀取 repository 內既有資料，不重新蒐集網頁。`--as-of` 與 `--stale-after-days` 必填；`--usage-decision` 必須依目標用途與來源證據判定。若尚未確認，使用 `unknown`，文件會保留並依品質結果隔離。
 
 ```powershell
-.\.venv\Scripts\clinical-warrant.exe kb build --adapter cdc_qa --source-root datasets/tw_cdc_hiv_qa --input datasets/tw_cdc_hiv_qa/qa.jsonl --output-dir evaluation-runs/kb-cdc --intended-use local_reference --usage-decision unknown --as-of 2026-11-22 --stale-after-days 1095
+.\.venv\Scripts\clinical-warrant.exe kb build --adapter cdc_qa --source-root src/clinical_warrant/data/tw_cdc_hiv_qa --input src/clinical_warrant/data/tw_cdc_hiv_qa/qa.jsonl --output-dir evaluation-runs/kb-cdc --intended-use local_reference --usage-decision unknown --as-of 2026-11-22 --stale-after-days 1095
 .\.venv\Scripts\clinical-warrant.exe kb validate --dataset evaluation-runs/kb-cdc
 ```
 

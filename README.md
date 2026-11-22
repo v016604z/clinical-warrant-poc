@@ -10,8 +10,6 @@ A proof-of-concept for clinical warrant-based response decision support using se
 clinical-warrant-poc/
 ├── evaluation/
 │   └── synthetic_hiv_cases.jsonl  # 獨立的合成評估資料
-├── datasets/
-│   └── tw_cdc_hiv_qa/          # CDC 愛滋 QA 蒐集輸出（raw、逐題資料與 manifest）
 ├── tools/
 │   └── crawl_cdc_hiv_qa.py     # 限定 CDC 愛滋主題範圍的資料蒐集器
 ├── pyproject.toml             # 套件、CLI 與 pytest 設定
@@ -24,7 +22,8 @@ clinical-warrant-poc/
 │   ├── infrastructure/        # 共用 JSON catalog loader
 │   ├── interfaces/cli.py      # CLI adapter
 │   ├── bootstrap/             # 組裝應用程式與 adapters
-│   ├── data/                  # 套件內研究用途 JSON 資料
+│   ├── data/                  # 套件內研究用途 JSON 資料與 CDC 蒐集快照
+│   │   └── tw_cdc_hiv_qa/     # CDC 愛滋 QA 蒐集輸出（raw、逐題資料與 manifest）
 │   ├── __init__.py            # 套件版本
 │   └── __main__.py            # python -m clinical_warrant 入口
 ├── tests/                     # 離線單元及 CLI 測試
@@ -71,7 +70,7 @@ CDC 愛滋公開問答的蒐集範圍、執行方式、原始快照與資料使�
 Build the checked-in CDC snapshot locally (no collection or network access). `--as-of` and `--stale-after-days` are required; strict mode is opt-in and defaults to false.
 
 ```powershell
-.\.venv\Scripts\clinical-warrant.exe kb build --adapter cdc_qa --source-root datasets/tw_cdc_hiv_qa --input datasets/tw_cdc_hiv_qa/qa.jsonl --output-dir evaluation-runs/kb-cdc --intended-use local_reference --usage-decision unknown --as-of 2026-11-22 --stale-after-days 1095
+.\.venv\Scripts\clinical-warrant.exe kb build --adapter cdc_qa --source-root src/clinical_warrant/data/tw_cdc_hiv_qa --input src/clinical_warrant/data/tw_cdc_hiv_qa/qa.jsonl --output-dir evaluation-runs/kb-cdc --intended-use local_reference --usage-decision unknown --as-of 2026-11-22 --stale-after-days 1095
 .\.venv\Scripts\clinical-warrant.exe kb validate --dataset evaluation-runs/kb-cdc
 .\.venv\Scripts\clinical-warrant.exe kb merge --inputs evaluation-runs/kb-cdc --output-dir evaluation-runs/kb-merged
 ```

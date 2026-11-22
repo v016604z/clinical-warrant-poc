@@ -27,13 +27,13 @@
 
 ```powershell
 python -m pip install -e ".[collect]"
-python tools/crawl_cdc_hiv_qa.py --output-dir datasets/tw_cdc_hiv_qa
+python tools/crawl_cdc_hiv_qa.py --output-dir src/clinical_warrant/data/tw_cdc_hiv_qa_new
 ```
 
 預設不覆寫已存在的輸出目錄。確認要延續既有蒐集時才使用 `--resume`：它會重新檢查 robots.txt；hash 驗證通過的 raw HTML（含授權來源頁）會從快照重用，只有缺頁或 hash 不符才會重新請求。需要全新快照時請指定新的輸出目錄。`--resume` 會更新 manifest 的本次執行時間，逐題原始蒐集時間則保留在 `qa.jsonl` 的 `collected_at_utc`。
 
 ```powershell
-python tools/crawl_cdc_hiv_qa.py --output-dir datasets/tw_cdc_hiv_qa --resume
+python tools/crawl_cdc_hiv_qa.py --output-dir src/clinical_warrant/data/tw_cdc_hiv_qa --resume
 ```
 
 每次蒐集輸出原始頁面快照、逐題 `qa.jsonl` 和 `manifest.json`。每筆 QA 包含穩定識別、題目、answer text/HTML、來源頁與分類、逐題 CDC 更新日期（可為 null）、UTC 蒐集時間、內容 hash、附件 metadata 與 raw 路徑；manifest 記錄逐頁 HTTP 狀態、hash、題數、重複/錯誤資訊、robots/授權聲明及是否完整。部分成功會留下可檢查的輸出，但不代表六個分支都已完整蒐集；請先檢查 manifest 的 complete 狀態。欄位名稱以程式輸出的 schema 為準。
