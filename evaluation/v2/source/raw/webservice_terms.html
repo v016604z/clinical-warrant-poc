@@ -1,0 +1,666 @@
+
+<!DOCTYPE html>
+<html lang="en" id="about" class="nojs us" data-root="https://medlineplus.gov/">
+
+    <head>
+
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+        <meta http-equiv="window-target" content="_top" />
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        
+
+        
+
+        <link rel="canonical" href="https://medlineplus.gov/about/developers/webservices/" />
+
+        
+
+  
+        <link href="https://medlineplus.gov/about/developers/webservices/" hreflang="x-default" rel="alternate">
+  
+
+
+
+        <meta name="ac-dictionary" content="medlineplus-ac-dictionary" />
+
+        <meta name="description" content="Find information about the search-based Web service that provides access to MedlinePlus health topic data in XML format and learn how to use this service." />
+
+        
+
+        <link rel="shortcut icon" href="https://medlineplus.gov/images/favicon.ico" type="image/x-icon" />
+        <link rel="apple-touch-icon" href="https://medlineplus.gov/images/touch-icon.png" />
+
+        
+        <meta property="fb:app_id" content="1042245625821448" />
+        
+
+        
+        <meta property="og:title" content="MedlinePlus: MedlinePlus Web Service" />
+        <meta property="og:url" content="https://medlineplus.gov/about/developers/webservices/" />
+        
+        
+          
+        <meta property="og:image" content="https://medlineplus.gov/images/mplus_fb.jpg" />
+          
+        
+        
+        <meta property="og:description" content="Find information about the search-based Web service that provides access to MedlinePlus health topic data in XML format and learn how to use this service." />
+
+        
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@medlineplus" />
+        <meta name="twitter:creator" content="@medlineplus" />
+        <meta name="twitter:title" content="MedlinePlus: MedlinePlus Web Service" />
+        <meta name="twitter:description" content="Find information about the search-based Web service that provides access to MedlinePlus health topic data in XML format and learn how to use this service." />
+        <meta name="twitter:image" content="https://medlineplus.gov/images/mplus_fb.png" />
+		
+		<meta name="twitter:image:alt" content=""/>
+		<meta property="og:image:alt" content="" />
+        
+
+        
+
+        
+
+        <title>MedlinePlus: MedlinePlus Web Service</title>
+
+        <link rel="stylesheet" href="https://medlineplus.gov/css/common_new.css?1795238083580" />
+        <!--[if IE 8]> <link rel="stylesheet" href="https://medlineplus.gov/css/ie8/common.css"> <![endif]-->
+        <link rel="stylesheet" href="https://medlineplus.gov/uswds/css/uswds_styles.css" />
+        
+        <link rel="stylesheet" href="https://medlineplus.gov/utilities/lostatic.css">
+
+
+        
+        <script type="text/javascript">document.getElementsByTagName('html')[0].className = document.getElementsByTagName('html')[0].className.replace( /(?:^|\s)nojs(?!\S)/g , '').trim();</script>
+        <script src="https://medlineplus.gov/uswds/js/uswds-init.min.js" type="text/javascript"></script>
+
+
+        
+
+        <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','GTM-MMVM77');</script>
+    </head>
+
+    <body>
+
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MMVM77"
+        height="0" width="0" style="display:none;visibility:hidden" title="googletagmanager"></iframe></noscript>
+
+        
+
+        <a name="top" id="top"></a>
+        <a class="hide-offscreen" href="#start">Skip navigation</a>
+
+  
+                                
+<section
+  class="usa-banner"
+  aria-label="Official website of the United States government"
+>
+  <div class="usa-accordion">
+    <header class="usa-banner__header">
+      <div class="usa-banner__inner">
+        <div class="grid-col-auto">
+          <img
+            aria-hidden="true"
+            class="usa-banner__header-flag"
+            src="https://medlineplus.gov/uswds/img/us_flag_small.png"
+            alt=""
+          />
+        </div>
+        <div class="grid-col-fill tablet:grid-col-auto" aria-hidden="true">
+          <p class="usa-banner__header-text">
+            An official website of the United States government
+          </p>
+          <p class="usa-banner__header-action">Here’s how you know</p>
+        </div>
+        <button
+          type="button"
+          class="usa-accordion__button usa-banner__button"
+          aria-expanded="false"
+          aria-controls="gov-banner-default-default"
+        >
+          <span class="usa-banner__button-text">Here’s how you know</span>
+        </button>
+      </div>
+    </header>
+    <div
+      class="usa-banner__content usa-accordion__content"
+      id="gov-banner-default-default"
+    >
+      <div class="grid-row grid-gap-lg">
+        <div class="usa-banner__guidance tablet:grid-col-6">
+          <img
+            class="usa-banner__icon usa-media-block__img"
+            src="https://medlineplus.gov/uswds/img/icon-dot-gov.svg"
+            role="img"
+            alt=""
+            aria-hidden="true"
+          />
+          <div class="usa-media-block__body">
+            <p>
+              <strong>Official websites use .gov</strong><br />A
+              <strong>.gov</strong> website belongs to an official government
+              organization in the United States.
+            </p>
+          </div>
+        </div>
+        <div class="usa-banner__guidance tablet:grid-col-6">
+          <img
+            class="usa-banner__icon usa-media-block__img"
+            src="https://medlineplus.gov/uswds/img/icon-https.svg"
+            role="img"
+            alt=""
+            aria-hidden="true"
+          />
+          <div class="usa-media-block__body">
+            <p>
+              <strong>Secure .gov websites use HTTPS</strong><br />A
+              <strong>lock</strong> (
+              <span class="icon-lock"
+                ><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="52"
+                  height="64"
+                  viewBox="0 0 52 64"
+                  class="usa-banner__lock-image"
+                  role="img"
+                  aria-labelledby="banner-lock-description-default"
+                  focusable="false"
+                >
+                  <title id="banner-lock-title-default">Lock</title>
+                  <desc id="banner-lock-description-default">Locked padlock icon</desc>
+                  <path
+                    fill="#000000"
+                    fill-rule="evenodd"
+                    d="M26 0c10.493 0 19 8.507 19 19v9h3a4 4 0 0 1 4 4v28a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4V32a4 4 0 0 1 4-4h3v-9C7 8.507 15.507 0 26 0zm0 8c-5.979 0-10.843 4.77-10.996 10.712L15 19v9h22v-9c0-6.075-4.925-11-11-11z"
+                  />
+                </svg> </span
+              >) or <strong>https://</strong> means you’ve safely connected to
+              the .gov website. Share sensitive information only on official,
+              secure websites.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+        <div id="mplus-wrap">
+            <header>
+                <div id="mplus-header">
+
+                    <div id="mplus-orgs">
+                        <a href="https://www.nih.gov/" class="nih-org" target="_blank" title="National Institutes of Health">
+                            <img class="nihlogo" src="https://medlineplus.gov/images/nihlogo.png" alt="National Institutes of Health"/>
+                        </a><a href="https://www.nlm.nih.gov/" target="_blank"> National Library of Medicine</a>
+                    </div>
+
+                    
+                    <div id="mplus-logo">
+                        <a href="https://medlineplus.gov/">
+                            <img alt="MedlinePlus Trusted Health Information for You" title="MedlinePlus Trusted Health Information for You" src="https://medlineplus.gov/images/m_logo.png"/>
+                        </a>
+                    </div>
+                    
+
+                    <div id="mplus-nav">
+
+                        <div aria-live="polite" class="sm-live-area hide-offscreen"></div>
+                        <button id="sm-menu-btn" class="navmenu-btn" title="Menu" role="button" aria-controls="mplus-menu-list" type="submit">Menu<span class="icon icon-nav-menu"></span></button>
+                        <ul id="mplus-menu-list" class="nav-list">
+                            <li><a href="https://medlineplus.gov/healthtopics.html">Health Topics</a></li>
+                            <li><a href="https://medlineplus.gov/druginformation.html">Drugs & Supplements</a></li>
+                            <li><a href="https://medlineplus.gov/genetics/">Genetics</a></li>
+                            <li><a href="https://medlineplus.gov/lab-tests/">Medical Tests</a></li>
+							<li><a href="https://medlineplus.gov/encyclopedia.html">Medical Encyclopedia</a></li>
+                            <li><a href="https://medlineplus.gov/about/">About MedlinePlus</a></li>
+                        </ul><button id="sm-search-btn" class="navmenu-btn" title="Search" role="button" aria-controls="mplus-search" type="submit"><span class="hide-offscreen"></span>Search<span class="icon icon-nav-search"></span></button>
+
+				<div class="top-1">
+
+                        <form id="mplus-search" method="get" action="https://vsearch.nlm.nih.gov/vivisimo/cgi-bin/query-meta" title="Search MedlinePlus" target="_self">
+                            
+                            <input type="hidden" name="v:project" value="medlineplus"/>
+                            <input type="hidden" name="v:sources" value="medlineplus-bundle"/>
+                            
+                            <div class="form-box text-combo">
+                                <div class="form-area"><label class="hide-offscreen" for="searchtext_primary">Search MedlinePlus</label>
+                                    <input id="searchtext_primary" class="form-text" type="text" placeholder="Search MedlinePlus" alt="#Site Search input" title="Site Search input" maxlength="400" size="40" name="query" autocomplete="off" role="textbox" aria-autocomplete="list" aria-haspopup="true"/>
+                                </div>
+                                <div class="button-area">
+                                  <button class="form-btn" title="Search MedlinePlus" alt="Search MedlinePlus" type="submit">GO</button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <div class="secondarynav">
+                            <ul class="nav-list">
+                                <li><a href="https://medlineplus.gov/about/"><span>About MedlinePlus</span></a></li>
+				                <li><a href="https://medlineplus.gov/whatsnew/">What's New</a></li>
+                                <li><a href="https://medlineplus.gov/sitemap.html"><span>Site Map</span></a></li>
+                                
+                                
+                                  <li><a href="https://support.nlm.nih.gov/knowledgebase/category/?id=CAT-01231&category=medlineplus&from=https%3A//medlineplus.gov/about/developers/webservices/" target="_blank"><span>Customer Support</span></a></li>
+                                
+                            </ul>
+                        </div>
+
+				</div>
+                        <div id="mplus-nav-bar">
+                            <ul class="nav-list">
+                                <li><a href="https://medlineplus.gov/healthtopics.html">Health Topics</a></li><li><a href="https://medlineplus.gov/druginformation.html">Drugs & Supplements</a></li><li><a href="https://medlineplus.gov/genetics/">Genetics</a></li><li><a href="https://medlineplus.gov/lab-tests/">Medical Tests</a></li><li><a href="https://medlineplus.gov/encyclopedia.html">Medical Encyclopedia</a></li>
+                            </ul>
+                        </div>
+
+                        
+                    </div>
+                </div>
+            </header>
+
+            <div id="mplus-content">
+            
+<div id="breadcrumbs">
+	<div itemprop="breadcrumb" itemscope="" itemtype="http://schema.org/BreadcrumbList">
+		<span class="hide-offscreen">You Are Here:</span>
+		<div itemscope itemprop="itemListElement" itemtype="http://schema.org/ListItem">
+			<a href="https://medlineplus.gov/" itemprop="item"><span itemprop="name">Home</span></a>
+			&rarr;
+			<meta itemprop="position" content="1"/>
+		</div>
+		
+			
+				<div itemscope itemprop="itemListElement" itemtype="http://schema.org/ListItem">
+					<a href="https://medlineplus.gov/about/" itemprop="item"><span itemprop="name">About MedlinePlus</span></a>
+					&rarr;
+					<meta itemprop="position" content="2"/>
+				</div>
+			
+		
+			
+				<div itemscope itemprop="itemListElement" itemtype="http://schema.org/ListItem">
+					<a href="https://medlineplus.gov/about/developers/" itemprop="item"><span itemprop="name">Information about MedlinePlus for Developers</span></a>
+					&rarr;
+					<meta itemprop="position" content="3"/>
+				</div>
+			
+		
+			
+				<div>
+				  <span>MedlinePlus Web Service</span>
+				</div>
+			
+		
+	</div>
+</div>
+<span class="page-url print-only">URL of this page: https://medlineplus.gov/about/developers/webservices/</span>
+
+                <div >
+                
+    <article>
+        <div class="page-info">
+            <div class="page-title">
+                <a name="start" id="start"></a>
+                <h1>MedlinePlus Web Service</h1>
+            </div>
+            <div class="page-actions"></div>
+            <noscript><span class="js-disabled-message">To use the sharing features on this page, please enable JavaScript.</span></noscript>
+        </div>
+        <div class="main-one">
+          
+            <section><div class="mp-content"><p>MedlinePlus offers a search-based Web service that provides access to MedlinePlus health topic data in XML format. Using the Web service, software developers can build applications that utilize MedlinePlus health topic information. The service accepts keyword searches as requests and returns relevant health topics in ranked order. Keyword searches may be limited to specific fields. The service also returns health topic summaries, search result snippets, external links, and other associated data.</p>
+<p>To ensure that the latest information is readily available, the data in the Web service is updated daily, Tuesday-Saturday. The Web service is available for English and Spanish health topics. The Web service is free of charge and does not require registration or licensing. If you use data from the Web service or build an interface using the Web service, please indicate that the information is from <a href="https://medlineplus.gov/">MedlinePlus.gov</a> but do not use the MedlinePlus logo or otherwise imply that MedlinePlus endorses your particular product. If you have questions about the MedlinePlus Web service, or if you would like to share an application that you have built using the service, please <a href="https://support.nlm.nih.gov/support/create-case/?category=medlineplus&amp;from=https://medlineplus.gov/about/developers/webservices/" target="_blank">contact us</a>.</p>
+<p>Please note that the Web service only returns the subset of MedlinePlus health topic records that are relevant to the query in the request. If you need the full set of MedlinePlus health topics in XML format, see our <a href="https://medlineplus.gov/xml.html">XML files</a> page. If you want to link patients or healthcare providers from electronic health record (EHR) systems to relevant MedlinePlus information, use <a href="https://medlineplus.gov/connect/overview.html">MedlinePlus Connect</a>. If you are looking for data from MedlinePlus Genetics, please see <a href="https://medlineplus.gov/about/developers/geneticsdatafilesapi/">MedlinePlus Genetics Data Files &amp; API</a>.</p>
+<section>
+<h2>Description</h2>
+<p>Returns MedlinePlus health topic search results in English or Spanish for an input query string.</p>
+</section>
+<section>
+<h2>Acceptable Use Policy</h2>
+<p>In order to avoid overloading the MedlinePlus servers, NLM requires that users of the MedlinePlus Web service send no more than 85 requests per minute per IP address. Requests that exceed this limit will not be serviced, and service will not be restored until the request rate falls beneath the limit. The MedlinePlus Web service is updated once per day, Tuesday-Saturday. To limit the number of requests that you send to the Web service, NLM recommends caching results for a 12-24 hour period.</p>
+<p>This policy is in place to ensure that the service remains available and accessible to all users. NLM encourages all users of the MedlinePlus Web service to use the <em>email</em> and <em>tool</em> parameters (as described below). NLM may use this information to contact you if there are problems with your requests.</p>
+<p>If you have a specific use case that requires you to send a large number of requests to the Web service, and thus exceed the request rate limit outlined in this policy, please <a href="https://support.nlm.nih.gov/support/create-case/?category=medlineplus&amp;from=https://medlineplus.gov/webservices.html" target="_blank">contact us</a>. NLM staff will evaluate your request and determine if an exception may be granted. Please also review the MedlinePlus <a href="https://medlineplus.gov/xml.html">XML files</a> documentation. These XML files contain complete health topic records and can serve as an alternate method of accessing MedlinePlus data.</p>
+</section>
+<section>
+<h2>Base URL</h2>
+<p><strong>https</strong>://wsearch.nlm.nih.gov/ws/query</p>
+<p>Please use <strong>https</strong> instead of <strong>http</strong>. If you are already using the MedlinePlus web service with http, please update your code to https.</p>
+</section>
+<section>
+<h2>Parameters</h2>
+<h3>Required Parameters for Initial Search Request</h3>
+<div class="table-box basic">
+<table class="service"><caption class="hide">Required Parameters for Initial Search Request</caption>
+<thead>
+<tr><th class="column30" scope="col">Parameter Name</th>
+<th class="column70" scope="col">Description</th></tr>
+</thead>
+<tbody><tr><td><em>db</em></td>
+<td>Database to search. Value must be a valid MedlinePlus Web service database name. Possible values are:
+<br/><strong>healthTopics</strong> - English health topics. Submit English-language queries when using this parameter.
+<br/><strong>healthTopicsSpanish</strong> - Spanish health topics. Submit Spanish-language queries when using this parameter.</td></tr>
+<tr><td><em>term</em></td>
+<td>Text query submitted to the Web service. All special characters must be URL encoded. Spaces may be replaced by '+' signs, which represent the AND operator. Represent the OR operator as +OR+. To send a query as a phrase, enclose the phrase in quotes using %22 to represent quotation marks.</td></tr></tbody></table>
+</div>
+<br/>
+<p class="fluid-text"><strong>Examples:</strong>
+<br/>https://wsearch.nlm.nih.gov/ws/query?db=healthTopics&amp;term=asthma
+<br/>https://wsearch.nlm.nih.gov/ws/query?db=healthTopics&amp;term=%22diabetes+medicines%22+OR+%22diabetes+drugs%22
+<br/>https://wsearch.nlm.nih.gov/ws/query?db=healthTopicsSpanish&amp;term=asma</p>
+<h3>Field Searching</h3>
+<p>The text for term can include limiters to restrict the search to a specific health topic field. The syntax is &lt;fieldName&gt;:&lt;fieldValue&gt;. Fields that can be searched in this way are:</p>
+<p>title
+<br/>alt-title
+<br/>mesh (only available for English-language searches)
+<br/>full-summary
+<br/>group</p>
+<p>See the Output Format section below for a description of each of these fields. Use field searching carefully, as it can have a significant impact on the order in which results are returned. Please note that when <em>group</em> field searching is used by itself and with no other parameters, all documents will be returned with the same relevancy ranking (rank="0").</p>
+<p class="fluid-text"><strong>Example:<br/></strong> https://wsearch.nlm.nih.gov/ws/query?db=healthTopics&amp;term=title:asthma</p>
+<h3>Required Parameters for Subsequent Requests</h3>
+<div class="table-box basic">
+<table class="service"><caption class="hide">Required Parameters for Subsequent Requests</caption>
+<thead>
+<tr><th class="column30" scope="col">Parameter Name</th>
+<th class="column70" scope="col">Description</th></tr>
+</thead>
+<tbody><tr><td><em>file</em></td>
+<td>Name of the file containing the document references for the current search. This parameter is required when <em>retstart</em> is being used. The value is obtained from the XML returned from the initial search. The file will expire after a certain period of inactivity, after which a new request must be initiated. If the file is expired, the XML output will contain an error message.</td></tr>
+<tr><td><em>server</em></td>
+<td>Name of the server with the file referenced by the <em>file</em> parameter. This is required when the <em>file</em> parameter is being used.</td></tr>
+<tr><td><em>retstart</em></td>
+<td>Sequential index of the first document in the retrieved set to be shown in the XML output (default=0, corresponding to the first record of the entire set). This parameter can be used in conjunction with <em>retmax</em> to download an arbitrary subset of documents retrieved from a search.</td></tr></tbody></table>
+</div>
+<br/>
+<p class="fluid-text"><strong>Example:</strong>
+<br/>https://wsearch.nlm.nih.gov/ws/query?file=viv_0Uu9LP&amp;server=qvlbsrch04&amp;retstart=20</p>
+<h3>Optional Parameters</h3>
+<div class="table-box basic">
+<table class="service"><caption class="hide">Optional Parameters</caption>
+<thead>
+<tr><th class="column30" scope="col">Parameter Name</th>
+<th class="column70" scope="col">Description</th></tr>
+</thead>
+<tbody><tr><td><em>retmax</em></td>
+<td>Total number of documents from the retrieved set to be shown in the XML output (default=10). By default, the web service only includes the first 10 documents retrieved in the XML output. Increasing <em>retmax</em> allows more of the retrieved documents to be included in the XML output.</td></tr>
+<tr><td><em>rettype</em></td>
+<td>Retrieval type. This parameter specifies the format of the results. By default, results will be returned in <em>brief</em> format if no <em>rettype</em> is specified in the request. To specify a retrieval type, use one of the following possible values:
+<br/><strong>brief</strong> - Returns the health topics as search results with abbreviated health topic records, keyword-in-context highlighting, and snippets (default).
+<br/><strong>topic</strong> - Returns the health topics as full XML records with all associated vocabulary and links.
+<br/><strong>all</strong> - Returns health topics in both <em>brief</em> and <em>topic</em> format.</td></tr>
+<tr><td><em>tool</em></td>
+<td>A string with no internal spaces that identifies the resource which is using the Web service (e.g., tool=myservicename). This argument is used to help NLM provide better service to third parties using the Web service from programs. As with any query system, it is sometimes possible to ask the same question different ways, with different effects on performance. NLM requests that developers sending a large volume of requests include a constant 'tool' argument for all requests using the Web service.</td></tr>
+<tr><td><em>email</em></td>
+<td>Email address. If you choose to provide an email address, NLM may use it to contact you if there are problems with your queries. In addition to using the email address parameter, we encourage all Web service users to sign up for the email list referenced at the top of this page to receive general announcements and notifications of changes to the service.</td></tr></tbody></table>
+</div>
+<br/>
+<p class="fluid-text"><strong>Examples </strong> (<em>retmax</em>)<strong>:</strong>
+<br/>https://wsearch.nlm.nih.gov/ws/query?db=healthTopics&amp;term=diabetes&amp;retmax=50
+<br/>https://wsearch.nlm.nih.gov/ws/query?file=viv_0Uu9LP&amp;server=qvlbsrch04&amp;retstart=30&amp;retmax=20</p>
+<p class="fluid-text"><strong>Examples</strong> (<em>rettype</em>):
+<br/>https://wsearch.nlm.nih.gov/ws/query?db=healthTopics&amp;term=asthma&amp;rettype=brief
+<br/>https://wsearch.nlm.nih.gov/ws/query?db=healthTopics&amp;term=asthma&amp;rettype=topic
+<br/>https://wsearch.nlm.nih.gov/ws/query?db=healthTopics&amp;term=asthma&amp;rettype=all</p>
+</section>
+<section>
+<h2>Output</h2>
+<h3>Output Type</h3>
+<p>XML</p>
+<h3>XML Response Format</h3>
+<p>The following is the basic structure of the XML returned:</p>
+<p>
+<br/>
+</p>
+<div class="xml-code">
+<p><strong>&lt;nlmSearchResult&gt;</strong></p>
+<p>&lt;term /&gt;</p>
+<p>&lt;file /&gt;</p>
+<p>&lt;server /&gt;</p>
+<p>&lt;count /&gt;</p>
+<p>&lt;retstart /&gt;</p>
+<p>&lt;retmax /&gt;</p>
+<p>&lt;spellingCorrection /&gt;</p>
+<p><strong>&lt;list&gt;</strong></p>
+<p><strong>&lt;document&gt;</strong></p>
+<p>&lt;content /&gt;</p>
+<p><strong>&lt;/document&gt;</strong></p>
+<p><strong>&lt;/list&gt;</strong></p>
+<p><strong>&lt;/nlmSearchResult&gt;</strong></p>
+</div>
+<p>
+<br/>
+</p>
+<p>The <em>rettype</em> parameter in the URL request determines the format and type of information contained within the &lt;content&gt; element. See below for more information on the content element.</p>
+<br/>
+<h3>Descriptions of Elements</h3>
+<div class="table-box basic">
+<table class="service"><caption class="hide">Descriptions of Elements</caption>
+<thead>
+<tr><th class="column30" scope="col">Element Name</th>
+<th class="column70" scope="col">Description</th></tr>
+</thead>
+<tbody><tr><td><em>nlmSearchResult</em></td>
+<td>Basic XML node that contains the response (has no attributes)</td></tr>
+<tr><td><em>term</em></td>
+<td>Text query submitted to the Web service</td></tr>
+<tr><td><em>file</em></td>
+<td>Name of the file containing the document references for the current search</td></tr>
+<tr><td><em>server</em></td>
+<td>Name of the server with the file referenced by the file parameter</td></tr>
+<tr><td><em>retstart</em></td>
+<td>Sequential index of the first document in the retrieved set shown in the XML output</td></tr>
+<tr><td><em>retmax</em></td>
+<td>Total number of documents from the retrieved set shown in the XML output</td></tr>
+<tr><td><em>count</em></td>
+<td>The number of documents in the current result set (non-negative integer)</td></tr>
+<tr><td><em>spellingCorrection</em></td>
+<td>Suggested alternative search with a different spelling of the word(s) in the query term(s). This element is not always present.</td></tr>
+<tr><td><em>list</em></td>
+<td>The containing element for all of the retrieved documents</td></tr>
+<tr><td><em>document</em></td>
+<td>An individual document (MedlinePlus health topic record)</td></tr></tbody></table>
+</div>
+<br/>
+<h3>Document Element Description</h3>
+<div class="table-box basic">
+<table class="service"><caption class="hide">Document Element Description</caption>
+<thead>
+<tr><th class="column15" scope="col">Attribute</th>
+<th class="column15" scope="col">Type</th>
+<th class="column70" scope="col">Description</th></tr>
+</thead>
+<tbody><tr><td><em>url</em></td>
+<td>Text</td>
+<td>MedlinePlus health topic page URL</td></tr>
+<tr><td><em>rank</em></td>
+<td>Non-negative integer</td>
+<td>Rank of the document in the results. The rank is based on the relevance score as determined by the search engine. Generally, the first document in the first results set will have a rank of zero, and the next document will have a rank of 1, 2, 3, etc. However, if the query string matches a health topic's title or altTitle, that topic will be boosted to the top, regardless of the rank. In these cases, the first document in the first results set may have a rank greater than zero.</td></tr>
+<tr><td><em>content</em></td>
+<td>Text</td>
+<td> Specifies some text associated with its parent document, the MedlinePlus health topic record. The content nodes will vary depending on the value of the rettype URL parameter.</td></tr></tbody></table>
+</div>
+<br/>
+<h3>Content Element Description for <em>brief</em> Retrieval Type</h3>
+<p>For rettype=brief, the value of content nodes will contain query term identification in the form of tags. The query term will be identified in the tag as qt0, qt1, qt2, etc.</p>
+<div class="table-box basic">
+<table class="service"><caption class="hide"> Content Element Description for <em>brief</em> Retrieval Type </caption>
+<thead>
+<tr><th class="column15" scope="col">Attribute</th>
+<th class="column15" scope="col">Type</th>
+<th class="column70" scope="col">Description</th></tr>
+</thead>
+<tbody><tr><td><em>name</em></td>
+<td>Text</td>
+<td>The name of the content node. Allowed values are: title, organizationName, altTitle, fullSummary, mesh, groupName, snippet. (See below for a description of content node values.)</td></tr></tbody></table>
+</div>
+<br/>
+<p>The content nodes are as follows:</p>
+<div class="table-box basic">
+<table class="service"><caption class="hide">Content Name Attribute Value description</caption>
+<thead>
+<tr><th class="column30" scope="col">Content Name Attribute Value</th>
+<th class="column70" scope="col">Description</th></tr>
+</thead>
+<tbody><tr><td><em>title</em></td>
+<td>Name of the MedlinePlus health topic page</td></tr>
+<tr><td><em>organizationName</em></td>
+<td>Organization that produced the MedlinePlus topic page. Value will always be "National Library of Medicine" for English and "Biblioteca Nacional de Medicina" for Spanish.</td></tr>
+<tr><td><em>altTitle</em></td>
+<td>See reference(s) and synonym(s) for the topic. See references and synonyms are undifferentiated in the XML.</td></tr>
+<tr><td><em>FullSummary</em></td>
+<td>Text summary of the topic. HTML formatting will be present.</td></tr>
+<tr><td><em>mesh</em></td>
+<td>Medical Subject Heading(s) assigned to the topic.</td></tr>
+<tr><td><em>groupName</em></td>
+<td>Group(s) to which the topic belongs. A complete list of groups can be found on the MedlinePlus health topics landing page in <a href="https://medlineplus.gov/healthtopics.html">English</a> and <a href="https://medlineplus.gov/spanish/healthtopics.html">Spanish</a>.</td></tr>
+<tr><td><em>snippet</em></td>
+<td>Brief result summary generated by the search engine that provides a preview of the relevant content on the topic page.</td></tr></tbody></table>
+</div>
+<br/>
+<p><strong>Example:</strong></p>
+<div class="table-box">
+<div class="e response-code">
+<div class="c">– <span class="m">&lt;</span><span class="t">document rank</span><span class="m">="</span>0<span class="m">"</span><span class="t"> url</span><span class="m">="</span>https://medlineplus.gov/diabetesmedicines.html<span class="m">"&gt;</span></div>
+<div>
+<div class="e">
+<div class="w">  <span class="m">&lt;</span><span class="t">content name</span><span class="m">="</span>title<span class="m">"&gt;</span>&lt;span class="qt0"&gt;Diabetes&lt;/span&gt; &lt;span class="qt1"&gt;Medicines&lt;/span&gt;<span class="m">&lt;/</span><span class="t">content</span><span class="m">&gt;</span></div>
+</div>
+<div class="e">
+<div class="w">  <span class="m">&lt;</span><span class="t">content name</span><span class="m">="</span>organizationName<span class="m">"&gt;</span>National Library of Medicine<span class="m">&lt;/</span><span class="t">content</span><span class="m">&gt;</span></div>
+</div>
+<div class="e">
+<div class="w">  <span class="m">&lt;</span><span class="t">content name</span><span class="m">="</span>altTitle<span class="m">"&gt;</span>Insulin<span class="m">&lt;/</span><span class="t">content</span><span class="m">&gt;</span></div>
+</div>
+<div class="e">
+<div class="w">  <span class="m">&lt;</span><span class="t">content name</span><span class="m">="</span>altTitle<span class="m">"&gt;</span>Hypoglycemic &lt;span class="qt1"&gt;Medicines&lt;/span&gt;<span class="m">&lt;/</span><span class="t">content</span><span class="m">&gt;</span></div>
+</div>
+<div class="e">
+<div class="w">  <span class="m">&lt;</span><span class="t">content name</span><span class="m">="</span>FullSummary<span class="m">"&gt;</span>&lt;p&gt;&lt;span class="qt0"&gt;Diabetes&lt;/span&gt; means your blood glucose, or blood sugar, is too high. If you can't control your &lt;span class="qt0"&gt;diabetes&lt;/span&gt; with wise food choices and physical activity, you may need &lt;span class="qt0"&gt;diabetes&lt;/span&gt; &lt;span class="qt1"&gt;medicines. The kind of medicine&lt;/span&gt; you take depends on your type of &lt;span class="qt0"&gt;diabetes&lt;/span&gt;, your schedule, and your other health conditions. &lt;/p&gt;&lt;p&gt;With Type 1 &lt;span class="qt0"&gt;diabetes&lt;/span&gt;, your pancreas does not make insulin. Insulin is a hormone that helps glucose get into your cells to give them energy. Without insulin, too much glucose stays in your blood. If you have type 1 &lt;span class="qt0"&gt;diabetes&lt;/span&gt;, you will need to take insulin. &lt;/p&gt;&lt;p&gt;Type 2 &lt;span class="qt0"&gt;diabetes&lt;/span&gt;, the most common type, can start when the body doesn't use insulin as it should. If your body can't keep up with the need for insulin, you may need to take pills. Some people need both insulin and pills. Along with meal planning and physical activity, &lt;span class="qt0"&gt;diabetes&lt;/span&gt; pills help people with type 2 &lt;span class="qt0"&gt;diabetes&lt;/span&gt; or gestational &lt;span class="qt0"&gt;diabetes&lt;/span&gt; keep their blood glucose levels on target. Several kinds of pills are available. Each works in a different way. Many people take two or three kinds of pills. Some people take combination pills. Combination pills contain two kinds of &lt;span class="qt0"&gt;diabetes&lt;/span&gt; &lt;span class="qt1"&gt;medicine&lt;/span&gt; in one tablet. Some people take pills and insulin.&lt;/p&gt;&lt;p&gt;NIH: National Institute of &lt;span class="qt0"&gt;Diabetes&lt;/span&gt; and Digestive and Kidney Diseases&lt;/p&gt;<span class="m">&lt;/</span><span class="t">content</span><span class="m">&gt;</span></div>
+</div>
+<div class="e">
+<div class="w">  <span class="m">&lt;</span><span class="t">content name</span><span class="m">="</span>mesh<span class="m">"&gt;</span>Hypoglycemic Agents<span class="m">&lt;/</span><span class="t">content</span><span class="m">&gt;</span></div>
+</div>
+<div class="e">
+<div class="w">  <span class="m">&lt;</span><span class="t">content name</span><span class="m">="</span>mesh<span class="m">"&gt;</span>Insulin<span class="m">&lt;/</span><span class="t">content</span><span class="m">&gt;</span></div>
+</div>
+<div class="e">
+<div class="w">  <span class="m">&lt;</span><span class="t">content name</span><span class="m">="</span>groupName<span class="m">"&gt;</span>Endocrine System<span class="m">&lt;/</span><span class="t">content</span><span class="m">&gt;</span></div>
+</div>
+<div class="e">
+<div class="w">  <span class="m">&lt;</span><span class="t">content name</span><span class="m">="</span>groupName<span class="m">"&gt;</span>Drug Therapy<span class="m">&lt;/</span><span class="t">content</span><span class="m">&gt;</span></div>
+</div>
+<div class="e">
+<div class="w">  <span class="m">&lt;</span><span class="t">content name</span><span class="m">="</span>groupName<span class="m">"&gt;</span>&lt;span class="qt0"&gt;Diabetes Mellitus&lt;/span&gt;<span class="m">&lt;/</span><span class="t">content</span><span class="m">&gt;</span></div>
+</div>
+<div class="e">
+<div class="w">  <span class="m">&lt;</span><span class="t">content name</span><span class="m">="</span>snippet<span class="m">"&gt;</span>... food choices and physical activity, you may need &lt;span class="qt0"&gt;diabetes&lt;/span&gt; &lt;span class="qt1"&gt;medicines. The kind of medicine&lt;/span&gt; you take depends on ... combination pills. Combination pills contain two kinds of &lt;span class="qt0"&gt;diabetes&lt;/span&gt; &lt;span class="qt1"&gt;medicine&lt;/span&gt; in one tablet. Some people take pills and ...<span class="m">&lt;/</span><span class="t">content</span><span class="m">&gt;</span></div>
+</div>
+<div>  <span class="m">&lt;/</span><span class="t">document</span><span class="m">&gt;</span></div>
+</div>
+</div>
+</div>
+<h3>Content Element Description for <em>topic</em> and <em>all</em> Retrieval Types</h3>
+<p>For rettype=topic there will be one content node content@name=healthTopic. This content node will be followed by the health topic data in XML. For complete documentation on the MedlinePlus health topic XML format, see the MedlinePlus <a href="https://medlineplus.gov/xml.html">XML files</a> page, <a href="https://medlineplus.gov/xml/mplus_topics_2012-06-01.dtd">DTD</a>, and <a href="https://medlineplus.gov/xmldescription.html">description</a>.</p>
+<p>For rettype=all, all the above content nodes may be present, since this rettype returns both the <em>brief</em> and <em>topic</em> formats.</p>
+</section></div>
+</section>
+          
+        </div>
+    </article>
+
+                </div>
+			
+			
+            </div>
+
+            <footer>
+                <div id="mplus-footer">
+                    <div class="footer1">
+
+                        <ul class="secondarynav">
+                            <li><a href="https://medlineplus.gov/about/">About MedlinePlus</a></li>
+			    <li><a href="https://medlineplus.gov/whatsnew/">What's New</a></li>
+                            <li><a href="https://medlineplus.gov/sitemap.html">Site Map</a></li>
+                            
+                            
+                              <li><a href="https://support.nlm.nih.gov/knowledgebase/category/?id=CAT-01231&category=medlineplus&from=https%3A//medlineplus.gov/about/developers/webservices/" target="_blank"><span>Customer Support</span></a></li>
+                            
+                        </ul>
+
+
+          <ul class="follow-footer">
+                <li>
+                    <a href="https://medlineplus.gov/rss.html" class="follow-item">Subscribe to RSS<img src="https://medlineplus.gov/images/feed.png" class="social-media-toolkit-icon" alt="RSS" title="RSS"></a>
+                </li>
+                
+				<li>
+					<a href="https://www.nlm.nih.gov/socialmedia/index.html" class="follow-item" target='_blank'>Connect with NLM </a>
+				</li>
+                
+          </ul>
+                    </div>
+
+                    <div class="footer2">
+                        <ul>
+							
+							
+							<li><a href=" https://www.nlm.nih.gov/web_policies.html" target='_blank'>NLM Web Policies</a></li>
+							
+                            <li><a href="https://medlineplus.gov/about/using/usingcontent/" >Copyright</a></li>
+							
+                            <li><a href="https://medlineplus.gov/accessibility.html">Accessibility</a></li>
+                            <li><a href="https://medlineplus.gov/about/using/criteria/">Guidelines for Links</a></li>
+                            <li><a href="https://medlineplus.gov/plugins.html">Viewers & Players</a></li>
+							<li><a href="https://www.hhs.gov/vulnerability-disclosure-policy/index.html" target="_blank">HHS Vulnerability Disclosure</a></li>
+                            
+                            <li><a href="https://medlineplus.gov/medlineplus-connect/">MedlinePlus Connect for EHRs</a></li>
+                            <li><a href="https://medlineplus.gov/about/developers/">For Developers</a></li>
+                            
+                        </ul>
+
+                        <div class="address">
+                            <a href="https://www.nlm.nih.gov" target="_blank">National Library of Medicine</a>
+                            <span>8600 Rockville Pike, Bethesda, MD 20894</span>
+                            <a href="https://www.hhs.gov" target="_blank">U.S. Department of Health and Human Services</a>
+                            <a href="https://www.nih.gov" target="_blank">National Institutes of Health</a>
+                            
+                        </div>
+
+                    
+                        <div class="date">						
+														
+                            
+							
+                            
+							
+                        </div>
+                    
+
+                        <div class="return-top"><a href="#top" title="Return to top"><img class="return-top-icon" alt="Return to top" src="https://medlineplus.gov/images/return-top.png"></a></div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+
+        
+        <script src="https://medlineplus.gov/jslib/jquery-3.6.0.min.js" type="text/javascript"></script>
+        <script src="https://medlineplus.gov/jslib/mplus-frontend-controls-new.js" type="text/javascript"></script>
+        <script src="https://medlineplus.gov/jslib/mplus-share.js?id=1112022" type="text/javascript"></script>
+        <!--[if lte IE 9]><script src="//www.nlm.nih.gov/medlineplus/jslib/jquery.placeholder.js" type="text/javascript"></script><![endif]-->
+        <script src="https://medlineplus.gov/jslib/control.js" type="text/javascript"></script>
+        <script src="https://medlineplus.gov/uswds/js/uswds.min.js" type="text/javascript"></script>
+        
+
+        
+
+
+    </body>
+</html>

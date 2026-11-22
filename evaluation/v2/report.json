@@ -1,0 +1,88 @@
+{
+  "api_queries": [
+    "https://wsearch.nlm.nih.gov/ws/query?db=healthTopics&term=HIV&retmax=5&rettype=topic",
+    "https://wsearch.nlm.nih.gov/ws/query?db=healthTopics&term=title%3A%22HIV%3A+PrEP+and+PEP%22&retmax=5&rettype=topic"
+  ],
+  "api_topic_ids_returned": {
+    "api_hiv.xml": [
+      "1",
+      "1470",
+      "1502",
+      "1503",
+      "5737"
+    ],
+    "api_prep_pep.xml": [
+      "7347"
+    ]
+  },
+  "captured_topics": [
+    {
+      "source_record_id": "medlineplus:1",
+      "source_updated_at": "2025-03-26",
+      "source_url": "https://medlineplus.gov/hiv.html",
+      "summary_chars": 5356,
+      "title": "HIV"
+    },
+    {
+      "source_record_id": "medlineplus:7347",
+      "source_updated_at": "2025-08-26",
+      "source_url": "https://medlineplus.gov/hivprepandpep.html",
+      "summary_chars": 5548,
+      "title": "HIV: PrEP and PEP"
+    }
+  ],
+  "document_quality": [
+    {
+      "chunk_count": 0,
+      "document_id": "medlineplus_hiv_topics:medlineplus:1",
+      "flags": [
+        "time_sensitive"
+      ],
+      "status": "needs_review"
+    },
+    {
+      "chunk_count": 0,
+      "document_id": "medlineplus_hiv_topics:medlineplus:7347",
+      "flags": [
+        "time_sensitive"
+      ],
+      "status": "needs_review"
+    }
+  ],
+  "quality_report": {
+    "attachment_dependency_count": 0,
+    "chunk_count": 0,
+    "clinical_judgment": false,
+    "conflict_count": 0,
+    "cross_source_duplicate_document_count": 0,
+    "cross_source_duplicate_group_count": 0,
+    "cross_source_duplicate_groups": [],
+    "document_count": 2,
+    "duplicate_count": 0,
+    "excluded_count": 0,
+    "flag_counts": {
+      "time_sensitive": 2
+    },
+    "input_count": 2,
+    "issue_count": 2,
+    "missing_source_date_count": 0,
+    "missing_source_locator_count": 0,
+    "needs_review_count": 2,
+    "notice": "Quality flags describe source and data integrity; they are not clinical judgments.",
+    "operation": "build",
+    "ready_count": 0,
+    "rejected_count": 0,
+    "schema_version": "1.0",
+    "source_counts": {
+      "medlineplus_hiv_topics": 2
+    },
+    "source_date_counts": {
+      "2025-03-26": 1,
+      "2025-08-26": 1
+    }
+  },
+  "raw_evidence_request_count": 8,
+  "run_path": "C:\\Users\\PGW\\Github\\clinical-warrant-poc\\evaluation-runs\\official-source-pilot-20261122\\runs\\build",
+  "validated": true,
+  "wsearch_robots_http_status": 404
+}

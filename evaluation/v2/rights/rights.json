@@ -1,0 +1,10 @@
+{
+  "intended_use": "local offline supplementary knowledge-base conversion evaluation only",
+  "policy_locators": [
+    "https://medlineplus.gov/about/developers/webservices/",
+    "https://medlineplus.gov/about/using/usingcontent/"
+  ],
+  "statement": "Only NLM-authored MedlinePlus health-topic summaries are public domain; exclude third-party encyclopedia, drug, image and linked content. Credit Source: MedlinePlus, National Library of Medicine.",
+  "status": "recorded",
+  "usage_decision": "allowed"
+}
