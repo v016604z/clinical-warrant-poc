@@ -281,3 +281,25 @@ def test_non_bmp_offsets_count_code_points_instead_of_utf16_or_bytes(examples):
     chunk["chunk_id"] = chunk_id_for(chunk, examples["chunking"]["config"])
     KnowledgeChunk.from_dict(chunk).validate_reference(document, examples["chunking"]["config"])
     assert len(document.content_text.encode("utf-8")) == 6
+
+
+
+def test_chunk_text_may_be_a_nonempty_whitespace_source_slice(examples):
+    document_payload = deepcopy(examples["document"])
+    document_payload.update(title="a", content_text="a\n \nbody")
+    document_payload["document_version"] = document_version_for(document_payload)
+    document = KnowledgeDocument.from_dict(document_payload)
+    chunk = deepcopy(examples["chunk"])
+    chunk.update(document_version=document.document_version, text=" ", char_start=2, char_end=3)
+    chunk["chunk_id"] = chunk_id_for(chunk, examples["chunking"]["config"])
+
+    KnowledgeChunk.from_dict(chunk).validate_reference(document, examples["chunking"]["config"])
+
+
+def test_chunk_text_must_not_be_empty(examples):
+    payload = deepcopy(examples["chunk"])
+    payload.update(text="", char_end=4)
+    payload["chunk_id"] = chunk_id_for(payload, examples["chunking"]["config"])
+
+    with pytest.raises(KnowledgeBaseValidationError, match="text: must not be empty"):
+        KnowledgeChunk.from_dict(payload)

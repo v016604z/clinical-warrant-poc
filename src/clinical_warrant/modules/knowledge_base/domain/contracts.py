@@ -497,7 +497,9 @@ class KnowledgeChunk(_Entity):
             _integer(getattr(self, name), name)
         if self.char_end <= self.char_start:
             _fail("char_end", "must be greater than char_start")
-        _text(self.text, "text")
+        _text(self.text, "text", nonempty=False)
+        if not self.text:
+            _fail("text", "must not be empty")
         if len(self.text) != self.char_end - self.char_start:
             _fail("text", "length does not match its code point interval")
         _text(self.source_locator, "source_locator")
