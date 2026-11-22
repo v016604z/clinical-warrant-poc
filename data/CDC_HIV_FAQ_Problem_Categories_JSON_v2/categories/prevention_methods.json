@@ -1,0 +1,26 @@
+{
+  "category_id": "prevention_methods",
+  "category_name": "預防行為與保護措施",
+  "fields": {
+    "sexual_activity_type": {
+      "type": "string",
+      "description": "實際性行為方式，例如口交、陰道交或肛交"
+    },
+    "condom_use": {
+      "type": "string",
+      "description": "該次行為是否全程使用保險套"
+    },
+    "condom_integrity": {
+      "type": "string",
+      "description": "保險套有無破裂、滑落等情況"
+    },
+    "lubricant_type": {
+      "type": "string",
+      "description": "該次行為使用的潤滑液類型"
+    },
+    "sexual_role": {
+      "type": "string",
+      "description": "該次性行為的插入者／接受者等角色"
+    }
+  }
+}

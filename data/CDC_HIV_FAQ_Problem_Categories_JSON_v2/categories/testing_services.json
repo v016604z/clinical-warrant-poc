@@ -1,0 +1,26 @@
+{
+  "category_id": "testing_services",
+  "category_name": "篩檢服務與資源",
+  "fields": {
+    "service_area": {
+      "type": "string",
+      "description": "希望查詢服務的縣市或區域（不需要精確地址）"
+    },
+    "anonymous_testing_preference": {
+      "type": "boolean",
+      "description": "是否希望使用匿名篩檢"
+    },
+    "self_testing_preference": {
+      "type": "boolean",
+      "description": "是否希望使用自我篩檢"
+    },
+    "service_type": {
+      "type": "string",
+      "description": "希望取得的篩檢服務類型"
+    },
+    "screening_motivation": {
+      "type": "string",
+      "description": "希望篩檢的原因（個管服務流程保留，並非一律必問）"
+    }
+  }
+}

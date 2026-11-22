@@ -1,0 +1,62 @@
+{
+  "category_id": "personal_exposure_risk",
+  "category_name": "個人暴露風險",
+  "fields": {
+    "exposure_route": {
+      "type": "string",
+      "description": "暴露方式，例如性行為、共用針具或血液／體液接觸"
+    },
+    "exposure_datetime": {
+      "type": "string",
+      "description": "可能暴露的發生時間，可保留「昨天」等原始描述"
+    },
+    "sexual_activity_type": {
+      "type": "string",
+      "description": "實際性行為方式，例如口交、陰道交或肛交"
+    },
+    "sexual_role": {
+      "type": "string",
+      "description": "該次性行為的插入者／接受者等角色"
+    },
+    "condom_use": {
+      "type": "string",
+      "description": "該次行為是否全程使用保險套"
+    },
+    "condom_integrity": {
+      "type": "string",
+      "description": "保險套有無破裂、滑落等情況"
+    },
+    "lubricant_type": {
+      "type": "string",
+      "description": "該次行為使用的潤滑液類型"
+    },
+    "needle_sharing": {
+      "type": "boolean",
+      "description": "是否共用針頭、針筒或稀釋液"
+    },
+    "blood_or_body_fluid_contact": {
+      "type": "string",
+      "description": "是否接觸血液或可能相關體液"
+    },
+    "has_wound": {
+      "type": "boolean",
+      "description": "接觸部位皮膚是否有傷口"
+    },
+    "mucosal_contact": {
+      "type": "boolean",
+      "description": "是否有黏膜直接接觸"
+    },
+    "source_hiv_status": {
+      "type": "string",
+      "description": "接觸來源者的 HIV 感染狀態（可為未知）"
+    },
+    "partner_viral_load_status": {
+      "type": "string",
+      "description": "如已知，伴侶病毒量或病毒抑制情況"
+    },
+    "partner_gender": {
+      "type": "string",
+      "description": "對象性別（僅依個管服務需求記錄，不作為 HIV 風險判斷依據）"
+    }
+  }
+}

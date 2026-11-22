@@ -1,0 +1,38 @@
+{
+  "category_id": "harm_reduction",
+  "category_name": "藥物使用與針具減害",
+  "fields": {
+    "substance_use_context": {
+      "type": "string",
+      "description": "使用成癮性物質的背景情境"
+    },
+    "administration_route": {
+      "type": "string",
+      "description": "物質的使用方式，例如注射或吸食"
+    },
+    "needle_sharing": {
+      "type": "boolean",
+      "description": "是否共用針頭、針筒或稀釋液"
+    },
+    "chemsex_context": {
+      "type": "boolean",
+      "description": "是否涉及以藥助性（chemsex）"
+    },
+    "concurrent_medications": {
+      "type": "string",
+      "description": "同時使用的其他藥物"
+    },
+    "substance_treatment_need": {
+      "type": "string",
+      "description": "是否希望取得戒癮或減害服務"
+    },
+    "service_area": {
+      "type": "string",
+      "description": "希望查詢服務的縣市或區域（不需要精確地址）"
+    },
+    "current_hiv_treatment": {
+      "type": "string",
+      "description": "目前是否正在接受 HIV 治療"
+    }
+  }
+}

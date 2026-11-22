@@ -1,0 +1,30 @@
+{
+  "category_id": "transmission_education",
+  "category_name": "傳染與非傳染途徑衛教",
+  "fields": {
+    "contact_setting": {
+      "type": "string",
+      "description": "接觸發生的場景，例如一般生活接觸或醫療器具接觸"
+    },
+    "contact_material": {
+      "type": "string",
+      "description": "接觸的物質或物品，例如血液、汗水或門把"
+    },
+    "blood_present": {
+      "type": "boolean",
+      "description": "接觸情境是否涉及可見血液"
+    },
+    "has_wound": {
+      "type": "boolean",
+      "description": "接觸部位皮膚是否有傷口"
+    },
+    "mucosal_contact": {
+      "type": "boolean",
+      "description": "是否有黏膜直接接觸"
+    },
+    "source_hiv_status": {
+      "type": "string",
+      "description": "接觸來源者的 HIV 感染狀態（可為未知）"
+    }
+  }
+}
