@@ -138,6 +138,11 @@ class GenericJsonlAdapter:
             "provenance": provenance, "attachments": [], "metadata": metadata,
         })
 
+    def to_config(self) -> dict[str, Any]:
+        """Return the effective, validated mapping and source-use settings."""
+        return {"type": "generic_jsonl", "mapping": dict(self._mapping),
+                "settings": dict(self._settings), "provenance": deepcopy(self._provenance)}
+
     def read_jsonl(self, path: str | Path) -> Iterator[SourceRecord]:
         return _read_jsonl(path, self)
 
@@ -251,6 +256,24 @@ class CdcQaAdapter:
             "title": title, "content": content, "provenance": provenance,
             "attachments": attachments, "metadata": metadata,
         })
+
+    def to_config(self) -> dict[str, Any]:
+        """Return effective CDC mapping and recorded policy/use evidence."""
+        return {
+            "type": "cdc_qa", "settings": dict(self._settings),
+            "attribution": self._provenance["attribution"],
+            "rights": deepcopy(self._provenance["rights"]),
+            "mapping": {
+                "source_record_id": "id", "title": "question", "content": "answer_html",
+                "source_locator": "source_url", "source_updated_at": "source_updated_at",
+                "collected_at_utc": "collected_at_utc", "raw_content_sha256": "content_sha256",
+                "raw_snapshot": "raw_snapshot (verified against page_url + manifest.pages)",
+                "attachments": "attachments", "source_category": "category",
+                "source_metadata": ["page_url", "source_anchor", "source_faq_id", "answer_text"],
+                "policy_evidence": "manifest.policy_provenance",
+            },
+            "policy_provenance": deepcopy(self._manifest.get("policy_provenance", [])),
+        }
 
     def read_jsonl(self, path: str | Path) -> Iterator[SourceRecord]:
         return _read_jsonl(path, self)
