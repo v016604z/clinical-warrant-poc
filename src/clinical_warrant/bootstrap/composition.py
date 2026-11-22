@@ -76,8 +76,9 @@ def build_context_intake_service(
     encoder: TextEncoder | None = None,
     classifier=None,
     registry=None,
+    repository=None,
 ):
-    """Compose intake; custom registries require a matching injected classifier."""
+    """Compose intake; persistence is opt-in and receives a session repository."""
     from clinical_warrant.modules.context_intake import ContextIntakeService, load_category_registry
 
     if registry is not None and classifier is None:
@@ -92,6 +93,7 @@ def build_context_intake_service(
         raise ValueError("classifier catalog_version does not match the Category Registry")
     return ContextIntakeService(
         classifier=classifier, extractor=extractor, registry=active_registry,
+        repository=repository,
     )
 
 

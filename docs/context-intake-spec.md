@@ -85,7 +85,7 @@ Commit 4 的 Session 另以 `TurnEvent` 保留結構化輪次歷史：`turn_id`�
 
 `Attribute` 是 Case 中由 `field_key` 識別的目前值，不隸屬單一 Category；相同 key 在多類別共用同一值。修正時以新明確值取代目前值並保留前後版本及來源輪次；相互矛盾且尚未確認的值先待澄清，不覆蓋已確認值。未提供、`null`、空白字串及語義上的「不知道」均不計為已知；`false`、`0` 均計為已知。
 
-Commit 4 的狀態目前保存在記憶體。值與既有值相衝突時保留舊值並記錄待確認候選；只有呼叫者明確確認候選或以 `correct_fields` 標示更正，才更新目前值並附加 history。
+Commit 4 的狀態預設保存在記憶體；Commit 5 可選注入 SQLite repository。值與既有值相衝突時保留舊值並記錄待確認候選；只有呼叫者明確確認候選或以 `correct_fields` 標示更正，才更新目前值並附加 history。啟用 repository 時，cache miss 以 `session_id` 載入完整 SessionState snapshot。每個成功 turn 先保存 snapshot，再更新 service cache；保存失敗時該 turn 不改變記憶體 cache。
 
 ### F05 — SQLite 保存
 
@@ -94,13 +94,19 @@ Commit 4 的狀態目前保存在記憶體。值與既有值相衝突時保留�
 | 資料表 | 責任 |
 |---|---|
 | `participants` | 匿名使用者識別 |
-| `sessions` | `session_id`、`participant_id`、可空的 `active_case_id` / `active_category_id`、`active_catalog_version` 與待答欄位；一個 Participant 可有多個 Session |
+| `sessions` | `session_id`、`participant_id`、可空的 `active_case_id` / `active_category_id`、`active_catalog_version`、待答問題與待確認衝突；一個 Participant 可有多個 Session |
 | `case_contexts` | `case_id`、`participant_id`；一個 Participant 可有多個 Case，新暴露事件另建 Case |
-| `turn_events` | `turn_id`、`session_id`、`participant_id`、可空的 `case_id` / `category_id`、順序、可空的分類 Top-1/Top-2、Category 來源、模型／目錄版本、`selected_fields`；不預設保存原始對話 |
-| `case_attributes` | `(case_id, field_key)` 複合主鍵、型別化 JSON 值、來源 `turn_id`、更新時間；同 Case 同 key 只有一個目前值 |
-| `attribute_history` | `history_id`、`case_id`、`field_key`、來源 `turn_id`、舊值／新值與新增／修正／確認動作 |
+| `turn_events` | `turn_id`、`turn_order`、`session_id`、`participant_id`、可空的 `case_id` / `category_id`、Category 來源、`catalog_version`、可空的分類 Top-1/Top-2、模型資訊與 `selected_fields`；不預設保存原始對話 |
+| `case_attributes` | `(case_id, field_key)` 複合主鍵、型別化 JSON 值與來源 `turn_id`；同 Case 同 key 只有一個目前值 |
+| `attribute_history` | `history_id`、`case_id`、`field_key`、`change_order`、動作、新值、可空舊值與來源 `turn_id` |
 
-`participants` 以 `participant_id` 為主鍵；其餘 ID 均為主鍵或受相應外鍵約束。`case_contexts` 另有 `(participant_id, case_id)` 唯一鍵；`sessions` 以 `(participant_id, active_case_id)` 指向同一 Participant 的 Case。`turn_events` 的 `participant_id` 必須與 Session 相同，非空 `case_id` 亦須指向同一 Participant 的 Case；可用複合外鍵落實。`active_category_id`、事件 `category_id` 與事件中的選取欄位須存在於對應版本的 Registry；`unknown` 以空 Category 表示。`case_attributes` 不含 `category_id` 作為鍵，同一 Case 可跨 Category 共用資訊；`attribute_history` 參照 Case、欄位及來源 turn。更新目前值與寫入歷史須在同一交易完成。刪除 Case 時，在同一交易清除 Session Active Case 與事件 Case 參照，並刪除其欄位、歷史，不能留下懸空參照。這六表只保存研究所需的結構化資料，不預設寫入原始對話或直接識別資訊。
+`participants` 以 `participant_id` 為主鍵；其餘 ID 均為主鍵或受相應外鍵約束。`case_contexts` 另有 `(participant_id, case_id)` 唯一鍵；`sessions` 以 `(participant_id, active_case_id)` 指向同一 Participant 的 Case。`turn_events` 的 `participant_id` 必須與 Session 相同，非空 `case_id` 亦須指向同一 Participant 的 Case；可用複合外鍵落實。Registry JSON 不寫入 SQLite，category ID、選取欄位與 `catalog_version` 以結構化快照保存；新 turn 的 category 與 selected fields 由當前 Registry / service 驗證。資料庫外鍵不驗證 category ID、欄位或歷史 Registry 版本，故不能只憑 DB 重建或證明舊版 Registry 定義。`unknown` 以空 Category 表示。`case_attributes` 不含 `category_id` 作為鍵，同一 Case 可跨 Category 共用資訊；`attribute_history` 參照 Case、欄位及來源 turn。更新目前值與寫入歷史須在同一交易完成。刪除 Case 時，在同一交易清除 Session Active Case 與事件 Case 參照，並刪除其欄位、歷史，不能留下懸空參照。這六表只保存研究所需的結構化資料，不預設寫入原始對話或直接識別資訊。
+
+使用持久化 service 時，應透過 `ContextIntakeService.delete_case(participant_id, case_id)` 刪除個案；只有 repository 刪除成功才會失效該 Participant 的 service cache。直接操作 repository 的刪除不會通知既有 service instance，必須重建該 service，否則舊 cache 可能再次保存已刪個案。
+
+載入具有 Active Category 的 Session 時，service 必須確認最近一筆 `TurnEvent` 使用目前 Registry 版本且 Category ID 與 Active Category 相符，並確認該 Category 存在於目前 Registry。若有待答問題或衝突，其欄位 key 也必須存在於該 Category；任一檢查失敗即拒絕載入，不寫入 service cache 或 SQLite。沒有 Active Category 的歷史 Session 可由新版本 service 載入並開始新問題。
+
+SQLite connection 的生命週期由呼叫端管理：初始化時呼叫 `initialize_database(connection)`，再建立 `SQLiteContextIntakeRepository(connection)` 並注入 service。既有 CLI 不自動建立或選擇資料庫檔案。
 
 ### F06 — Coverage Tracking
 

@@ -81,6 +81,9 @@
 - 使用 SQLite in-memory database 測試，正式資料檔不進入 Git。
 - 驗證 Participant / Session / Case 歸屬及 Active Case 的複合外鍵約束、`(case_id, field_key)` 唯一性、同交易更新目前值與歷史，以及刪除 Case 後沒有懸空參照。
 - `turn_events` 保存可空 Case / Category、分類版本、Top-1 / Top-2 及選取欄位；無 Case 的一般衛教 turn 可保存，預設不寫入原始對話。
+- `ContextIntakeService` 可選注入 session repository；cache miss 從 repository 載入，成功 turn 先保存完整 SessionState snapshot，保存成功後才更新記憶體 cache。儲存失敗時該 turn 不發布新記憶體狀態。
+- `build_context_intake_service(..., repository=...)` 提供 opt-in 接線，不改既有 CLI。透過 service `delete_case(participant_id, case_id)` 刪除個案；刪除成功後清除該 Participant 的所有 service cache，避免舊 snapshot 將個案寫回。
+- Category Registry 仍由版本化套件 JSON 載入；SQLite 不保存或取代 Registry snapshot。持久 Session 只記錄 Registry/catalog version；應使用相符版本的 Registry 恢復 session。資料庫本身不驗證 Registry 版本相容性，也不提供跨版本遷移。
 
 ### Commit 6 — Coverage 與評估
 

@@ -27,6 +27,16 @@ class IntakeClassifier(Protocol):
     def classify(self, query: str) -> IntakeClassificationResult: ...
 
 
+class ContextIntakeRepository(Protocol):
+    """Persistence port for complete immutable session snapshots."""
+
+    def save_session(self, session: SessionState) -> None: ...
+
+    def load_session(self, session_id: str) -> SessionState | None: ...
+
+    def delete_case(self, case_id: str, participant_id: str) -> bool: ...
+
+
 @dataclass(frozen=True)
 class IntakeTurnResult:
     session: SessionState
@@ -54,6 +64,7 @@ class ContextIntakeService:
         extractor: Extractor,
         registry: CategoryRegistry,
         id_factory: Callable[[], str] | None = None,
+        repository: ContextIntakeRepository | None = None,
     ) -> None:
         self.classifier = classifier
         self.extractor = extractor
@@ -62,6 +73,7 @@ class ContextIntakeService:
         if classifier_version is not None and classifier_version != registry.version:
             raise ValueError("classifier catalog_version does not match the Category Registry")
         self.id_factory = id_factory or (lambda: str(uuid4()))
+        self.repository = repository
         self._sessions: dict[str, SessionState] = {}
 
     @property
@@ -114,7 +126,13 @@ class ContextIntakeService:
             session_id = self.id_factory()
         current = self._sessions.get(session_id)
         if current is None:
-            current = SessionState(session_id=session_id, participant_id=participant_id)
+            current = self.repository.load_session(session_id) if self.repository is not None else None
+            if current is not None and current.participant_id != participant_id:
+                raise ValueError("session participant does not match participant_id")
+            if current is not None:
+                self._validate_restored_session(current)
+            if current is None:
+                current = SessionState(session_id=session_id, participant_id=participant_id)
         elif current.participant_id != participant_id:
             raise ValueError("session participant does not match participant_id")
         turn_id = self.id_factory()
@@ -126,7 +144,7 @@ class ContextIntakeService:
                 turn_id, current.active_case_id, current.active_category_id,
                 "handoff", None, (), self.registry.version,
             ))
-            self._sessions[session_id] = updated
+            self._commit(updated)
             return IntakeTurnResult(
                 updated, turn_id, current.active_category_id, "handoff", None, None, None, True
             )
@@ -157,7 +175,7 @@ class ContextIntakeService:
                 turn_id, case.case_id, conflict.category_id, "continuation", None, (),
                 self.registry.version,
             ))
-            self._sessions[session_id] = updated
+            self._commit(updated)
             return IntakeTurnResult(
                 updated, turn_id, conflict.category_id, "continuation", None, None,
                 None if confirm_conflict else "已保留原先記錄的值。",
@@ -180,7 +198,7 @@ class ContextIntakeService:
             updated = self._append_event(updated, TurnEvent(
                 turn_id, None, None, "classification", classification, (), self.registry.version,
             ))
-            self._sessions[session_id] = updated
+            self._commit(updated)
             return IntakeTurnResult(
                 updated, turn_id, None, "classification", classification, None,
                 "我還不確定您想詢問哪一類問題，可以再補充一下嗎？",
@@ -211,7 +229,7 @@ class ContextIntakeService:
                 "continuation" if continuation else "classification", classification, (),
                 self.registry.version,
             ))
-            self._sessions[session_id] = updated
+            self._commit(updated)
             return IntakeTurnResult(updated, turn_id, category_id,
                                     "continuation" if continuation else "classification",
                                     classification, None, None)
@@ -293,7 +311,7 @@ class ContextIntakeService:
             "continuation" if continuation else "classification", classification,
             event_selected_fields, self.registry.version,
         ))
-        self._sessions[session_id] = updated
+        self._commit(updated)
         return IntakeTurnResult(
             updated, turn_id, category_id,
             "continuation" if continuation else "classification",
@@ -320,5 +338,48 @@ class ContextIntakeService:
         """Return a state with this successful turn appended as structured history."""
         return replace(session, turn_events=(*session.turn_events, event))
 
+    def _commit(self, session: SessionState) -> None:
+        """Persist first so a failed write cannot publish partial memory state."""
+        if self.repository is not None:
+            self.repository.save_session(session)
+        self._sessions[session.session_id] = session
 
-__all__ = ["ContextIntakeService", "IntakeTurnResult"]
+    def _validate_restored_session(self, session: SessionState) -> None:
+        """Reject active state that cannot be interpreted by the current Registry."""
+        category_id = session.active_category_id
+        if category_id is None:
+            return
+        if not session.turn_events:
+            raise ValueError("stored active category has no originating turn event")
+        last_event = session.turn_events[-1]
+        if last_event.catalog_version != self.registry.version:
+            raise ValueError("stored active category uses a different Category Registry version")
+        if last_event.category_id != category_id:
+            raise ValueError("stored active category does not match the latest turn event")
+        try:
+            category = self.registry.get(category_id)
+        except (KeyError, ValueError) as error:
+            raise ValueError("stored active category is not present in the current Registry") from error
+        for pending in (session.pending_question, session.pending_conflict):
+            if pending is not None and pending.field_key not in category.fields:
+                raise ValueError("stored pending field is not present in the current Category")
+
+    def delete_case(self, participant_id: str, case_id: str) -> bool:
+        """Delete a participant-owned case and evict all affected session snapshots."""
+        if self.repository is None:
+            raise RuntimeError("delete_case requires an injected repository")
+        if not isinstance(participant_id, str) or not participant_id.strip():
+            raise ValueError("participant_id must be a non-empty string")
+        if not isinstance(case_id, str) or not case_id.strip():
+            raise ValueError("case_id must be a non-empty string")
+        deleted = self.repository.delete_case(case_id, participant_id=participant_id)
+        if deleted:
+            self._sessions = {
+                session_id: session
+                for session_id, session in self._sessions.items()
+                if session.participant_id != participant_id
+            }
+        return deleted
+
+
+__all__ = ["ContextIntakeRepository", "ContextIntakeService", "IntakeTurnResult"]

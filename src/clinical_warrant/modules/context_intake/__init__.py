@@ -10,7 +10,15 @@ from clinical_warrant.modules.context_intake.infrastructure.category_registry im
 from clinical_warrant.modules.context_intake.domain.classification import IntakeClassificationResult, IntakePrototypeCategory
 from clinical_warrant.modules.context_intake.application.classifier import IntakeQuestionClassifier
 from clinical_warrant.modules.context_intake.infrastructure.prototype_catalog import load_intake_prototype_catalog
-from clinical_warrant.modules.context_intake.application.intake import ContextIntakeService, IntakeTurnResult
+from clinical_warrant.modules.context_intake.infrastructure.sqlite_repository import (
+    SQLiteContextIntakeRepository,
+    initialize_database,
+)
+from clinical_warrant.modules.context_intake.application.intake import (
+    ContextIntakeRepository,
+    ContextIntakeService,
+    IntakeTurnResult,
+)
 from clinical_warrant.modules.context_intake.application.extraction import (
     ExtractionError,
     ExtractionRequest,
@@ -38,7 +46,10 @@ __all__ = [
     "IntakeQuestionClassifier",
     "IntakePrototypeCategory",
     "load_intake_prototype_catalog",
+    "SQLiteContextIntakeRepository",
+    "initialize_database",
     "ContextIntakeService",
+    "ContextIntakeRepository",
     "IntakeTurnResult",
     "ExtractionError",
     "ExtractionRequest",
