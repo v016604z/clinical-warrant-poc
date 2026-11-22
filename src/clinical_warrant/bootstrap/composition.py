@@ -12,13 +12,20 @@ from urllib.parse import urlsplit
 from clinical_warrant import __version__
 from clinical_warrant.infrastructure.catalog import load_research_catalog
 from clinical_warrant.infrastructure.runtime_metadata import core_dependency_versions
+from clinical_warrant.modules.classification import TextEncoder
 from clinical_warrant.modules.classification.application.classifier import (
     DEFAULT_THRESHOLD,
     QuestionClassifier,
     _validate_threshold,
 )
 from clinical_warrant.modules.classification.infrastructure.model_encoder import SentenceTransformerEncoder
-from clinical_warrant.modules.classification.infrastructure.prototype_cache import FilePrototypeVectorCache
+from clinical_warrant.modules.classification.infrastructure.prototype_cache import (
+    FilePrototypeVectorCache,
+    default_cache_dir,
+)
+from clinical_warrant.modules.context_intake import load_category_registry
+from clinical_warrant.modules.context_intake.application.classifier import IntakeQuestionClassifier
+from clinical_warrant.modules.context_intake.infrastructure.prototype_catalog import load_intake_prototype_catalog
 from clinical_warrant.modules.decision.application.warrant import WarrantEngine
 from clinical_warrant.modules.evaluation.application.evaluation import EvaluationCase, EvaluationError, evaluate_cases
 from clinical_warrant.modules.evaluation.infrastructure.report_writer import ReportPublishError, publish_report
@@ -48,6 +55,18 @@ def build_warrant_engine(
     else:
         classifier = classifier_factory(threshold=threshold)
     return WarrantEngine(classifier, rules=catalog.rules)
+
+
+def build_intake_question_classifier(
+    *, threshold: float, encoder: TextEncoder | None = None
+) -> IntakeQuestionClassifier:
+    """Build the isolated 14-category classifier; threshold must be calibrated explicitly."""
+    registry = load_category_registry()
+    return IntakeQuestionClassifier(
+        encoder if encoder is not None else SentenceTransformerEncoder(), registry=registry,
+        prototypes=load_intake_prototype_catalog(), threshold=threshold,
+        cache=FilePrototypeVectorCache(default_cache_dir() / "context-intake"),
+    )
 
 
 def evaluate_scenarios(

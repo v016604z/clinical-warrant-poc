@@ -1,0 +1,18 @@
+{
+  "categories": [
+    {"category_id": "harm_reduction", "prototypes": ["詢問物質使用情境中的風險降低與安全措施。", "了解針具、注射器材與相關用品的減害安排。"]},
+    {"category_id": "hiv_basics", "prototypes": ["了解 HIV 的基本概念、感染狀況與日常生活知識。", "詢問 HIV 相關名詞和一般背景資訊。"]},
+    {"category_id": "maternal_child_health", "prototypes": ["詢問孕期、生產或哺乳期間的 HIV 照護事項。", "了解母子垂直感染預防及嬰幼兒追蹤安排。"]},
+    {"category_id": "pep_post_exposure", "prototypes": ["了解暴露後預防用藥的評估、時程與療程安排。", "詢問 PEP 服務流程及用藥期間的追蹤事項。"]},
+    {"category_id": "personal_exposure_risk", "prototypes": ["依接觸方式、時間和防護情況整理個人暴露事件。", "評估一次特定接觸事件所需記錄的風險資訊。"]},
+    {"category_id": "prep_medication", "prototypes": ["了解 PrEP 預防用藥方式、服用安排與追蹤。", "詢問開始或持續使用 PrEP 時需要配合的事項。"]},
+    {"category_id": "prep_policy_services", "prototypes": ["查詢 PrEP 公費資格、補助範圍與申請方式。", "了解提供 PrEP 的服務單位及相關行政流程。"]},
+    {"category_id": "prevention_methods", "prototypes": ["整理可採取的 HIV 預防行為與防護選項。", "比較不同保護措施在日常情境中的使用方式。"]},
+    {"category_id": "screening_recommendation", "prototypes": ["了解依個人狀況安排篩檢的頻率與時機。", "詢問定期檢測規劃及何時需要再次篩檢。"]},
+    {"category_id": "symptom_questions", "prototypes": ["描述身體不適並詢問是否需要進一步評估。", "了解症狀觀察、就醫評估及可能的檢查方向。"]},
+    {"category_id": "testing_services", "prototypes": ["查詢可進行篩檢的地點、預約方式與服務流程。", "了解檢測費用、匿名服務及可使用的篩檢資源。"]},
+    {"category_id": "test_result_interpretation", "prototypes": ["了解檢驗報告各項結果欄位及其意義。", "詢問檢測結果的判讀方式與後續確認流程。"]},
+    {"category_id": "transmission_education", "prototypes": ["了解不同體液接觸與傳播可能性的相關知識。", "釐清日常互動中哪些情況涉及傳播或不涉及傳播。"]},
+    {"category_id": "window_period", "prototypes": ["了解感染後到檢測可辨識期間的差異。", "詢問不同檢測方式各自需要考量的等待時間。"]}
+  ]
+}

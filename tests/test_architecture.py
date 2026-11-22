@@ -5,7 +5,7 @@ from pathlib import Path
 
 
 PACKAGE = Path(__file__).parents[1] / "src" / "clinical_warrant"
-BUSINESS_MODULES = {"classification", "decision", "evaluation", "knowledge_base"}
+BUSINESS_MODULES = {"classification", "context_intake", "decision", "evaluation", "knowledge_base"}
 
 
 def _imports_from_source(source: str, current_module: str):
@@ -97,6 +97,16 @@ def test_application_does_not_depend_on_infrastructure_or_interfaces() -> None:
                 assert not imported.startswith(forbidden), (
                     f"{module} application {path.name} imports {imported}"
                 )
+
+
+def test_context_intake_infrastructure_does_not_depend_on_application() -> None:
+    infrastructure = PACKAGE / "modules" / "context_intake" / "infrastructure"
+    forbidden = "clinical_warrant.modules.context_intake.application"
+    for path in infrastructure.rglob("*.py"):
+        for imported, _names in _imports(path):
+            assert imported != forbidden and not imported.startswith(forbidden + "."), (
+                f"context_intake infrastructure {path.name} imports {imported}"
+            )
 
 
 def test_business_modules_do_not_import_each_others_internals() -> None:

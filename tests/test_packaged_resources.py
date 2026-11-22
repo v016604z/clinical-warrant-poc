@@ -23,3 +23,7 @@ def test_context_intake_categories_are_packaged(monkeypatch, tmp_path) -> None:
             category = json.load(stream)
         assert category["category_id"]
         assert isinstance(category["fields"], dict)
+
+    assert files("clinical_warrant.data").joinpath(
+        "context_intake", "prototypes.json"
+    ).is_file()

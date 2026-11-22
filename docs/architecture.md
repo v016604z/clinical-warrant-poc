@@ -47,8 +47,8 @@ flowchart LR
 - 套件仍採 `src` layout，`clinical_warrant.data` 的 JSON 需隨 wheel/sdist 打包；catalog loader 不依賴目前工作目錄。
 - 這次調整只改程式內部邊界，不改 model ID/revision、prototype cache identity 或輸出格式。
 
-## Context Intake 預定邊界（Commit 1 僅定義契約）
+## Context Intake 邊界（Commit 3 已完成分類路徑）
 
-Context Intake 的 14 類 `category_id`、Category Registry、對話狀態、SQLite 儲存與 Coverage 尚未實作。後續會沿用 Domain / Application / Infrastructure 分層，透過新的組裝入口提供 intake 用例；可共用分類模組的 Sentence Transformer encoder 介面，但使用獨立的 14 類 prototype catalog、分類結果型別、快取 namespace 與評估資料。既有四類 `QuestionType`、`build_warrant_engine()`、`decide` / `evaluate`、玩具規則與公開 JSON 契約不接收新類別，也不因 Category 欄位或 Coverage 改變決策。SQLite 由 intake infrastructure 使用 Python 標準庫 `sqlite3`，不讓 domain 依賴資料庫。
+Context Intake 的 14 類 `category_id`、Category Registry 與 Sentence Transformer 分類路徑已實作；對話狀態、SQLite 儲存與 Coverage 尚未實作。分類器由 `build_intake_question_classifier(threshold=...)` 組裝，門檻須明確提供；它可注入既有 Sentence Transformer encoder，並使用獨立的 14 類 prototype catalog、分類結果型別及 `context-intake` 快取子目錄。既有四類 `QuestionType`、`build_warrant_engine()`、`decide` / `evaluate`、玩具規則與公開 JSON 契約不接收新類別，也不因 Category 欄位或 Coverage 改變決策。SQLite 由 intake infrastructure 使用 Python 標準庫 `sqlite3`，不讓 domain 依賴資料庫。
 
-14 份 v2 Category JSON 預計於 Commit 2 放在 `src/clinical_warrant/data/context_intake/categories/`，作為 `clinical_warrant.data/context_intake/categories/` 套件資源；新 Registry loader 以 `importlib.resources` 載入已登錄 ID。現有 research catalog 的 `prototypes.json`、`rules.json`、`mock_cases.json` 實際位於根目錄 `data/`，與 loader 期望的 `clinical_warrant.data` 佈局不符；Commit 2 需先將這三份檔案原樣放入套件資源，再驗證新舊 JSON 在 wheel / sdist 安裝後都可讀。具體資料契約與分階段驗收見[功能規格](context-intake-spec.md)及[實作計畫](context-intake-implementation-plan.md)。
+14 份 v2 Category JSON 已放在 `src/clinical_warrant/data/context_intake/categories/`，Registry loader 透過 `importlib.resources` 載入並驗證已登錄 ID。研究用 `prototypes.json`、`rules.json`、`mock_cases.json` 也已放入 `src/clinical_warrant/data/` 套件資源；14 類分類 prototypes 獨立位於 `src/clinical_warrant/data/context_intake/prototypes.json`，不取代 Category JSON 或研究 catalog。package-data 已設定包含上述 JSON；套件資源在目前工作樹可讀，但 wheel / sdist 安裝後的載入驗證尚未執行，因環境沒有可用的 Python。具體資料契約與分階段驗收見[功能規格](context-intake-spec.md)及[實作計畫](context-intake-implementation-plan.md)。

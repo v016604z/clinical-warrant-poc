@@ -26,7 +26,7 @@ clinical-warrant = "clinical_warrant.interfaces.cli:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-"clinical_warrant.data" = ["*.json", "context_intake/categories/*.json"]
+"clinical_warrant.data" = ["*.json", "context_intake/categories/*.json", "context_intake/prototypes.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
