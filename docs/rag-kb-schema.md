@@ -1,6 +1,6 @@
 # RAG Knowledge Base 資料契約 v1
 
-本文件是[實作計畫](clinical_warrant_rag_kb_pipeline_plan.md) Commit 1 定義的規範。`schema_version` 固定為字串 `"1.0"`；Commit 2–3 提供契約驗證、SourceRecord Adapter、文字清洗與文件品質檢核；切分、完整 run／快照驗證與 CLI 留待後續 Commit。目前的 `kb build/merge/validate` 是預期介面。
+本文件是[實作計畫](clinical_warrant_rag_kb_pipeline_plan.md) Commit 1 定義的規範。`schema_version` 固定為字串 `"1.0"`；Commit 2–5 已提供契約、Adapter、清洗、切分去重、run／manifest 驗證與 `kb build/merge/validate` CLI。Commit 6 CDC 與跨來源端到端驗收已完成；全套 pytest 為 384 passed、1 skipped（真實模型 smoke test 為 opt-in），詳見[驗收紀錄與使用指南](rag-kb-usage.md)。
 
 ## 1. 用途、來源與權限
 
@@ -16,7 +16,7 @@ CDC 蒐集範圍、署名要求、開放宣告與著作權例外沿用[資料蒐
 | --- | --- |
 | JSON / JSONL | UTF-8、無 BOM；JSONL 每行一個物件；拒絕重複 object key、NaN、Infinity 及無效 Unicode。 |
 | 必填 | 表內「是」表示 key 必須存在；只有標示 `null` 的欄位可為 null。可選 key 缺省值寫於表內，不可擅用 null。 |
-| 字串 | 除明示允許外，須非空且不只空白；不得含 NUL。 |
+| 字串 | 除明示允許外，須非空且不只空白；不得含 NUL。`KnowledgeChunk.text` 可例外為非空的純空白原文 slice，以保留完整區間並符合 `max_chars`。 |
 | 日期 | `YYYY-MM-DD`，須是有效日期；UTC 時間為 `YYYY-MM-DDTHH:MM:SSZ`，不可用本機時區或本次執行時間補造來源日期。 |
 | SHA-256 | 裸 digest 為 64 個小寫十六進位字元；只有 `document_version` 使用 `sha256:` 前綴。 |
 | 擴充 | 核心欄位以本文件為準；來源額外欄位放 `metadata`，值須為合法 JSON；未知核心欄位視為驗證錯誤。 |
@@ -95,7 +95,7 @@ quality 所有 key 必填：
 | chunk_id | string | 是 | `"chunk:" + H(chunk_identity)`，見第 3 節。 |
 | document_id / document_version | string | 是 | 精確引用本 run 的 Document。 |
 | chunk_index | integer | 是 | 單一文件內從 0 連續遞增；不接受 bool。 |
-| text | string | 是 | 必須等於 `document.content_text[char_start:char_end]`，不得另加問題前綴或標題。 |
+| text | string | 是 | 必須等於 `document.content_text[char_start:char_end]`，不得另加問題前綴或標題。不得為空；若原文區間只有空白，允許保留該非空 slice。 |
 | char_start / char_end | integer | 是 | Unicode code point offset，起點含、終點不含，`0 <= start < end <= len(content_text)`；不是 UTF-8 bytes，也不是 UTF-16 code unit。 |
 | source_locator | string | 是 | 與 Document.source.source_locator 相同。 |
 | metadata | object | 是 | 至少含 dataset_id、document_type、language、source_updated_at（可 null）、source_category（可 null）；皆由 Document 複製，額外來源欄位放 `source_metadata` object，缺省 `{}`。 |
@@ -381,4 +381,15 @@ report 必須可對帳：build 的 `input_count = document_count + rejected_coun
 | 跨來源同文 | 保留各自文件與引用，只標重複。 |
 | 改 chunk、manifest hash 或引用 | validate 重算後偵測損壞；與既有 decide/evaluate baseline 無回歸。 |
 
-Commit 1 只驗證文件範例、hash/offset、連結及變更範圍；完整實作與端到端驗收依[六階段計畫](clinical_warrant_rag_kb_pipeline_plan.md)進行。
+Commit 1 原先驗證文件範例、hash/offset 與連結；KB CLI、run IO 與 Commit 6 端到端驗收均已完成，測試結果及使用限制見[使用與驗收指南](rag-kb-usage.md)。
+
+### KB CLI 與 run 檔案
+
+`clinical-warrant kb build` 需要明確的 `--as-of` 與 `--stale-after-days`；`--strict` 預設為 false。CDC build 另需 `--source-root`、`--intended-use`、`--usage-decision`；Generic JSONL build 需完整 rights JSON 設定。成功 run 固定包含七個資料檔：五個 JSONL（`documents.jsonl`、`chunks.jsonl`、`issues.jsonl`、`rejected.jsonl`、`reviews.jsonl`）及兩個 JSON（`quality_report.json`、`manifest.json`）。即使沒有審查紀錄，`reviews.jsonl` 仍存在且為空；有紀錄時每行使用 `{ "review_ref": "...", "record": { ...八欄審查資料... } }` envelope。
+
+CLI 會先比對 CDC manifest 所列頁面與政策快照的實際 bytes hash，並將驗證過的 evidence hash 記入 run。Document 的 `snapshot_not_verified` 仍表示 preparation 不自行讀取快照 artifact；這與 CLI 的來源證據驗證分屬不同階段。
+
+```powershell
+clinical-warrant kb build --adapter cdc_qa --source-root datasets/tw_cdc_hiv_qa --input datasets/tw_cdc_hiv_qa/qa.jsonl --output-dir evaluation-runs/kb-cdc --intended-use local_reference --usage-decision unknown --as-of 2026-11-22 --stale-after-days 1095
+clinical-warrant kb validate --dataset evaluation-runs/kb-cdc
+```

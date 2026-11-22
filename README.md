@@ -64,7 +64,37 @@ python -m venv .venv
 
 CDC 愛滋公開問答的蒐集範圍、執行方式、原始快照與資料使用限制見[資料蒐集說明](docs/data-collection.md)。
 
-可複用 RAG Knowledge Base 的六階段工作見[實作計畫](docs/clinical_warrant_rag_kb_pipeline_plan.md)；來源、文件與區塊契約及版本策略見[資料契約 v1](docs/rag-kb-schema.md)。目前已完成資料契約、來源 Adapter、文字清洗與文件品質檢核的 Python API；切分、完整 run／快照驗證與 `kb build/merge/validate` 留待後續階段實作。
+可複用 RAG Knowledge Base 的階段與驗收範圍見[實作計畫](docs/clinical_warrant_rag_kb_pipeline_plan.md)；來源、文件與區塊契約及版本策略見[資料契約 v1](docs/rag-kb-schema.md)。離線命令、權利設定、review evidence 與失敗診斷見[KB 使用與驗收](docs/rag-kb-usage.md)。Commit 6 CDC 與跨來源端到端驗收已完成；全套測試為 384 passed、1 skipped（真實模型 smoke test 為 opt-in）。
+
+### KB command line
+
+Build the checked-in CDC snapshot locally (no collection or network access). `--as-of` and `--stale-after-days` are required; strict mode is opt-in and defaults to false.
+
+```powershell
+.\.venv\Scripts\clinical-warrant.exe kb build --adapter cdc_qa --source-root datasets/tw_cdc_hiv_qa --input datasets/tw_cdc_hiv_qa/qa.jsonl --output-dir evaluation-runs/kb-cdc --intended-use local_reference --usage-decision unknown --as-of 2026-11-22 --stale-after-days 1095
+.\.venv\Scripts\clinical-warrant.exe kb validate --dataset evaluation-runs/kb-cdc
+.\.venv\Scripts\clinical-warrant.exe kb merge --inputs evaluation-runs/kb-cdc --output-dir evaluation-runs/kb-merged
+```
+
+For `generic_jsonl`, provide `--dataset-id`, `--attribution`, and `--rights-config FILE` containing the complete rights object required by the schema. This repository has no generic rights or mapping config file; create a UTF-8 JSON file for the source and intended use. For the checked-in nonmedical fixture, a minimal conservative `rights.json` is:
+
+```json
+{
+  "status": "unknown",
+  "statement": "Rights have not been verified for this use.",
+  "policy_locators": [],
+  "intended_use": "local_fixture_validation",
+  "usage_decision": "unknown"
+}
+```
+
+Then run the fixture with the standard field names (so no mapping file is needed):
+
+```powershell
+.\.venv\Scripts\clinical-warrant.exe kb build --adapter generic_jsonl --input tests/fixtures/kb_generic.jsonl --output-dir evaluation-runs/kb-generic --dataset-id example_articles --attribution "Example Publisher" --rights-config rights.json --as-of 2026-11-22 --stale-after-days 1095
+```
+
+An optional `--mapping FILE` contains a JSON object of logical fields to source field names. Build publishes a new immutable run directory; an existing output path is an error.
 
 ## 情境評估
 

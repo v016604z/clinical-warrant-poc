@@ -1,6 +1,6 @@
 # Clinical Warrant PoC｜可複用的 RAG Knowledge Base 資料處理 Pipeline 實作計畫
 
-> **性質**：Commit 1–3 已完成規格、契約、來源 Adapter、文字清洗與文件品質檢核；Commit 4–6 待實作，KB CLI 尚未實作。\
+> **性質**：Commit 1–5 已完成規格、契約、來源 Adapter、文字清洗、品質檢核、切分去重 API、run IO 與 KB CLI；Commit 6 CDC／跨來源端到端驗收已完成。全套 pytest 為 384 passed、1 skipped（真實模型 smoke test 為 opt-in）；細節見[使用與驗收紀錄](rag-kb-usage.md)。\
 > **參考專案**：[v016604z/clinical-warrant-poc](https://github.com/v016604z/clinical-warrant-poc)  
 > **參考風格**：[`docs/implementation-plan.md`](https://github.com/v016604z/clinical-warrant-poc/blob/main/docs/implementation-plan.md)  
 > **存放位置**：`docs/clinical_warrant_rag_kb_pipeline_plan.md`\
@@ -137,7 +137,7 @@ CDC qa.jsonl ──────► cdc_qa Adapter ─────┐
 
 來源更名、內容版本、清洗規則版本與執行時間分別管理；schema 定義精確 canonical JSON 與 hash 投影。相同本文版本但不同 provenance、權利、metadata 或審查紀錄，不得任選一筆丟棄證據，merge 預設回報 metadata conflict。內容版本不包含審查時間，人工放行仍須綁定文件版本與來源指紋。
 
-Commit 1 交付本計畫、正式 schema 與 README 文件入口；Commit 2–3 新增資料契約、來源 Adapter、文字清洗與文件品質檢核，chunking 與 KB CLI 尚未實作。既有原始 qa.jsonl、manifest.json、raw 與其他來源資料一律不覆寫。
+Commit 1 交付本計畫、正式 schema 與 README 文件入口；Commit 2–3 新增資料契約、來源 Adapter、文字清洗與文件品質檢核；Commit 4 新增切分、精確去重與衝突辨識 API；Commit 5 完成 run／manifest IO 與 `kb build/merge/validate` CLI；Commit 6 完成 CDC 快照與跨來源端到端驗收。全套 pytest 結果為 384 passed、1 skipped（真實模型 smoke test 為 opt-in）。既有原始 qa.jsonl、manifest.json、raw 與其他來源資料未被覆寫。
 
 ## 5. Pipeline 的處理政策
 
@@ -181,7 +181,7 @@ Commit 1 交付本計畫、正式 schema 與 README 文件入口；Commit 2–3 
 
 ## 6. CLI 與輸出成果
 
-### 6.1 CLI 設計（預期介面，尚未實作）
+### 6.1 CLI 介面（Commit 5 已實作；Commit 6 端到端驗收已完成）
 
 ```powershell
 # 由已存在的 CDC 119 筆來源建立一個不可覆寫的 run
@@ -189,26 +189,22 @@ clinical-warrant kb build `
   --adapter cdc_qa `
   --input datasets/tw_cdc_hiv_qa/qa.jsonl `
   --source-root datasets/tw_cdc_hiv_qa `
-  --dataset-id tw_cdc_hiv_qa `
+  --intended-use local_reference `
+  --usage-decision unknown `
+  --as-of 2026-11-22 `
+  --stale-after-days 1095 `
   --output-dir kb-runs/cdc-hiv-v1
 
-# 通用新來源；不需要修改共用的清洗、切分與 merge 程式
-clinical-warrant kb build `
-  --adapter generic_jsonl `
-  --input datasets/example_articles.jsonl `
-  --dataset-id example_articles `
-  --output-dir kb-runs/example-v1
-
-# 合併成單一、可被 RAG Indexer 消費的版本
+# 產生不可覆寫的 merge run；unknown 權利資料仍會隔離
 clinical-warrant kb merge `
-  --inputs kb-runs/cdc-hiv-v1 kb-runs/example-v1 `
+  --inputs kb-runs/cdc-hiv-v1 `
   --output-dir kb-runs/knowledge-base-v1
 
 # 驗證文件、chunk、版本、引用與 manifest
 clinical-warrant kb validate --dataset kb-runs/knowledge-base-v1
 ```
 
-CLI 可在既有 `clinical-warrant` 指令中新增 `kb` 子命令，並保留 `python -m clinical_warrant` 支援。`generic_jsonl` 對非標準欄名可另提供 `--mapping config.json`；實作時應保證無映射設定也能讀取本文範例格式。
+CLI 保留既有 `clinical-warrant` 指令並支援 `python -m clinical_warrant`。`generic_jsonl` build 必須提供 `--dataset-id`、`--attribution`、完整 rights JSON `--rights-config`、`--as-of` 與 `--stale-after-days`；非標準欄名可另提供 `--mapping config.json`。`--strict` 預設為 false。
 
 ### 6.2 每次 build / merge 的輸出
 
@@ -218,6 +214,7 @@ kb-runs/<run-id>/
 ├── chunks.jsonl          # 僅輸出符合索引準入政策的 chunks
 ├── issues.jsonl          # 每筆警示、清理紀錄、待人工審查原因
 ├── rejected.jsonl        # 格式錯誤／無法處理的來源資料與錯誤資訊
+├── reviews.jsonl         # 可追溯的審查紀錄 envelope；無紀錄時為空檔
 ├── quality_report.json   # 品質統計、各來源分布、時效與附件問題
 └── manifest.json         # schema/pipeline/config 版本、來源/輸出 hash、完成狀態
 ```
@@ -258,16 +255,23 @@ kb-runs/<run-id>/
 
 ## 8. 最終完成定義（Definition of Done）
 
-- [ ] 原 CDC `qa.jsonl`、`manifest.json`、`raw/` 未被覆寫，且所有來源可回查。
-- [ ] 119 筆能逐筆對帳；清洗掉已知 HTML/CMS 雜訊，且保留必要資訊。
-- [ ] 有可執行、可驗證的 `SourceRecord → KnowledgeDocument → KnowledgeChunk` 流程。
-- [ ] 至少兩種 Adapter 已實作並測試；**新增資料來源不需要修改核心 Pipeline**。
-- [ ] `documents.jsonl`、`chunks.jsonl`、`issues.jsonl`、`rejected.jsonl`、`quality_report.json`、`manifest.json` 完備。
-- [ ] 可辨識附件不完整、來源時效、缺漏、重複與衝突，不會把資料整理誤稱為臨床正確性審核。
-- [ ] 同一輸入及設定的產出可重現；版本與引用完整；嚴重錯誤不產生假成功 manifest。
-- [ ] `kb build`／`kb merge`／`kb validate` 可離線執行；測試通過且既有 `decide`、`evaluate` 不回歸。
-- [ ] README 說明安裝、執行、新增 Adapter、通用 JSONL 匯入、版本治理及使用限制。
-- [ ] 最多 6 個本機 commit，各階段附可追蹤驗收；**不自動 push**。
+- [x] 原 CDC `qa.jsonl`、`manifest.json`、`raw/` 未被覆寫，且所有來源可回查。
+- [x] 119 筆能逐筆對帳；清洗掉已知 HTML/CMS 雜訊，且保留必要資訊。
+- [x] 有可執行、可驗證的 `SourceRecord → KnowledgeDocument → KnowledgeChunk` 流程。
+- [x] 至少兩種 Adapter 已實作並測試；**新增資料來源不需要修改核心 Pipeline**。
+- [x] `documents.jsonl`、`chunks.jsonl`、`issues.jsonl`、`rejected.jsonl`、`reviews.jsonl`、`quality_report.json`、`manifest.json` 完備。
+- [x] 可辨識附件不完整、來源時效、缺漏、重複與衝突，不會把資料整理誤稱為臨床正確性審核。
+- [x] 同一輸入及設定的產出可重現；版本與引用完整；嚴重錯誤不產生假成功 manifest。
+- [x] `kb build`／`kb merge`／`kb validate` 可離線執行；測試通過且既有 `decide`、`evaluate` 不回歸。
+- [x] README 與[KB 使用指南](rag-kb-usage.md)說明命令、通用 JSONL 匯入、版本治理與使用限制。
+- [x] Commit 6 驗收結果已記錄；未自動 push，是否建立 commit 由使用者決定。
+
+### Commit 6 驗收紀錄（2026-11-22；已完成）
+
+- CDC 快照端到端固定 `as_of=2026-11-22`、`stale_after_days=10000`，使用僅供測試的 `intended_use=e2e_test_only`／`usage_decision=allowed`，不代表真實資料重用授權。119 筆輸入核對為 119 documents、0 rejected、0 exact duplicates、118 ready、1 needs_review、0 excluded、118 chunks。唯一 needs_review 文件依賴附件比較表，保留正文但沒有 chunk；每個 chunk 的 source、原文 slice、offset、citation/reference、最大長度與完整覆蓋均驗證。CDC `qa.jsonl`、manifest 與 raw snapshot 樹 build 前後 hash 相同。
+- 混合 CDC 與 generic fixture 的 merge：121 個輸入文件、119 個正式 ready documents/chunks、2 個隔離文件（needs_review 與 rights_not_approved），輸入狀態與輸出計數可對帳。另一跨來源相同 clean content 測試保留兩個 dataset 的 document ID 與引用，報告一組 cross-source duplicate、0 exact duplicates；反轉輸入順序後資料檔、quality report 及排除時間欄位後的 manifest 一致。
+- 負面 E2E focused 測試驗證同 ID 版本／metadata 衝突、strict merge 錯誤診斷、既存輸出保護、重算輸出 hash 後的 chunk/document/report/config 語義竄改，以及 review evidence 保留、來源／版本變更後舊審查失效、prohibited 不可由 approved 繞過。
+- 所有 CLI run 輸出使用 pytest `tmp_path`，未將生成的 run artifacts 留在版本庫。完整 pytest：384 passed、1 skipped，9.07 秒；唯一 skip 是需明確 opt-in 並載入 pinned model 的真實模型 smoke test。
 
 ## 9. 研究使用與後續階段
 
