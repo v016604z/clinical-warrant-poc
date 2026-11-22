@@ -1,0 +1,26 @@
+{
+  "category_id": "symptom_questions",
+  "category_name": "症狀疑慮",
+  "fields": {
+    "symptoms": {
+      "type": "string",
+      "description": "目前自述症狀"
+    },
+    "symptom_onset": {
+      "type": "string",
+      "description": "症狀開始或持續的時間"
+    },
+    "possible_exposure_event": {
+      "type": "boolean",
+      "description": "是否提到可能暴露事件"
+    },
+    "exposure_datetime": {
+      "type": "string",
+      "description": "可能暴露的發生時間，可保留「昨天」等原始描述"
+    },
+    "test_history": {
+      "type": "string",
+      "description": "過去 HIV 檢驗歷程"
+    }
+  }
+}

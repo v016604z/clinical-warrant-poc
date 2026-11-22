@@ -1,0 +1,30 @@
+{
+  "category_id": "window_period",
+  "category_name": "篩檢空窗期",
+  "fields": {
+    "last_possible_exposure_date": {
+      "type": "string",
+      "description": "最近一次可能暴露的日期或時間"
+    },
+    "test_date": {
+      "type": "string",
+      "description": "進行 HIV 檢驗的日期"
+    },
+    "test_method": {
+      "type": "string",
+      "description": "採用的 HIV 檢驗方法"
+    },
+    "test_result": {
+      "type": "string",
+      "description": "HIV 檢驗結果（如陰性、初步陽性、未知）"
+    },
+    "further_exposure_after_test": {
+      "type": "boolean",
+      "description": "在上次篩檢後是否有新的可能暴露"
+    },
+    "antiretroviral_use": {
+      "type": "boolean",
+      "description": "檢驗前後是否使用相關抗病毒藥物"
+    }
+  }
+}

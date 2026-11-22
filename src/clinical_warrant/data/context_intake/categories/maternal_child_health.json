@@ -1,0 +1,46 @@
+{
+  "category_id": "maternal_child_health",
+  "category_name": "孕產婦與母子垂直感染",
+  "fields": {
+    "pregnancy_status": {
+      "type": "string",
+      "description": "是否涉及懷孕、產後或孕產婦情境"
+    },
+    "pregnancy_stage": {
+      "type": "string",
+      "description": "懷孕週數或孕期階段"
+    },
+    "antenatal_hiv_test_history": {
+      "type": "string",
+      "description": "孕期 HIV 篩檢歷程"
+    },
+    "new_exposure_during_pregnancy": {
+      "type": "boolean",
+      "description": "孕期是否發生新的可能暴露"
+    },
+    "maternal_hiv_status": {
+      "type": "string",
+      "description": "孕產婦已知的 HIV 感染狀態"
+    },
+    "maternal_viral_load": {
+      "type": "string",
+      "description": "如已知，孕產婦的病毒量狀態"
+    },
+    "maternal_treatment_status": {
+      "type": "string",
+      "description": "是否正在接受相關治療及服藥"
+    },
+    "delivery_context": {
+      "type": "string",
+      "description": "分娩階段或預期分娩情境"
+    },
+    "infant_context": {
+      "type": "string",
+      "description": "新生兒或嬰幼兒相關照護背景"
+    },
+    "infant_feeding_type": {
+      "type": "string",
+      "description": "嬰兒哺餵方式"
+    }
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "purpose": "Entirely synthetic wiring fixtures using fictional HIV screening questions. They test package and contract links only, are not an independent evaluation set, and contain no patient data, medical advice, or clinical thresholds.",
+  "cases": [
+    {
+      "case_id": "toy-result-complete",
+      "query": "我的愛滋篩檢報告結果該怎麼看？",
+      "question_type": "result_interpretation",
+      "requested_scope": "education",
+      "rule_id": "toy-result-interpretation-v1",
+      "data_state": "complete",
+      "case": {"scenario_id": "synthetic-a", "toy_rule_flag": "applicable"}
+    },
+    {
+      "case_id": "toy-window-complete",
+      "query": "接觸後隔一段時間再檢測，結果會有差別嗎？",
+      "question_type": "window_period",
+      "requested_scope": "education",
+      "rule_id": "toy-window-period-v1",
+      "data_state": "complete",
+      "case": {"scenario_id": "synthetic-b", "toy_rule_flag": "applicable"}
+    },
+    {
+      "case_id": "toy-exposure-complete",
+      "query": "這樣的接觸會有感染愛滋的風險嗎？",
+      "question_type": "exposure_risk",
+      "requested_scope": "education",
+      "rule_id": "toy-exposure-risk-v1",
+      "data_state": "complete",
+      "case": {"scenario_id": "synthetic-c", "toy_rule_flag": "applicable"}
+    },
+    {
+      "case_id": "toy-prevention-complete",
+      "query": "有哪些預防愛滋感染的方式？",
+      "question_type": "prevention_education",
+      "requested_scope": "education",
+      "rule_id": "toy-prevention-education-v1",
+      "data_state": "complete",
+      "case": {"scenario_id": "synthetic-d", "toy_rule_flag": "applicable"}
+    },
+    {
+      "case_id": "toy-result-missing-field",
+      "query": "我的愛滋篩檢報告結果該怎麼看？",
+      "question_type": "result_interpretation",
+      "requested_scope": "education",
+      "rule_id": "toy-result-interpretation-v1",
+      "data_state": "missing_required_field",
+      "case": {"scenario_id": "synthetic-e"}
+    },
+    {
+      "case_id": "toy-window-nonmatching",
+      "query": "接觸後隔一段時間再檢測，結果會有差別嗎？",
+      "question_type": "window_period",
+      "requested_scope": "education",
+      "rule_id": "toy-window-period-v1",
+      "data_state": "complete",
+      "case": {"scenario_id": "synthetic-f", "toy_rule_flag": "not_applicable"}
+    }
+  ]
+}

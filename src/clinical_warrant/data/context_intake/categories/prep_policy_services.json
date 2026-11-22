@@ -1,0 +1,38 @@
+{
+  "category_id": "prep_policy_services",
+  "category_name": "PrEP 公費政策與服務",
+  "fields": {
+    "program_year": {
+      "type": "string",
+      "description": "欲查詢的 PrEP 公費計畫年度"
+    },
+    "age_years": {
+      "type": "integer",
+      "description": "年齡（歲）"
+    },
+    "citizenship_context": {
+      "type": "string",
+      "description": "與當年度補助資格相關的國籍或居留狀態"
+    },
+    "hiv_test_result": {
+      "type": "string",
+      "description": "最近一次 HIV 篩檢結果"
+    },
+    "partner_hiv_status": {
+      "type": "string",
+      "description": "性伴侶的 HIV 感染狀態（可為未知）"
+    },
+    "risk_assessment_status": {
+      "type": "string",
+      "description": "是否經醫療人員進行相關適用性評估"
+    },
+    "service_area": {
+      "type": "string",
+      "description": "希望查詢服務的縣市或區域（不需要精確地址）"
+    },
+    "program_participation_context": {
+      "type": "string",
+      "description": "與公費計畫資格有關的個案情況"
+    }
+  }
+}

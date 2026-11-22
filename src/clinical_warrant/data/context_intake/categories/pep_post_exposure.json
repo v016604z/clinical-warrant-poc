@@ -1,0 +1,54 @@
+{
+  "category_id": "pep_post_exposure",
+  "category_name": "PEP 暴露後預防性投藥",
+  "fields": {
+    "exposure_datetime": {
+      "type": "string",
+      "description": "可能暴露的發生時間，可保留「昨天」等原始描述"
+    },
+    "exposure_route": {
+      "type": "string",
+      "description": "暴露方式，例如性行為、共用針具或血液／體液接觸"
+    },
+    "source_hiv_status": {
+      "type": "string",
+      "description": "接觸來源者的 HIV 感染狀態（可為未知）"
+    },
+    "blood_or_body_fluid_contact": {
+      "type": "string",
+      "description": "是否接觸血液或可能相關體液"
+    },
+    "needle_sharing": {
+      "type": "boolean",
+      "description": "是否共用針頭、針筒或稀釋液"
+    },
+    "has_wound": {
+      "type": "boolean",
+      "description": "接觸部位皮膚是否有傷口"
+    },
+    "mucosal_contact": {
+      "type": "boolean",
+      "description": "是否有黏膜直接接觸"
+    },
+    "occupational_exposure": {
+      "type": "boolean",
+      "description": "是否為執行職務時的暴露事件"
+    },
+    "medical_evaluation_status": {
+      "type": "string",
+      "description": "是否已接受醫師評估"
+    },
+    "pep_use_status": {
+      "type": "string",
+      "description": "是否已接受或開始 PEP"
+    },
+    "other_medications": {
+      "type": "string",
+      "description": "其他目前使用的藥物"
+    },
+    "service_area": {
+      "type": "string",
+      "description": "希望查詢服務的縣市或區域（不需要精確地址）"
+    }
+  }
+}

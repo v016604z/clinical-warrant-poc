@@ -1,0 +1,46 @@
+{
+  "category_id": "screening_recommendation",
+  "category_name": "篩檢建議與頻率",
+  "fields": {
+    "screening_motivation": {
+      "type": "string",
+      "description": "希望篩檢的原因（個管服務流程保留，並非一律必問）"
+    },
+    "ever_tested": {
+      "type": "boolean",
+      "description": "過去是否曾接受 HIV 篩檢"
+    },
+    "last_test_date": {
+      "type": "string",
+      "description": "最近一次 HIV 篩檢日期"
+    },
+    "new_exposure": {
+      "type": "boolean",
+      "description": "近期是否有新的可能暴露"
+    },
+    "sexual_exposure_pattern": {
+      "type": "string",
+      "description": "近期性行為或暴露概況"
+    },
+    "condom_use": {
+      "type": "string",
+      "description": "該次行為是否全程使用保險套"
+    },
+    "sti_history": {
+      "type": "boolean",
+      "description": "是否曾有其他性傳染病史"
+    },
+    "multiple_partners": {
+      "type": "boolean",
+      "description": "是否涉及多重性伴侶的情境"
+    },
+    "needle_sharing": {
+      "type": "boolean",
+      "description": "是否共用針頭、針筒或稀釋液"
+    },
+    "partner_hiv_status": {
+      "type": "string",
+      "description": "性伴侶的 HIV 感染狀態（可為未知）"
+    }
+  }
+}

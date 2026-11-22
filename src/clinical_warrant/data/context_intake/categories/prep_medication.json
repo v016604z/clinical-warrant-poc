@@ -1,0 +1,54 @@
+{
+  "category_id": "prep_medication",
+  "category_name": "PrEP 預防性用藥",
+  "fields": {
+    "hiv_test_result": {
+      "type": "string",
+      "description": "最近一次 HIV 篩檢結果"
+    },
+    "hiv_status": {
+      "type": "string",
+      "description": "目前已知的 HIV 感染狀態"
+    },
+    "prep_current_use": {
+      "type": "boolean",
+      "description": "目前是否使用 PrEP"
+    },
+    "prep_dosing_pattern": {
+      "type": "string",
+      "description": "目前 PrEP 的服藥模式"
+    },
+    "prep_adherence": {
+      "type": "string",
+      "description": "自述 PrEP 服藥遵從情形"
+    },
+    "exposure_pattern": {
+      "type": "string",
+      "description": "近期可能暴露的型態或頻率"
+    },
+    "renal_function_context": {
+      "type": "string",
+      "description": "如已知，腎功能檢查或相關病史"
+    },
+    "hepatitis_b_context": {
+      "type": "string",
+      "description": "如已知，B 型肝炎相關狀況"
+    },
+    "pregnancy_status": {
+      "type": "string",
+      "description": "是否涉及懷孕、產後或孕產婦情境"
+    },
+    "other_medications": {
+      "type": "string",
+      "description": "其他目前使用的藥物"
+    },
+    "adverse_effects": {
+      "type": "string",
+      "description": "目前是否有疑似用藥副作用"
+    },
+    "planned_prep_change": {
+      "type": "string",
+      "description": "是否打算開始、更改或停止 PrEP"
+    }
+  }
+}

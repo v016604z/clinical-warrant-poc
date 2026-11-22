@@ -1,0 +1,38 @@
+{
+  "category_id": "test_result_interpretation",
+  "category_name": "篩檢結果與可靠性",
+  "fields": {
+    "test_method": {
+      "type": "string",
+      "description": "採用的 HIV 檢驗方法"
+    },
+    "test_date": {
+      "type": "string",
+      "description": "進行 HIV 檢驗的日期"
+    },
+    "test_result": {
+      "type": "string",
+      "description": "HIV 檢驗結果（如陰性、初步陽性、未知）"
+    },
+    "test_stage": {
+      "type": "string",
+      "description": "檢驗階段，例如初步篩檢或確認檢驗"
+    },
+    "confirmatory_test_status": {
+      "type": "string",
+      "description": "是否已接受或完成確認檢驗"
+    },
+    "last_possible_exposure_date": {
+      "type": "string",
+      "description": "最近一次可能暴露的日期或時間"
+    },
+    "further_exposure_after_test": {
+      "type": "boolean",
+      "description": "在上次篩檢後是否有新的可能暴露"
+    },
+    "antiretroviral_use": {
+      "type": "boolean",
+      "description": "檢驗前後是否使用相關抗病毒藥物"
+    }
+  }
+}
