@@ -224,3 +224,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Local cMedQA2 source files
+/data/cMedQA2-master/answer.csv
+/data/cMedQA2-master/train_candidates.txt
