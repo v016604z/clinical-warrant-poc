@@ -64,7 +64,9 @@ AI 只能選擇 JSON 中存在的欄位，不能自行發明醫療欄位、病�
 
 AI 的欄位選擇屬於**尚未經臨床驗證的資訊需求假設**，不是醫療必要條件。
 
-`selected_fields` 是目前 Active Category 的 `field_key` 集合；`extracted_attributes` 每筆必須有該 Case、目前 Category 中存在的欄位 key、符合 Registry 型別的值及來源輪次。無 Case 的一般衛教 turn 不抽取個案欄位。只接受使用者明確提供或確認的值；推測值與未提供值不得寫成已知。不同 Category 已有的同 key 值可供參照，但在本輪 Active Category 不含此 key 時不可新增到該 Category 的選取集合。AI 的選取、Coverage 或缺漏不得自動轉成既有 Warrant 的 `required_case_fields`、`DecisionInput.case` 或決策理由。
+Commit 4 的 extractor JSON 固定包含 `selected_fields`、`extracted_attributes`、`selection_reason`、`clarification_question` 與 `clarification_field_key`；問句非空時須提供已選取且屬於目前 Category 的欄位 key。解析器只保留 Registry 型別正確且明確提供的值。`turn_id` 與 `case_id` 由 Context Intake service 指派，不接受 extractor 指派。
+
+`selected_fields` 是目前 Active Category 的 `field_key` 集合；Extractor 的 `extracted_attributes` 僅輸出欄位 key 與值，service 驗證 Registry 型別並接受後，才賦予 Case 與來源輪次。無 Case 的一般衛教 turn 不抽取個案欄位。只接受使用者明確提供或確認的值；推測值與未提供值不得寫成已知。不同 Category 已有的同 key 值可供參照，但在本輪 Active Category 不含此 key 時不可新增到該 Category 的選取集合。AI 的選取、Coverage 或缺漏不得自動轉成既有 Warrant 的 `required_case_fields`、`DecisionInput.case` 或決策理由。
 
 ### F04 — 多輪對話
 
@@ -75,9 +77,15 @@ AI 的欄位選擇屬於**尚未經臨床驗證的資訊需求假設**，不是�
 - 未知問題或分類模糊時，要求使用者澄清，不強制套用欄位清單。
 - 使用者未明確提供的資訊保持未知；`false`、`0` 等有效值不可誤判為缺漏。
 
-`Participant` 是匿名使用者，可有多個 `Session`；一個 `Session` 是連續對話，包含多個依序的 turn，可涉及多個 `Case`。`Case` 是同一 Participant 的一次暴露事件或其他個案情境，不隨 Category 切換而變；`Session` 保存可空的 `active_case_id` 與 `active_category_id`。新事件建立新 Case；切換 Category 若仍在談同一事件則沿用 Case；跨 Session 重新使用 Case 須由使用者明確指認，不依匿名 ID 自動合併。一般衛教或 `unknown` turn 可不綁定 Case，`unknown` 時清除或暫停 Active Category，等待澄清。補問回答沿用前一輪待答欄位所屬的 Case 與 Category，不能僅憑短句重新分類；該 turn 的分類分數可空，須記錄其 Category 來自對話延續。
+`Participant` 是匿名使用者，可有多個 `Session`；一個 `Session` 是連續對話，包含多個依序的 turn，可涉及多個 `Case`。`Case` 是同一 Participant 的一次暴露事件或其他個案情境，不隨 Category 切換而變；`Session` 保存可空的 `active_case_id` 與 `active_category_id`。Commit 4 的呼叫者必須以 `new_case=True` 明確表示個案情境，包括首次個案與每次新暴露；只有 Category 欄位或分類結果不足以證明使用者描述個人事件，未明示時不建立 Case、不抽取個案欄位。新事件另建 Case；切換 Category 若仍在談同一事件則沿用 Case；跨 Session 重新使用 Case 須由使用者明確指認，不依匿名 ID 自動合併。一般衛教或 `unknown` turn 可不綁定 Case，`unknown` 時清除或暫停 Active Category，等待澄清。補問回答沿用前一輪待答欄位所屬的 Case 與 Category，不能僅憑短句重新分類，且本輪抽取只可更新被詢問的欄位；該 turn 的分類分數可空，須記錄其 Category 來自對話延續。
+
+Commit 4 的 Session 另以 `TurnEvent` 保留結構化輪次歷史：`turn_id`、可空的 Case／Category、Category 來源、分類結果、選取欄位與 Registry 版本。unknown 事件的 Case／Category 可空；補問與 handoff 亦留事件。事件不保存原始訊息內容，處理失敗的 turn 不加入歷史。
+
+呼叫者可用 `clear_case=True` 結束目前 Case 的作用範圍。既有 Case 與事件歷史保留，該輪重新分類且不做個案抽取；新 Category 的個人資訊須待 caller 明確建立新 Case 後才收集。
 
 `Attribute` 是 Case 中由 `field_key` 識別的目前值，不隸屬單一 Category；相同 key 在多類別共用同一值。修正時以新明確值取代目前值並保留前後版本及來源輪次；相互矛盾且尚未確認的值先待澄清，不覆蓋已確認值。未提供、`null`、空白字串及語義上的「不知道」均不計為已知；`false`、`0` 均計為已知。
+
+Commit 4 的狀態目前保存在記憶體。值與既有值相衝突時保留舊值並記錄待確認候選；只有呼叫者明確確認候選或以 `correct_fields` 標示更正，才更新目前值並附加 history。
 
 ### F05 — SQLite 保存
 
@@ -120,6 +128,7 @@ AI 的欄位選擇屬於**尚未經臨床驗證的資訊需求假設**，不是�
 - 不根據欄位覆蓋率直接提供感染診斷或用藥決策。
 - 可能需要緊急就醫的暴露問題，不應因等待補問而延遲轉介。
 - 緊急轉介判斷優先於一般補問流程；缺少候選欄位或 Coverage 未滿不得阻止轉介。
+- 上游 caller 若已有緊急轉介判斷，可傳入 `urgent_handoff=True`；service 立即回傳 `handoff_required`，不分類、不抽取、不清除既有待答狀態，也不自行判斷醫療急迫性。
 - 不將真實個人身分、原始對話及敏感健康資訊預設寫入實驗資料庫。
 - 提供個案資料刪除與資料庫重建能力。
 - 資料庫檔案與密鑰不得提交 Git。

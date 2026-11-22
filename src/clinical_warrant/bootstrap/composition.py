@@ -69,6 +69,32 @@ def build_intake_question_classifier(
     )
 
 
+def build_context_intake_service(
+    *,
+    extractor,
+    threshold: float | None = None,
+    encoder: TextEncoder | None = None,
+    classifier=None,
+    registry=None,
+):
+    """Compose intake; custom registries require a matching injected classifier."""
+    from clinical_warrant.modules.context_intake import ContextIntakeService, load_category_registry
+
+    if registry is not None and classifier is None:
+        raise ValueError("a custom registry requires an injected classifier built for that registry")
+    active_registry = registry if registry is not None else load_category_registry()
+    if classifier is None:
+        if threshold is None:
+            raise ValueError("threshold is required when a classifier is not injected")
+        classifier = build_intake_question_classifier(threshold=threshold, encoder=encoder)
+    classifier_version = getattr(classifier, "catalog_version", None)
+    if classifier_version is not None and classifier_version != active_registry.version:
+        raise ValueError("classifier catalog_version does not match the Category Registry")
+    return ContextIntakeService(
+        classifier=classifier, extractor=extractor, registry=active_registry,
+    )
+
+
 def evaluate_scenarios(
     cases: tuple[EvaluationCase, ...],
     engine: WarrantEngine,

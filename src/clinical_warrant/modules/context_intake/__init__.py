@@ -10,6 +10,23 @@ from clinical_warrant.modules.context_intake.infrastructure.category_registry im
 from clinical_warrant.modules.context_intake.domain.classification import IntakeClassificationResult, IntakePrototypeCategory
 from clinical_warrant.modules.context_intake.application.classifier import IntakeQuestionClassifier
 from clinical_warrant.modules.context_intake.infrastructure.prototype_catalog import load_intake_prototype_catalog
+from clinical_warrant.modules.context_intake.application.intake import ContextIntakeService, IntakeTurnResult
+from clinical_warrant.modules.context_intake.application.extraction import (
+    ExtractionError,
+    ExtractionRequest,
+    ExtractionResult,
+    Extractor,
+    parse_extraction_response,
+)
+from clinical_warrant.modules.context_intake.domain.state import (
+    AttributeChange,
+    AttributeValue,
+    CaseState,
+    PendingConflict,
+    PendingQuestion,
+    SessionState,
+    TurnEvent,
+)
 
 __all__ = [
     "CategoryDefinition",
@@ -21,4 +38,18 @@ __all__ = [
     "IntakeQuestionClassifier",
     "IntakePrototypeCategory",
     "load_intake_prototype_catalog",
+    "ContextIntakeService",
+    "IntakeTurnResult",
+    "ExtractionError",
+    "ExtractionRequest",
+    "ExtractionResult",
+    "Extractor",
+    "parse_extraction_response",
+    "AttributeChange",
+    "AttributeValue",
+    "CaseState",
+    "PendingConflict",
+    "PendingQuestion",
+    "SessionState",
+    "TurnEvent",
 ]
