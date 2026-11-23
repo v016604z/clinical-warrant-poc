@@ -77,6 +77,8 @@ Context Intake 的 14 類分類、個案欄位收集、Coverage 公式與分階�
 
 本次文件更新所在環境沒有可用的 Python runtime，因此未執行上述命令，也未產生或驗證任何新的模擬評估報告；命令範例不代表執行成功。
 
+Context Intake 的 SQLite persistence 僅供明確注入 repository 的呼叫端選用；現有 CLI 不會自動建立或選擇資料庫。若自行使用檔案資料庫，建議放在已忽略的 `runtime-data/`（例如 `runtime-data/intake.sqlite3`），不要放入真實個案資料或提交資料庫檔。舊 Registry 版本且仍有 Active Category 的 Session 不可直接以新版 Registry 恢復；保留資料需配對舊 Registry，或另行審查 migration。Commit C 的本輪命令、環境與未執行項目記錄見[驗收紀錄](docs/context-intake-correction-validation.md)。
+
 CDC 愛滋公開問答的蒐集範圍、執行方式、原始快照與資料使用限制見[資料蒐集說明](docs/data-collection.md)。
 
 可複用 RAG Knowledge Base 的階段與驗收範圍見[實作計畫](docs/clinical_warrant_rag_kb_pipeline_plan.md)；來源、文件與區塊契約及版本策略見[資料契約 v1](docs/rag-kb-schema.md)。離線命令、權利設定、review evidence 與失敗診斷見[KB 使用與驗收](docs/rag-kb-usage.md)。Commit 6 CDC 與跨來源端到端驗收已完成；全套測試為 384 passed、1 skipped（真實模型 smoke test 為 opt-in）。

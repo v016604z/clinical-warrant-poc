@@ -63,6 +63,8 @@ runtime Category Registry 對 `personal_exposure_risk`、`pep_post_exposure`、`
 
 SQLite schema 由 `PRAGMA user_version` 管理；初始化只建立空資料庫的目前 schema，未知的非零版本會拒絕初始化，不會自動重建或轉換資料。即使資料庫 schema 版本相同，舊欄位值也不能因改名而靜默遺失或搬移：`last_possible_exposure_date` 與 `exposure_datetime` 可能同時存在且值不一致。保留既有資料需另開 migration，核對每個 Case 的值及事件來源，衝突留待人工確認；研究回放可明確改用新資料庫。
 
+SQLite persistence 是呼叫端明確選用的功能，CLI 不會自動建立或挑選資料庫檔案。自行建立的 runtime DB 建議置於 `.gitignore` 排除的 `runtime-data/`，包含 SQLite 側寫檔；不得提交真實個案資料。舊 Registry 版本且具有 Active Category 的 Session 不能直接由新版 Registry 恢復。Commit C 實際驗收命令及環境限制記錄於[驗收紀錄](context-intake-correction-validation.md)；未能啟動 Python 的命令標示為未驗證。
+
 14 類 runtime Category JSON 位於 `src/clinical_warrant/data/context_intake/categories/`，Registry loader 透過 `importlib.resources` 載入並驗證已登錄 ID；它們是從原始 v2 複製後維護的 runtime 定義，允許為應用程式資料契約作明確修訂，並非持續與來源快照逐位元相同。研究用 `prototypes.json`、`rules.json`、`mock_cases.json` 也已放入 `src/clinical_warrant/data/` 套件資源；14 類分類 prototypes 獨立位於 `src/clinical_warrant/data/context_intake/prototypes.json`，不取代 Category JSON 或研究 catalog。package-data 已設定包含上述 JSON；套件資源在目前工作樹可讀，但 wheel / sdist 安裝後的載入驗證尚未執行，因環境沒有可用的 Python。具體資料契約與分階段驗收見[功能規格](context-intake-spec.md)及[實作計畫](context-intake-implementation-plan.md)。
 
 ## Commit 6 Coverage 與評估邊界

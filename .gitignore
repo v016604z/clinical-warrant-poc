@@ -59,6 +59,21 @@ cover/
 *.mo
 *.pot
 
+# SQLite databases and runtime sidecar files
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+*.sqlite3-journal
+*.sqlite3-wal
+*.sqlite3-shm
+runtime-data/
+
 # Django stuff:
 *.log
 local_settings.py
