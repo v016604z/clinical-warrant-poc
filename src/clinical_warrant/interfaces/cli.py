@@ -30,6 +30,13 @@ from clinical_warrant.modules.evaluation import (
     load_evaluation_jsonl,
 )
 from clinical_warrant.modules.knowledge_base.infrastructure.run_io import RunIOError
+from clinical_warrant.modules.context_intake.application.simulation import (
+    FixtureError,
+    evaluate_fixture,
+    load_conversation_fixture,
+)
+from clinical_warrant.modules.context_intake import load_category_registry
+from clinical_warrant.modules.evaluation.infrastructure.report_writer import publish_report
 from clinical_warrant.shared.domain.contracts import ContractError, DecisionInput, DecisionResult
 
 
@@ -81,6 +88,15 @@ def build_parser() -> argparse.ArgumentParser:
 
     validate = kb_commands.add_parser("validate", help="Validate a completed KB run")
     validate.add_argument("--dataset", required=True, metavar="DIR")
+
+    intake = commands.add_parser("intake", help="Run synthetic Context Intake demonstrations")
+    intake_commands = intake.add_subparsers(dest="intake_command", required=True)
+    demo = intake_commands.add_parser("demo", help="Replay an offline multi-turn fixture")
+    demo.add_argument("--fixture", required=True, metavar="FILE")
+    demo.add_argument("--step", action="store_true", help="Pause after each fixture turn for guided review")
+    intake_eval = intake_commands.add_parser("evaluate", help="Evaluate an offline multi-turn fixture")
+    intake_eval.add_argument("--input", required=True, metavar="FILE")
+    intake_eval.add_argument("--output", required=True, metavar="DIR")
     return parser
 
 
@@ -126,6 +142,46 @@ def main(
             return 1
         print(json.dumps(result, ensure_ascii=False, separators=(",", ":")))
         return 0
+
+    if args.command == "intake":
+        try:
+            raw, fixture = load_conversation_fixture(
+                args.fixture if args.intake_command == "demo" else args.input
+            )
+            registry = load_category_registry()
+            if args.intake_command == "demo":
+                def show_turn(turn):
+                    if args.step:
+                        print(json.dumps(turn, ensure_ascii=False, separators=(",", ":")), flush=True)
+                        input("按 Enter 繼續下一個 fixture 回合…")
+                report = evaluate_fixture(raw, fixture, registry, on_turn=show_turn)
+                print(json.dumps({
+                    "notice": "synthetic offline simulation; not a medical AI assessment",
+                    "scenario_id": report["metadata"]["scenario_id"],
+                    "turns": report["predictions"], "metrics": report["metrics"],
+                }, ensure_ascii=False, separators=(",", ":")))
+                return 0
+            from datetime import datetime, timezone
+            from uuid import uuid4
+            report = evaluate_fixture(raw, fixture, registry)
+            now = datetime.now(timezone.utc)
+            run_id = f"{now.strftime('%Y%m%dT%H%M%SZ')}-{uuid4().hex[:10]}"
+            report["metadata"]["run_id"] = run_id
+            published = publish_report({
+                "run_id": run_id,
+                "summary": {key: value for key, value in report.items()
+                            if key not in {"predictions", "errors"}},
+                "predictions": report["predictions"],
+                "errors": report["errors"],
+            }, args.output)
+            print(json.dumps(published, ensure_ascii=False, separators=(",", ":")))
+            return 0
+        except (OSError, FixtureError, ValueError) as error:
+            print(f"error: invalid intake fixture or evaluation: {error}", file=sys.stderr)
+            return 2
+        except Exception as error:
+            print(f"error: intake evaluation failed: {error}", file=sys.stderr)
+            return 1
 
     if args.command == "evaluate":
         return _evaluate(args, classifier_factory=classifier_factory)

@@ -56,3 +56,21 @@ Context Intake 的 14 類 `category_id`、Category Registry、Sentence Transform
 SQLite 保存 `catalog_version` 與 selected fields 等事件快照，但不保存 Registry JSON。新 turn 的 Category / 欄位由目前 Registry 驗證；資料庫外鍵只保證六表的結構、Participant 關係與資料型別，不能證明欄位屬於哪一版 Registry，也無法由 DB 單獨還原舊 Registry。既有四類 `QuestionType`、`build_warrant_engine()`、`decide` / `evaluate`、玩具規則與公開 JSON 契約不接收新類別，也不因 Category 欄位或 Coverage 改變決策。
 
 14 份 v2 Category JSON 已放在 `src/clinical_warrant/data/context_intake/categories/`，Registry loader 透過 `importlib.resources` 載入並驗證已登錄 ID。研究用 `prototypes.json`、`rules.json`、`mock_cases.json` 也已放入 `src/clinical_warrant/data/` 套件資源；14 類分類 prototypes 獨立位於 `src/clinical_warrant/data/context_intake/prototypes.json`，不取代 Category JSON 或研究 catalog。package-data 已設定包含上述 JSON；套件資源在目前工作樹可讀，但 wheel / sdist 安裝後的載入驗證尚未執行，因環境沒有可用的 Python。具體資料契約與分階段驗收見[功能規格](context-intake-spec.md)及[實作計畫](context-intake-implementation-plan.md)。
+
+## Commit 6 Coverage 與評估邊界
+
+Coverage 是 Context Intake 的研究統計，不是 Warrant 的輸入或臨床充分性判定。F 由呼叫端指定的 Registry 提供；S 取同 Case、同 Category 最近一次完整 classification turn（空選取也算），忽略 continuation 與 handoff。輸出分別標示目錄版本 `catalog_version` 及 S 來源的 `selection_catalog_version`。可指定 `as_of_turn_id` 由 turn 順序與 Attribute history 重建當時 K/S；不能重建時拒絕回報。無 Case 仍回報目錄大小，其他計數為 0、比率為 N/A。SQLite 不保存舊 Registry 定義，歷史定義需由呼叫端提供；零欄位 Category 比率為空值，CLI 顯示 `N/A`。
+
+分類評估與多輪欄位蒐集評估是兩種獨立證據。既有 Context Intake 分類 runner 以 dev 集校準門檻、在 held-out test 集產生分類指標；它不驗證欄位抽取、重問、修正或 Coverage。多輪 fixture replay 使用固定 synthetic fixture、fixture classifier 與 fixture extractor，只能作離線流程及契約驗收，不代表真實模型、實際使用者或臨床效能。
+
+可重現的多輪回放命令如下；`--step` 會在每一 fixture turn 暫停等候 Enter，但仍自動回放固定訊息，不提供自由文字互動：
+
+```powershell
+.\.venv\Scripts\clinical-warrant.exe intake demo --fixture evaluation/context_intake/synthetic_multiturn.json
+.\.venv\Scripts\clinical-warrant.exe intake demo --fixture evaluation/context_intake/synthetic_multiturn.json --step
+.\.venv\Scripts\clinical-warrant.exe intake evaluate --input evaluation/context_intake/synthetic_multiturn.json --output evaluation-runs/context-intake-simulation
+```
+
+`demo` 僅輸出 stdout；`evaluate` 透過既有 immutable report publisher 建立 `run-*`，包含 `summary.json`、`predictions.jsonl`、`errors.jsonl`。摘要記錄 fixture SHA-256、Registry 版本及 fixture adapter identity，指標包括逐欄位 exact match、狀態欄位正確率、重複待答、更正前後值及每個 Case / Category Coverage。這些數值衡量 fixture 標註與模擬流程，不是模型效果或臨床評估。本次文件更新環境沒有可用 Python runtime，故上述命令未執行，本次也未產生新報告；命令與報告格式說明不代表已驗證執行成功。
+
+Commit 6 的 CLI、Coverage 及多輪評估交付狀態仍須以實際程式、測試及已產生的報告為準；計畫中的項目不等同已完成。

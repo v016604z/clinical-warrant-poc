@@ -61,6 +61,22 @@ python -m venv .venv
 
 單筆決策 CLI 的 JSON 格式、三態優先順序與限制見[決策 CLI 文件](docs/decision-cli.md)。
 
+Context Intake 的 14 類分類、個案欄位收集、Coverage 公式與分階段驗收見[功能規格](docs/context-intake-spec.md)、[實作計畫](docs/context-intake-implementation-plan.md)及[架構文件](docs/architecture.md)。Context Intake 分類評估是獨立的研究流程；分類指標不代表欄位抽取正確性或臨床效能，多輪評估結果亦須依實際執行狀態標示。
+
+### Context Intake 離線示範與 fixture 評估
+
+以下命令使用固定的合成多輪對話 fixture，接線的是 fixture classifier / extractor，不呼叫真實模型、不連網，也不代表實際使用者或臨床評估。`demo --step` 只在每輪暫停供人工檢視，仍會自動依 fixture 回放，不能輸入自由文字。
+
+```powershell
+.\.venv\Scripts\clinical-warrant.exe intake demo --fixture evaluation/context_intake/synthetic_multiturn.json
+.\.venv\Scripts\clinical-warrant.exe intake demo --fixture evaluation/context_intake/synthetic_multiturn.json --step
+.\.venv\Scripts\clinical-warrant.exe intake evaluate --input evaluation/context_intake/synthetic_multiturn.json --output evaluation-runs/context-intake-simulation
+```
+
+`demo` 將逐輪輸出與指標印到 stdout，不寫檔；`evaluate` 在輸出目錄建立不可覆寫的 `run-*` 子目錄，內含 `summary.json`、`predictions.jsonl`、`errors.jsonl`。評估指標是 fixture 標註下的抽取 exact match、嚴格型別狀態欄位正確率、重複待答次數、更正前後值與各 Case / Category Coverage，只用於離線流程契約檢查。執行環境若尚未安裝本專案，請先依上方開發步驟建立 `.venv` 並安裝套件。
+
+本次文件更新所在環境沒有可用的 Python runtime，因此未執行上述命令，也未產生或驗證任何新的模擬評估報告；命令範例不代表執行成功。
+
 CDC 愛滋公開問答的蒐集範圍、執行方式、原始快照與資料使用限制見[資料蒐集說明](docs/data-collection.md)。
 
 可複用 RAG Knowledge Base 的階段與驗收範圍見[實作計畫](docs/clinical_warrant_rag_kb_pipeline_plan.md)；來源、文件與區塊契約及版本策略見[資料契約 v1](docs/rag-kb-schema.md)。離線命令、權利設定、review evidence 與失敗診斷見[KB 使用與驗收](docs/rag-kb-usage.md)。Commit 6 CDC 與跨來源端到端驗收已完成；全套測試為 384 passed、1 skipped（真實模型 smoke test 為 opt-in）。

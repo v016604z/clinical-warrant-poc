@@ -87,14 +87,13 @@
 
 ### Commit 6 — Coverage 與評估
 
-- 新增 `intake` CLI 指令供互動測試。
-- 查詢個案已涉及的 Category。
-- 輸出各 Category 的已知、未知與已選欄位數。
-- 驗證欄位覆蓋統計與 Category 切換。
-- Coverage 使用指定版本 Category 欄位集合、Case 已知欄位集合、該 Case + Category 最近一次完成選欄的 turn 所記集合計算；共享 key 在同 Case 去重，同時可計入多個 Category。
-- 建立多輪模擬對話測試集。
-- 保存分類錯誤、欄位抽取錯誤與修正前後結果。
-- 更新 README、架構文件與執行教學。
+- 新增獨立 `intake` CLI 示範入口；既有 `decide`、`evaluate`、`kb` 的參數、輸出及退出碼保持不變。互動模式可用記憶體狀態；SQLite 為明確 opt-in，不自行選用或建立使用者資料庫。
+- 可列出個案已涉及的 Category，輸出 `catalog_count`、`selected_count`、`known_count`、`selected_known_count`、`selected_unknown_count` 及可計算時的覆蓋率。
+- 提供純 Coverage 計算 API，由呼叫者提供 CategoryRegistry、Case 狀態及事件；輸出標示 `case_id`、`category_id`、F 的 `catalog_version` 與 S 來源的 `selection_catalog_version`。S 取同 Case + Category 最近一筆完整分類 turn（包括空集合），忽略 continuation / handoff；跨 Category 共用 key 在同 Case 去重，但可計入各自目錄。
+- 可選 `as_of_turn_id` 以 turn 順序及 Attribute history 重建歷史 K/S；缺少目標 turn 或所需來源事件須明確拒絕。用指定 Registry 的 F 重算時保留 S 原事件版本；歷史目錄定義不由 SQLite 還原，須由呼叫端提供需要的不可變 Registry。`catalog_count=0` 或無 Case 時比率為空值並顯示 `N/A`；無 Case 時仍回報目錄欄位數，其他計數為 0。
+- 驗證 Coverage 五項計數交集公式、空選取事件、重複 key、Category 切換、Case 隔離、零欄位目錄、版本識別、as-of 歷史重建及缺漏歷史拒絕。
+- 分開兩種研究評估：現有分類 runner 只做 dev 門檻校準與 held-out test 分類；多輪 fixture replay 才評估欄位抽取對錯、重複詢問、明確更正前後值與逐 Category Coverage。報告記錄資料集、Registry、prototype／模型 identity（適用時）及明確限制，不能把離線 fake extractor 結果稱為真實 AI 或臨床效能。
+- 更新 README、架構文件與可重現的執行教學；文件須明確列出已實作功能和仍未完成／未執行的研究項目。
 
 ## 4. 必測情境
 
@@ -116,12 +115,14 @@
 
 分類實驗記錄 Accuracy、Macro-F1、各類 Precision / Recall、Unknown Rate 與混淆矩陣。
 
-欄位蒐集實驗記錄抽取正確率、已確認欄位數、資訊重複詢問次數、欄位修正情況及 Coverage。
+欄位蒐集實驗（如執行）記錄抽取正確率、已確認欄位數、資訊重複詢問次數、欄位修正前後情況及 Coverage。離線 fixture 或 fake extractor 的結果須標示為工程驗收，不得表述為模型或臨床效能證據。尚未產生報告前，不宣稱已完成多輪研究評估。
 
 獨立保存模型與分類目錄版本，使修改前後結果可比較。避免將原型句子的改寫版本同時放入開發集與測試集。
 
 實驗結果僅代表分類與資訊蒐集的技術表現，不宣稱醫療決策正確性。
 
-**交付範圍：** 14 類分類、Category Registry、Context Intake、SQLite、Coverage、CLI 測試、pytest、實驗報告與開發文件。
+**Commit 6 最低驗收：** Coverage 公式、空選取事件、零欄位與無 Case 行為有單元測試；`as_of_turn_id` 可重建歷史且缺漏資料明確拒絕；新 Registry 重算保留選欄 turn 的原版本識別；CLI smoke 驗證涵蓋互動與既有命令契約；多輪 replay 至少包含新 Case、跨 Category 重用、一次欄位更正、一次重複詢問及未知欄位拒絕；評估輸出能區分實際執行結果與尚未執行的研究項目。沒有實際執行的命令或實驗不得記為通過。
+
+**交付範圍：** 14 類分類、Category Registry、Context Intake、SQLite、Coverage、CLI 驗收、執行紀錄及開發文件。多輪研究報告僅在資料與流程確實執行後列為已交付。
 
 不自行 Push；每階段完成後由開發者審查並決定 Commit。

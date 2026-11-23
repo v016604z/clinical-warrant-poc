@@ -122,7 +122,11 @@ SQLite connection 的生命週期由呼叫端管理：初始化時呼叫 `initia
 
 可另外顯示 `known_count / catalog_count` 作為欄位覆蓋率。
 
-設 `F` 為指定 Registry 版本中該 Category 的欄位 key 集合，`K` 為指定 Case 中已明確提供／確認且值非缺漏的 key 集合，`S` 為該 Case + Category 最近一次完成欄位選擇的 turn 所記 `selected_fields`（無此 turn 時為空集合）：`catalog_count=|F|`、`selected_count=|S∩F|`、`known_count=|K∩F|`、`selected_known_count=|S∩K∩F|`、`selected_unknown_count=|S∩F|−selected_known_count`。同一 key 在同一 Case 只計一次，但可分別計入含該 key 的多個 Category；切換 Category 不刪除舊資料。統計應標示使用的 `case_id`、`category_id` 與 Registry 版本；目錄變更後可用新版本重算，歷史結果依不可變的舊版 Registry 與欄位歷史重算。沒有 Case 的衛教 turn 不宣稱已知個案欄位。
+設 `F` 為呼叫者指定 Registry 版本中該 Category 的欄位 key 集合，`K` 為指定 Case 在統計時點已明確提供／確認且值非缺漏的 key 集合，`S` 為該 Case + Category 最近一筆 `category_source='classification'` 的完整分類 turn 所記 `selected_fields`（包含空集合；無此 turn 時為空集合）。Continuation 與 handoff turn 不更新 S。計數為 `catalog_count=|F|`、`selected_count=|S∩F|`、`known_count=|K∩F|`、`selected_known_count=|S∩K∩F|`、`selected_unknown_count=|S∩F|−selected_known_count`。S 來源 turn 的 `catalog_version` 須以 `selection_catalog_version` 隨結果標示；即使使用新 Registry 重算 F，也不可改寫該事件的版本識別。
+
+同一 key 在同一 Case 只計一次，但可分別計入含該 key 的多個 Category；切換 Category 不刪除舊資料。統計標示 `case_id`、`category_id`、`catalog_version`（F 的版本）及 `selection_catalog_version`（S 來源 turn 的版本）。沒有 Case 時仍回報 `catalog_count=|F|`，其他計數為 0，覆蓋率為空值並顯示 `N/A`，不代表已取得個案資訊。欄位覆蓋率為 `known_count / catalog_count`；當 `catalog_count=0` 時比例為空值，介面顯示 `N/A`，不得顯示為 100%。
+
+可指定 `as_of_turn_id` 重建當時的 K 與 S：依 Session turn 順序重播 Attribute history 與分類選欄事件；目標 turn 或所需來源事件不存在時拒絕回報，不得用目前值冒充歷史值。歷史 Registry 版本重算時，呼叫者須提供該版本不可變 Registry；SQLite 不保存／還原舊 Registry JSON。
 
 **Coverage 不代表 Clinical Warrant 的資訊充分性或醫療安全性。**
 

@@ -9,6 +9,11 @@ from clinical_warrant.modules.context_intake.domain.category_registry import (
 from clinical_warrant.modules.context_intake.infrastructure.category_registry import load_category_registry
 from clinical_warrant.modules.context_intake.domain.classification import IntakeClassificationResult, IntakePrototypeCategory
 from clinical_warrant.modules.context_intake.application.classifier import IntakeQuestionClassifier
+from clinical_warrant.modules.context_intake.application.coverage import (
+    CategoryCoverage,
+    CoverageError,
+    calculate_case_coverage,
+)
 from clinical_warrant.modules.context_intake.infrastructure.prototype_catalog import load_intake_prototype_catalog
 from clinical_warrant.modules.context_intake.infrastructure.sqlite_repository import (
     SQLiteContextIntakeRepository,
@@ -44,6 +49,9 @@ __all__ = [
     "load_category_registry",
     "IntakeClassificationResult",
     "IntakeQuestionClassifier",
+    "CategoryCoverage",
+    "CoverageError",
+    "calculate_case_coverage",
     "IntakePrototypeCategory",
     "load_intake_prototype_catalog",
     "SQLiteContextIntakeRepository",
