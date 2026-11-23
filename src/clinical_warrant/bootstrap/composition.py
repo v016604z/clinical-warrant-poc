@@ -71,7 +71,7 @@ def build_intake_question_classifier(
 
 def build_context_intake_service(
     *,
-    extractor,
+    extractor=None,
     threshold: float | None = None,
     encoder: TextEncoder | None = None,
     classifier=None,
@@ -80,6 +80,11 @@ def build_context_intake_service(
 ):
     """Compose intake; persistence is opt-in and receives a session repository."""
     from clinical_warrant.modules.context_intake import ContextIntakeService, load_category_registry
+
+    if extractor is None:
+        from clinical_warrant.modules.context_intake.infrastructure.openai_extractor import OpenAIExtractor
+
+        extractor = OpenAIExtractor()
 
     if registry is not None and classifier is None:
         raise ValueError("a custom registry requires an injected classifier built for that registry")
