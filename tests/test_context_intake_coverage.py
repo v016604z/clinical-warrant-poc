@@ -115,6 +115,29 @@ def test_shared_key_is_counted_once_within_a_case_and_in_each_category():
     assert (second.known_count, second.selected_count) == (1, 1)
 
 
+def test_runtime_exposure_datetime_is_known_in_each_of_its_five_categories():
+    from clinical_warrant.modules.context_intake import load_category_registry
+
+    reg = load_category_registry()
+    case = CaseState("case-1", "participant-1").with_attribute(
+        "exposure_datetime", "前天", "turn-1"
+    )
+    category_ids = (
+        "personal_exposure_risk", "pep_post_exposure", "symptom_questions",
+        "window_period", "test_result_interpretation",
+    )
+    events = tuple(
+        classified(f"turn-{index}", "case-1", category_id, ("exposure_datetime",), reg.version)
+        for index, category_id in enumerate(category_ids, start=1)
+    )
+
+    results = [calculate_case_coverage(reg, case, events, category_id) for category_id in category_ids]
+
+    assert all((result.known_count, result.selected_count, result.selected_known_count) == (1, 1, 1)
+               for result in results)
+    assert all(result.catalog_version == reg.version for result in results)
+
+
 def test_empty_category_is_not_a_full_coverage_rate():
     reg = registry({})
     case = CaseState("case-1", "participant-1")

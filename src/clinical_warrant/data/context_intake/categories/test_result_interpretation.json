@@ -22,9 +22,9 @@
       "type": "string",
       "description": "是否已接受或完成確認檢驗"
     },
-    "last_possible_exposure_date": {
+    "exposure_datetime": {
       "type": "string",
-      "description": "最近一次可能暴露的日期或時間"
+      "description": "可能暴露的發生時間，可保留「昨天」等原始描述"
     },
     "further_exposure_after_test": {
       "type": "boolean",

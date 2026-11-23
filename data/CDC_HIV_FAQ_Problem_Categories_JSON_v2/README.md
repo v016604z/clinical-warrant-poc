@@ -28,6 +28,12 @@
 - 問題是否要求個人化判斷，應由上層分類／意圖模組處理；不屬於個案屬性。
 - 字串可自行保留 `unknown`／未提供狀態；布林欄位用 `true`、`false`、`null` 區分。
 
+## 與 Context Intake runtime 的差異
+
+本目錄是來源快照，保留 v2 原始欄位名稱。當中 `window_period` 與 `test_result_interpretation` 使用 `last_possible_exposure_date`，而其他暴露相關類別可使用 `exposure_datetime`。Context Intake runtime 會依應用程式契約將同一 Case、同一次暴露事件的時間統一為 `exposure_datetime`，並以 Registry 內容指紋記錄版本；因此 runtime JSON 可以與本快照不同，且不能據此回寫或改稱原始 v2。這項正規化只適用於已確認為同一事件的跨 Category 資料，不代表「最近一次可能暴露」必定是目前 Case 的事件。
+
+其他看似重疊的 `last_test_date`／`test_date`、`hiv_test_result`／`test_result` 不屬於本次正規化範圍，保留各自原義，尚未合併。
+
 ## 使用範圍及限制
 
 1. 這是**研究用工程欄位設計**，並非疾管署公布的醫療表單，也未經臨床專家驗證。

@@ -10,7 +10,9 @@
 
 `synthetic_multiturn.json` 是離線工程流程的合成對話，不屬於上述分類資料。每輪的 `selected_fields` 是要檢查的候選欄位；被選取不表示使用者已提供該欄位。`extractor_response.extracted_attributes` 是假擷取器的原始輸出，可含空字串或 `null`；`expected_extracted_attributes` 是解析後本輪應接受的值，報告的 `predictions[].extracted_attributes` 顯示實際接受值。`expected_attributes` 則表示該輪結束後 Case 累積的目前狀態。
 
-第一輪只明確提供暴露時間，因此 `exposure_route` 保持未知。第二、三輪轉問 PEP 與空窗期時，Case 仍保有已知時間，但本輪不重新擷取該時間。Fixture 可檢查新擷取值與累積狀態是否符合標註；fixture classifier / extractor 通過只代表工程流程符合預期，不能證明自然語言的語義依據。通用 Parser 能檢查欄位、格式與型別，無法判斷抽取值是否真的由使用者文字支持。跨 Category 暴露時間的正規欄位與更正一致性留待 Commit B 處理。本節不代表已執行相關測試。
+第一輪只明確提供暴露時間，因此 `exposure_route` 保持未知。第二、三輪轉問 PEP 與空窗期時，Case 仍保有同一暴露事件的 `exposure_datetime`，本輪不重新擷取該時間；使用者明確更正時，所有同 Case、同事件的 Category 都讀取更新值。`exposure_datetime` 是 runtime 正規 key；原始 v2 快照仍保留其 `last_possible_exposure_date` 欄位定義。此共用不表示「最近一次可能暴露」必然等於目前 Case 的事件。Fixture 可檢查新擷取值與累積狀態是否符合標註；fixture classifier / extractor 通過只代表工程流程符合預期，不能證明自然語言的語義依據。通用 Parser 能檢查欄位、格式與型別，無法判斷抽取值是否真的由使用者文字支持。本節不代表已執行相關測試。
+
+若 runtime Category 欄位改版，Registry `catalog_version` 會隨內容指紋改變。舊版 Registry 的 Active Session 不可直接由新版 Registry 恢復；SQLite 也不會自動搬移舊 `last_possible_exposure_date` 值。需要沿用資料時必須另行審核 migration，核對同一 Case 是否同時有兩個不同時間值；衝突不可靜默擇一。其他可能重疊的 `last_test_date`／`test_date` 與 `hiv_test_result`／`test_result` 本次只盤點，未合併。
 
 ## 限制
 

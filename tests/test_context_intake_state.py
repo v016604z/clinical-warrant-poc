@@ -150,6 +150,35 @@ def test_session_keeps_turn_category_history_when_active_category_changes():
     ]
 
 
+def test_exposure_datetime_is_isolated_between_cases():
+    first_case = CaseState("case-1", "participant-1").with_attribute(
+        "exposure_datetime", "昨天", "turn-1"
+    )
+    second_case = CaseState("case-2", "participant-1").with_attribute(
+        "exposure_datetime", "今天", "turn-2"
+    )
+    events = (
+        TurnEvent("turn-1", "case-1", "personal_exposure_risk", "classification",
+                  classification(), ("exposure_datetime",), "catalog-v1"),
+        TurnEvent("turn-2", "case-2", "window_period", "classification",
+                  IntakeClassificationResult(
+                      top1_category_id="window_period", top1_similarity=0.8,
+                      top2_category_id="personal_exposure_risk", top2_similarity=0.4,
+                      is_unknown=False, model_id="model", model_revision="revision",
+                      catalog_version="catalog-v1",
+                  ), ("exposure_datetime",), "catalog-v1"),
+    )
+
+    session = SessionState(
+        "session-1", "participant-1", {"case-1": first_case, "case-2": second_case},
+        "case-2", "window_period", turn_events=events,
+    )
+
+    assert session.cases["case-1"].attributes["exposure_datetime"].value == "昨天"
+    assert session.cases["case-2"].attributes["exposure_datetime"].value == "今天"
+    assert [event.case_id for event in session.turn_events] == ["case-1", "case-2"]
+
+
 def test_unknown_turn_can_keep_scores_without_case_or_category():
     result = classification(unknown=True)
     event = TurnEvent("turn-unknown", None, None, "classification", result, (), "catalog-v1")

@@ -116,6 +116,39 @@ def test_public_loader_reads_packaged_fourteen_categories():
     assert len(registry.version) == 64
 
 
+def test_exposure_datetime_is_shared_by_five_runtime_categories_and_changes_registry_version():
+    from clinical_warrant.modules.context_intake import load_category_registry
+
+    registry = load_category_registry()
+    shared_categories = (
+        "personal_exposure_risk", "pep_post_exposure", "symptom_questions",
+        "window_period", "test_result_interpretation",
+    )
+    field = registry.get("personal_exposure_risk").fields["exposure_datetime"]
+
+    for category_id in shared_categories:
+        assert registry.get(category_id).fields["exposure_datetime"] == field
+    for category_id in ("window_period", "test_result_interpretation"):
+        assert "last_possible_exposure_date" not in registry.get(category_id).fields
+
+    previous_schema = []
+    for category in registry.categories:
+        fields = {
+            key: {"type": value.type, "description": value.description}
+            for key, value in category.fields.items()
+        }
+        if category.category_id in ("window_period", "test_result_interpretation"):
+            definition = fields.pop("exposure_datetime")
+            fields["last_possible_exposure_date"] = definition
+        previous_schema.append({
+            "category_id": category.category_id,
+            "category_name": category.category_name,
+            "fields": fields,
+        })
+
+    assert validate_category_registry(previous_schema).version != registry.version
+
+
 def test_loader_rejects_duplicate_json_member(monkeypatch):
     from clinical_warrant.modules.context_intake.infrastructure import category_registry as loader
 

@@ -2,9 +2,9 @@
   "category_id": "window_period",
   "category_name": "篩檢空窗期",
   "fields": {
-    "last_possible_exposure_date": {
+    "exposure_datetime": {
       "type": "string",
-      "description": "最近一次可能暴露的日期或時間"
+      "description": "可能暴露的發生時間，可保留「昨天」等原始描述"
     },
     "test_date": {
       "type": "string",

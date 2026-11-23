@@ -55,7 +55,15 @@ Context Intake 的 14 類 `category_id`、Category Registry、Sentence Transform
 
 SQLite 保存 `catalog_version` 與 selected fields 等事件快照，但不保存 Registry JSON。新 turn 的 Category / 欄位由目前 Registry 驗證；資料庫外鍵只保證六表的結構、Participant 關係與資料型別，不能證明欄位屬於哪一版 Registry，也無法由 DB 單獨還原舊 Registry。既有四類 `QuestionType`、`build_warrant_engine()`、`decide` / `evaluate`、玩具規則與公開 JSON 契約不接收新類別，也不因 Category 欄位或 Coverage 改變決策。
 
-14 份 v2 Category JSON 已放在 `src/clinical_warrant/data/context_intake/categories/`，Registry loader 透過 `importlib.resources` 載入並驗證已登錄 ID。研究用 `prototypes.json`、`rules.json`、`mock_cases.json` 也已放入 `src/clinical_warrant/data/` 套件資源；14 類分類 prototypes 獨立位於 `src/clinical_warrant/data/context_intake/prototypes.json`，不取代 Category JSON 或研究 catalog。package-data 已設定包含上述 JSON；套件資源在目前工作樹可讀，但 wheel / sdist 安裝後的載入驗證尚未執行，因環境沒有可用的 Python。具體資料契約與分階段驗收見[功能規格](context-intake-spec.md)及[實作計畫](context-intake-implementation-plan.md)。
+### Commit B：暴露事件時間與資料相容性
+
+runtime Category Registry 對 `personal_exposure_risk`、`pep_post_exposure`、`symptom_questions`、`window_period` 與 `test_result_interpretation` 使用 `exposure_datetime`，代表目前 Case 所指單一暴露事件的時間。`case_attributes` 以 `(case_id, field_key)` 為鍵，因此跨 Category 談同一事件時可讀取同一值並同步明確更正；「最近一次可能暴露」若可能指另一事件，必須先釐清 Case，不得自動合併。`last_test_date`／`test_date`、`hiv_test_result`／`test_result` 等其他疑似重複 key 本次不合併。
+
+原始 `data/CDC_HIV_FAQ_Problem_Categories_JSON_v2/` 是來源快照，不會因 runtime 欄位正規化而覆寫。runtime Category JSON 的內容指紋決定 Registry `catalog_version`；欄位定義改變會改變版本，分類器應使用同版本 Registry。SQLite 存有事件版本但不含 Registry JSON。啟用 Active Category 的舊 Session 會在恢復時因最近事件版本與當前 Registry 不符而被拒絕；不能直接用新版 Registry 恢復該 Session。若需保留舊 Session，須提供舊 Registry，或另行設計並審核明確 migration。
+
+SQLite schema 由 `PRAGMA user_version` 管理；初始化只建立空資料庫的目前 schema，未知的非零版本會拒絕初始化，不會自動重建或轉換資料。即使資料庫 schema 版本相同，舊欄位值也不能因改名而靜默遺失或搬移：`last_possible_exposure_date` 與 `exposure_datetime` 可能同時存在且值不一致。保留既有資料需另開 migration，核對每個 Case 的值及事件來源，衝突留待人工確認；研究回放可明確改用新資料庫。
+
+14 類 runtime Category JSON 位於 `src/clinical_warrant/data/context_intake/categories/`，Registry loader 透過 `importlib.resources` 載入並驗證已登錄 ID；它們是從原始 v2 複製後維護的 runtime 定義，允許為應用程式資料契約作明確修訂，並非持續與來源快照逐位元相同。研究用 `prototypes.json`、`rules.json`、`mock_cases.json` 也已放入 `src/clinical_warrant/data/` 套件資源；14 類分類 prototypes 獨立位於 `src/clinical_warrant/data/context_intake/prototypes.json`，不取代 Category JSON 或研究 catalog。package-data 已設定包含上述 JSON；套件資源在目前工作樹可讀，但 wheel / sdist 安裝後的載入驗證尚未執行，因環境沒有可用的 Python。具體資料契約與分階段驗收見[功能規格](context-intake-spec.md)及[實作計畫](context-intake-implementation-plan.md)。
 
 ## Commit 6 Coverage 與評估邊界
 

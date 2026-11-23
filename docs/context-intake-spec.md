@@ -49,6 +49,12 @@
 
 Commit 2 將 v2 的 `data/CDC_HIV_FAQ_Problem_Categories_JSON_v2/categories/*.json` 複製到 `src/clinical_warrant/data/context_intake/categories/` 套件資源，並設定 wheel / sdist 包含該路徑。現有三份研究 JSON 位於專案根目錄 `data/`，但既有 loader 讀取 `clinical_warrant.data`，目前 `src/clinical_warrant/data/` 尚不存在；Commit 2 須一併校正這三份檔案的套件資源佈局，保留原始內容及 `load_research_catalog()` 行為。新增獨立 Registry loader，透過 `importlib.resources` 及已登錄的 ID 載入。分類目錄版本 `catalog_version` 記於 Registry／事件中，不加進每份三欄 JSON；版本由 14 份內容指紋重現，發布新版本時保留不可變的舊目錄，供歷史統計使用。14 類 prototype 另於 Commit 3 建立，其類別 ID 必須與 Registry 一致，不能把 Category 欄位檔當成 prototype 檔。
 
+#### Commit B — 同一暴露事件的時間欄位
+
+`exposure_datetime` 是目前 `case_id` 所代表單一次暴露事件的時間欄位。runtime 的 `personal_exposure_risk`、`pep_post_exposure`、`symptom_questions`、`window_period` 與 `test_result_interpretation` 使用此同名 key；使用者切換 Category、但仍在談同一事件時，透過 `(case_id, field_key)` 共用狀態，使明確更正立即生效。這項共用以事件相同為前提；「最近一次可能暴露」不必然等於目前 Case 的事件。遇到多次事件時，應由呼叫者切換／建立 Case 或要求澄清，不能自動複製或合併日期。
+
+Commit B 更新後的 runtime Category JSON 會與原始 v2 快照有意不同：原始 `data/CDC_HIV_FAQ_Problem_Categories_JSON_v2/` 保留採集時的欄位定義，runtime 套件目錄依本規格把同一事件時間統一為 `exposure_datetime`。Registry 版本由內容指紋計算，欄位定義變更會產生新版本；分類器 prototype catalog 必須和新 Registry 版本配套。`last_test_date`／`test_date` 與 `hiv_test_result`／`test_result` 是可能重疊的其他 key，本次只列為待盤點事項，不合併、不改名。
+
 ### F03 — AI 欄位選擇與資訊擷取
 
 AI 接收目前問題、Active Category、對應 JSON、已知欄位與必要的對話上下文。

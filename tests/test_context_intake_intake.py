@@ -28,6 +28,13 @@ def make_registry():
             },
         },
         {
+            "category_id": "test_result_interpretation",
+            "category_name": "檢驗結果",
+            "fields": {
+                "exposure_datetime": {"type": "string", "description": "暴露時間"},
+            },
+        },
+        {
             "category_id": "education",
             "category_name": "一般衛教",
             "fields": {"topic": {"type": "string", "description": "主題"}},
@@ -168,6 +175,30 @@ def test_category_switch_reuses_same_case_attribute_and_new_event_is_separate_ca
         first.session.active_case_id, first.session.active_case_id,
         second_event.session.active_case_id,
     ]
+
+
+def test_corrected_exposure_datetime_is_reused_by_another_category():
+    sut, _, extractor = service(
+        ["exposure", "exposure", "test_result_interpretation"],
+        [
+            payload(["exposure_datetime"], {"exposure_datetime": "昨天"}),
+            payload(["exposure_datetime"], {"exposure_datetime": "前天"}),
+            payload(["exposure_datetime"], {}),
+        ],
+    )
+
+    first = sut.process_turn(participant_id="p1", session_id="s1", message="一次暴露", new_case=True)
+    corrected = sut.process_turn(
+        participant_id="p1", session_id="s1", message="更正暴露時間", correct_fields=("exposure_datetime",),
+    )
+    interpreted = sut.process_turn(
+        participant_id="p1", session_id="s1", message="詢問檢驗結果",
+    )
+
+    assert interpreted.session.active_case_id == first.session.active_case_id
+    assert interpreted.session.cases[first.session.active_case_id].attributes["exposure_datetime"].value == "前天"
+    assert extractor.requests[-1].known_attributes["exposure_datetime"] == "前天"
+    assert corrected.session.turn_events[-1].selected_fields == ("exposure_datetime",)
 
 
 def test_conflicting_value_is_pending_then_explicit_correction_is_historicized():

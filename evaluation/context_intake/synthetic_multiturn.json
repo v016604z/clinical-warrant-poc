@@ -22,9 +22,9 @@
     {
       "message": "我想知道檢驗的空窗期",
       "category_id": "window_period",
-      "extractor_response": {"selected_fields": ["last_possible_exposure_date", "test_date", "test_method"], "extracted_attributes": {"test_date": "", "test_method": null}, "selection_reason": "離線示範 fixture", "clarification_question": "您預計何時檢驗？", "clarification_field_key": "test_date"},
+      "extractor_response": {"selected_fields": ["exposure_datetime", "test_date", "test_method"], "extracted_attributes": {"test_date": "", "test_method": null}, "selection_reason": "離線示範 fixture", "clarification_question": "您預計何時檢驗？", "clarification_field_key": "test_date"},
       "expected_attributes": {"exposure_datetime": "昨天"},
-      "expected_absent_attributes": ["exposure_route", "last_possible_exposure_date"],
+      "expected_absent_attributes": ["exposure_route"],
       "expected_extracted_attributes": {}
     },
     {
@@ -34,7 +34,7 @@
       "correct_fields": ["exposure_datetime"],
       "extractor_response": {"selected_fields": ["exposure_datetime"], "extracted_attributes": {"exposure_datetime": "前天"}, "selection_reason": "離線示範 fixture", "clarification_question": null, "clarification_field_key": null},
       "expected_attributes": {"exposure_datetime": "前天"},
-      "expected_absent_attributes": ["exposure_route", "last_possible_exposure_date"],
+      "expected_absent_attributes": ["exposure_route"],
       "expected_extracted_attributes": {"exposure_datetime": "前天"}
     },
     {
@@ -42,17 +42,33 @@
       "category_id": "window_period",
       "extractor_response": {"selected_fields": ["test_date"], "extracted_attributes": {"test_date": null}, "selection_reason": "離線示範 fixture", "clarification_question": "您預計何時檢驗？", "clarification_field_key": "test_date"},
       "expected_attributes": {"exposure_datetime": "前天"},
-      "expected_absent_attributes": ["exposure_route", "last_possible_exposure_date"],
+      "expected_absent_attributes": ["exposure_route"],
       "expected_extracted_attributes": {}
     },
     {
-      "message": "另一次事件是共用針具",
+      "message": "我想知道檢驗結果代表什麼",
+      "category_id": "test_result_interpretation",
+      "new_question": true,
+      "extractor_response": {"selected_fields": ["exposure_datetime", "test_date", "test_result"], "extracted_attributes": {}, "selection_reason": "沿用同一 Case 已確認的暴露時間", "clarification_question": null, "clarification_field_key": null},
+      "expected_attributes": {"exposure_datetime": "前天"},
+      "expected_absent_attributes": ["exposure_route"],
+      "expected_extracted_attributes": {}
+    },
+    {
+      "message": "今天另一次事件是共用針具",
       "category_id": "personal_exposure_risk",
       "new_case": true,
-      "extractor_response": {"selected_fields": ["exposure_route"], "extracted_attributes": {"exposure_route": "共用針具"}, "selection_reason": "離線示範 fixture", "clarification_question": null, "clarification_field_key": null},
-      "expected_attributes": {"exposure_route": "共用針具"},
-      "expected_absent_attributes": ["exposure_datetime"],
-      "expected_extracted_attributes": {"exposure_route": "共用針具"}
+      "extractor_response": {"selected_fields": ["exposure_datetime", "exposure_route"], "extracted_attributes": {"exposure_datetime": "今天", "exposure_route": "共用針具"}, "selection_reason": "明確表示是另一次事件", "clarification_question": null, "clarification_field_key": null},
+      "expected_attributes": {"exposure_datetime": "今天", "exposure_route": "共用針具"},
+      "expected_extracted_attributes": {"exposure_datetime": "今天", "exposure_route": "共用針具"}
+    },
+    {
+      "message": "我最近一次可能暴露是什麼時候？",
+      "category_id": "window_period",
+      "clear_case": true,
+      "extractor_response": null,
+      "expected_absent_attributes": ["exposure_datetime", "exposure_route"],
+      "expected_extracted_attributes": {}
     },
     {
       "message": "今天晚餐吃什麼",

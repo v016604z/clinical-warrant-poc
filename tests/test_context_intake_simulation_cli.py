@@ -13,7 +13,7 @@ def test_intake_demo_replays_fixture_with_explicit_simulation_notice(capsys):
     assert main(["intake", "demo", "--fixture", str(FIXTURE)]) == 0
     output = json.loads(capsys.readouterr().out)
     assert "synthetic offline simulation" in output["notice"]
-    assert output["metrics"]["turn_count"] == 7
+    assert output["metrics"]["turn_count"] == 9
     assert output["metrics"]["correction_count"] == 1
     assert output["metrics"]["repeated_question_count"] == 1
     assert output["metrics"]["extraction_exact_match"]["value"] == 1.0
@@ -23,9 +23,35 @@ def test_intake_demo_replays_fixture_with_explicit_simulation_notice(capsys):
     assert output["turns"][1]["attributes"]["exposure_datetime"] == "昨天"
     assert output["turns"][2]["extracted_attributes"] == {}
     assert output["turns"][2]["attributes"]["exposure_datetime"] == "昨天"
+    assert output["turns"][5]["attributes"]["exposure_datetime"] == "前天"
     assert {item["category_id"] for item in output["metrics"]["coverage"]} == {
-        "personal_exposure_risk", "pep_post_exposure", "window_period"
+        "personal_exposure_risk", "pep_post_exposure", "window_period",
+        "test_result_interpretation",
     }
+
+
+def test_fixture_keeps_cases_separate_and_does_not_assign_ambiguous_recent_event():
+    from clinical_warrant.modules.context_intake import load_category_registry
+    from clinical_warrant.modules.context_intake.application.simulation import (
+        load_conversation_fixture,
+        replay_conversation,
+    )
+
+    _, fixture = load_conversation_fixture(FIXTURE)
+    assert "last_possible_exposure_date" not in FIXTURE.read_text(encoding="utf-8")
+    replay = replay_conversation(fixture, load_category_registry())
+    session = replay["session"]
+
+    assert len(session.cases) == 2
+    first_case_id, second_case_id = session.cases
+    assert session.cases[first_case_id].attributes["exposure_datetime"].value == "前天"
+    assert session.cases[second_case_id].attributes["exposure_datetime"].value == "今天"
+    assert session.cases[first_case_id].attributes["exposure_datetime"].value != session.cases[second_case_id].attributes["exposure_datetime"].value
+    assert session.turn_events[5].category_id == "test_result_interpretation"
+    assert session.turn_events[5].case_id == first_case_id
+    assert session.turn_events[7].category_id == "window_period"
+    assert session.turn_events[7].case_id is None
+    assert replay["turns"][7]["extracted_attributes"] == {}
 
 
 def test_intake_step_demo_pauses_for_each_fixture_turn(monkeypatch, capsys):
@@ -35,10 +61,10 @@ def test_intake_step_demo_pauses_for_each_fixture_turn(monkeypatch, capsys):
     assert main(["intake", "demo", "--fixture", str(FIXTURE), "--step"]) == 0
 
     lines = [json.loads(line) for line in capsys.readouterr().out.splitlines()]
-    assert len(prompts) == 7
-    assert len(lines) == 8
+    assert len(prompts) == 9
+    assert len(lines) == 10
     assert [turn["category_id"] for turn in lines[:-1]][-1] is None
-    assert lines[-1]["metrics"]["turn_count"] == 7
+    assert lines[-1]["metrics"]["turn_count"] == 9
 
 
 def test_intake_evaluate_publishes_separate_immutable_run(tmp_path, capsys):

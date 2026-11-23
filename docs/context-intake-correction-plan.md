@@ -87,7 +87,7 @@
 
 **驗收**
 
-- [ ] 四個涉及該暴露事件時間的 Category 可共用同一 `exposure_datetime`。
+- [ ] `personal_exposure_risk`、`pep_post_exposure`、`symptom_questions`、`window_period` 與 `test_result_interpretation` 五個 Category 可共用同一 `exposure_datetime`。
 - [ ] 更正時間後再查 `window_period`，`known_count` 不重複，值為最新已確認值。
 - [ ] 第二個 Case 不繼承第一個 Case 的暴露時間。
 - [ ] 模糊的「最近一次」情境不會無依據合併不同事件。
