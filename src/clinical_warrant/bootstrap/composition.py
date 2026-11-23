@@ -102,6 +102,29 @@ def build_context_intake_service(
     )
 
 
+def build_context_intake_orchestrator(
+    *, case_router=None, intake_service=None, **service_options
+):
+    """Compose the unified conversational intake entry point.
+
+    Router and intake service can be injected independently for offline use.
+    The existing service factory and CLI composition remain unchanged.
+    """
+    from clinical_warrant.modules.context_intake.application.conversation_orchestrator import (
+        ConversationOrchestrator,
+    )
+
+    if intake_service is None:
+        intake_service = build_context_intake_service(**service_options)
+    elif service_options:
+        raise ValueError("service_options cannot be supplied with an intake_service")
+    if case_router is None:
+        from clinical_warrant.modules.context_intake.infrastructure.openai_case_router import OpenAICaseRouter
+
+        case_router = OpenAICaseRouter()
+    return ConversationOrchestrator(intake_service, case_router)
+
+
 def evaluate_scenarios(
     cases: tuple[EvaluationCase, ...],
     engine: WarrantEngine,

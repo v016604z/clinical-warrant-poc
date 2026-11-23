@@ -1,6 +1,10 @@
 """Context Intake application use cases."""
 
 from clinical_warrant.modules.context_intake.application.classifier import IntakeQuestionClassifier
+from clinical_warrant.modules.context_intake.application.conversation_orchestrator import (
+    ConversationOrchestrator,
+    ConversationTurnResult,
+)
 from clinical_warrant.modules.context_intake.application.coverage import (
     CategoryCoverage,
     CoverageError,
@@ -14,6 +18,8 @@ from clinical_warrant.modules.context_intake.application.intake import (
 
 __all__ = [
     "IntakeQuestionClassifier",
+    "ConversationOrchestrator",
+    "ConversationTurnResult",
     "CategoryCoverage",
     "CoverageError",
     "calculate_case_coverage",

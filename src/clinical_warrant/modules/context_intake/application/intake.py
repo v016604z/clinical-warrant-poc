@@ -93,6 +93,7 @@ class ContextIntakeService:
         keep_existing: bool = False,
         correct_fields: tuple[str, ...] = (),
         urgent_handoff: bool = False,
+        classification: IntakeClassificationResult | None = None,
     ) -> IntakeTurnResult:
         """Process one user turn; IDs and state transitions are service-owned.
 
@@ -183,7 +184,10 @@ class ContextIntakeService:
 
         continuation = (not new_case and not new_question and not clear_case
                         and (current.pending_question is not None or current.pending_conflict is not None))
-        classification = None if continuation else self.classifier.classify(message)
+        if continuation:
+            classification = None
+        elif classification is None:
+            classification = self.classifier.classify(message)
         if (classification is not None and getattr(classification, "catalog_version", None) is not None
                 and classification.catalog_version != self.registry.version):
             raise ValueError("classification catalog_version does not match the Category Registry")

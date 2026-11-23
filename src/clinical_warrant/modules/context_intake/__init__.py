@@ -9,6 +9,16 @@ from clinical_warrant.modules.context_intake.domain.category_registry import (
 from clinical_warrant.modules.context_intake.infrastructure.category_registry import load_category_registry
 from clinical_warrant.modules.context_intake.domain.classification import IntakeClassificationResult, IntakePrototypeCategory
 from clinical_warrant.modules.context_intake.application.classifier import IntakeQuestionClassifier
+from clinical_warrant.modules.context_intake.application.case_router import (
+    CaseRouteDecision,
+    CaseRouteError,
+    CaseRouteRequest,
+    CaseRouter,
+)
+from clinical_warrant.modules.context_intake.application.conversation_orchestrator import (
+    ConversationOrchestrator,
+    ConversationTurnResult,
+)
 from clinical_warrant.modules.context_intake.application.coverage import (
     CategoryCoverage,
     CoverageError,
@@ -49,6 +59,12 @@ __all__ = [
     "load_category_registry",
     "IntakeClassificationResult",
     "IntakeQuestionClassifier",
+    "CaseRouteDecision",
+    "CaseRouteError",
+    "CaseRouteRequest",
+    "CaseRouter",
+    "ConversationOrchestrator",
+    "ConversationTurnResult",
     "CategoryCoverage",
     "CoverageError",
     "calculate_case_coverage",
