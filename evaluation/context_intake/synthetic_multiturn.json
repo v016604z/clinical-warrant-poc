@@ -6,23 +6,26 @@
       "message": "我昨天有一次可能的暴露",
       "category_id": "personal_exposure_risk",
       "new_case": true,
-      "extractor_response": {"selected_fields": ["exposure_datetime", "exposure_route"], "extracted_attributes": {"exposure_datetime": "昨天", "exposure_route": "性行為"}, "selection_reason": "離線示範 fixture", "clarification_question": null, "clarification_field_key": null},
-      "expected_attributes": {"exposure_datetime": "昨天", "exposure_route": "性行為"},
-      "expected_extracted_attributes": {"exposure_datetime": "昨天", "exposure_route": "性行為"}
+      "extractor_response": {"selected_fields": ["exposure_datetime", "exposure_route"], "extracted_attributes": {"exposure_datetime": "昨天"}, "selection_reason": "離線示範 fixture", "clarification_question": null, "clarification_field_key": null},
+      "expected_attributes": {"exposure_datetime": "昨天"},
+      "expected_absent_attributes": ["exposure_route"],
+      "expected_extracted_attributes": {"exposure_datetime": "昨天"}
     },
     {
       "message": "我也想問暴露後預防",
       "category_id": "pep_post_exposure",
-      "extractor_response": {"selected_fields": ["exposure_datetime"], "extracted_attributes": {"exposure_datetime": "昨天"}, "selection_reason": "離線示範 fixture", "clarification_question": null, "clarification_field_key": null},
-      "expected_attributes": {"exposure_datetime": "昨天", "exposure_route": "性行為"},
-      "expected_extracted_attributes": {"exposure_datetime": "昨天"}
+      "extractor_response": {"selected_fields": ["exposure_datetime"], "extracted_attributes": {}, "selection_reason": "離線示範 fixture", "clarification_question": null, "clarification_field_key": null},
+      "expected_attributes": {"exposure_datetime": "昨天"},
+      "expected_absent_attributes": ["exposure_route"],
+      "expected_extracted_attributes": {}
     },
     {
       "message": "我想知道檢驗的空窗期",
       "category_id": "window_period",
-      "extractor_response": {"selected_fields": ["last_possible_exposure_date", "test_date", "test_method"], "extracted_attributes": {"last_possible_exposure_date": "昨天", "test_date": "", "test_method": null}, "selection_reason": "離線示範 fixture", "clarification_question": "您預計何時檢驗？", "clarification_field_key": "test_date"},
-      "expected_attributes": {"exposure_datetime": "昨天", "exposure_route": "性行為", "last_possible_exposure_date": "昨天"},
-      "expected_extracted_attributes": {"last_possible_exposure_date": "昨天"}
+      "extractor_response": {"selected_fields": ["last_possible_exposure_date", "test_date", "test_method"], "extracted_attributes": {"test_date": "", "test_method": null}, "selection_reason": "離線示範 fixture", "clarification_question": "您預計何時檢驗？", "clarification_field_key": "test_date"},
+      "expected_attributes": {"exposure_datetime": "昨天"},
+      "expected_absent_attributes": ["exposure_route", "last_possible_exposure_date"],
+      "expected_extracted_attributes": {}
     },
     {
       "message": "更正一下，暴露時間是前天",
@@ -30,14 +33,16 @@
       "new_question": true,
       "correct_fields": ["exposure_datetime"],
       "extractor_response": {"selected_fields": ["exposure_datetime"], "extracted_attributes": {"exposure_datetime": "前天"}, "selection_reason": "離線示範 fixture", "clarification_question": null, "clarification_field_key": null},
-      "expected_attributes": {"exposure_datetime": "前天", "exposure_route": "性行為", "last_possible_exposure_date": "昨天"},
+      "expected_attributes": {"exposure_datetime": "前天"},
+      "expected_absent_attributes": ["exposure_route", "last_possible_exposure_date"],
       "expected_extracted_attributes": {"exposure_datetime": "前天"}
     },
     {
       "message": "我還不知道預計檢驗日期",
       "category_id": "window_period",
       "extractor_response": {"selected_fields": ["test_date"], "extracted_attributes": {"test_date": null}, "selection_reason": "離線示範 fixture", "clarification_question": "您預計何時檢驗？", "clarification_field_key": "test_date"},
-      "expected_attributes": {"exposure_datetime": "前天", "exposure_route": "性行為", "last_possible_exposure_date": "昨天"},
+      "expected_attributes": {"exposure_datetime": "前天"},
+      "expected_absent_attributes": ["exposure_route", "last_possible_exposure_date"],
       "expected_extracted_attributes": {}
     },
     {

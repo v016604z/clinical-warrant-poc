@@ -18,6 +18,11 @@ def test_intake_demo_replays_fixture_with_explicit_simulation_notice(capsys):
     assert output["metrics"]["repeated_question_count"] == 1
     assert output["metrics"]["extraction_exact_match"]["value"] == 1.0
     assert output["metrics"]["state_field_accuracy"]["value"] == 1.0
+    assert "exposure_route" not in output["turns"][0]["attributes"]
+    assert output["turns"][1]["extracted_attributes"] == {}
+    assert output["turns"][1]["attributes"]["exposure_datetime"] == "昨天"
+    assert output["turns"][2]["extracted_attributes"] == {}
+    assert output["turns"][2]["attributes"]["exposure_datetime"] == "昨天"
     assert {item["category_id"] for item in output["metrics"]["coverage"]} == {
         "personal_exposure_risk", "pep_post_exposure", "window_period"
     }
@@ -90,3 +95,17 @@ def test_evaluation_records_extraction_and_state_mismatches():
     assert {error["error_type"] for error in report["errors"]} == {
         "extraction_mismatch", "state_field_mismatch"
     }
+
+
+def test_evaluation_reveals_unsupported_exposure_route_extraction():
+    from clinical_warrant.modules.context_intake import load_category_registry
+    from clinical_warrant.modules.context_intake.application.simulation import evaluate_fixture
+
+    fixture = json.loads(FIXTURE.read_text(encoding="utf-8"))
+    fixture["steps"][0]["extractor_response"]["extracted_attributes"]["exposure_route"] = "性行為"
+    report = evaluate_fixture(b"synthetic-fixture", fixture, load_category_registry())
+
+    assert {error["error_type"] for error in report["errors"]} == {
+        "extraction_mismatch", "unexpected_state_field"
+    }
+    assert report["predictions"][0]["extracted_attributes"]["exposure_route"] == "性行為"

@@ -152,6 +152,7 @@ def replay_conversation(fixture: dict[str, Any], registry, *, on_turn=None) -> d
         results.append({
             "message": step["message"], "turn_id": result.turn_id,
             "category_id": result.category_id, "clarification": result.clarification,
+            "extracted_attributes": dict(result.extraction.extracted_attributes) if result.extraction else {},
             "attributes": actual, "handoff_required": result.handoff_required,
         })
         if on_turn is not None:
