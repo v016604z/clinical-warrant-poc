@@ -215,10 +215,13 @@ class SessionState:
     pending_question: PendingQuestion | None = None
     pending_conflict: PendingConflict | None = None
     turn_events: tuple[TurnEvent, ...] = ()
+    awaiting_case_restatement: bool = False
 
     def __post_init__(self) -> None:
         _identifier(self.session_id, "session_id")
         _identifier(self.participant_id, "participant_id")
+        if type(self.awaiting_case_restatement) is not bool:
+            raise ValueError("awaiting_case_restatement must be a boolean")
         cases = dict(self.cases)
         for case_id, case in cases.items():
             _identifier(case_id, "case_id")

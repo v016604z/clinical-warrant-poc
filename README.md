@@ -63,9 +63,25 @@ python -m venv .venv
 
 Context Intake 的 14 類分類、個案欄位收集、Coverage 公式與分階段驗收見[功能規格](docs/context-intake-spec.md)、[實作計畫](docs/context-intake-implementation-plan.md)及[架構文件](docs/architecture.md)。Context Intake 分類評估是獨立的研究流程；分類指標不代表欄位抽取正確性或臨床效能，多輪評估結果亦須依實際執行狀態標示。
 
-### Context Intake 離線示範與 fixture 評估
+### Context Intake 即時對話與離線示範
 
-以下命令使用固定的合成多輪對話 fixture，接線的是 fixture classifier / extractor，不呼叫真實模型、不連網，也不代表實際使用者或臨床評估。`demo --step` 只在每輪暫停供人工檢視，仍會自動依 fixture 回放，不能輸入自由文字。
+執行即時對話前，需依[分類器文件](docs/classifier.md)的順序先安裝 PyTorch CPU wheel，再安裝 OpenAI 與模型 extras：
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install torch==2.14.1 --index-url https://download.pytorch.org/whl/cpu
+.\.venv\Scripts\python.exe -m pip install -e ".[dev,openai,model]"
+```
+
+即時對話使用 OpenAI API（在專案 `.env` 或程序環境設定 `OPENAI_API_KEY`，可用 `OPENAI_MODEL` 指定模型），並將匿名 Participant ID、Session/Case ID、結構化欄位及回合 metadata 保存到本機 SQLite。預設資料庫為 `runtime-data/context-intake.sqlite3`；SQLite 不保存 API Key 或完整對話原文。`--threshold` 預設 `0.5` 是 POC 起始值，正式研究評估須另行校準 14 類分類器門檻。離開後以原有 Participant ID 和 Session ID 恢復；缺少其中一個、ID 不符或 Session 不存在時，CLI 會拒絕恢復：
+
+```powershell
+.\.venv\Scripts\clinical-warrant.exe intake chat
+.\.venv\Scripts\clinical-warrant.exe intake chat --session-id SESSION_ID --participant-id PARTICIPANT_ID
+```
+
+互動中輸入自由文字；`:case` 查看目前個案，`:use CASE_ID` 切換，`:clear` 清除目前關聯但保留既有個案，`:exit` 離開。每輪顯示 Category、選取/已知欄位、補問與 Coverage。OpenAI API 發生錯誤時，該輪不會寫入未完成狀態。不要在共享電腦或未受保護的資料夾保存真實個案資料。
+
+離線示範使用固定的合成多輪對話 fixture，接線的是 fixture classifier / extractor，不呼叫真實模型、不連網，也不代表實際使用者或臨床評估。`demo --step` 只在每輪暫停供人工檢視，仍會自動依 fixture 回放，不能輸入自由文字。
 
 ```powershell
 .\.venv\Scripts\clinical-warrant.exe intake demo --fixture evaluation/context_intake/synthetic_multiturn.json
@@ -75,9 +91,9 @@ Context Intake 的 14 類分類、個案欄位收集、Coverage 公式與分階�
 
 `demo` 將逐輪輸出與指標印到 stdout，不寫檔；`evaluate` 在輸出目錄建立不可覆寫的 `run-*` 子目錄，內含 `summary.json`、`predictions.jsonl`、`errors.jsonl`。評估指標是 fixture 標註下的抽取 exact match、嚴格型別狀態欄位正確率、重複待答次數、更正前後值與各 Case / Category Coverage，只用於離線流程契約檢查。執行環境若尚未安裝本專案，請先依上方開發步驟建立 `.venv` 並安裝套件。
 
-本次文件更新所在環境沒有可用的 Python runtime，因此未執行上述命令，也未產生或驗證任何新的模擬評估報告；命令範例不代表執行成功。
+較早一次離線 fixture 驗收記錄的環境沒有可用 Python runtime，當時未能執行模擬評估；詳情見[驗收紀錄](docs/context-intake-correction-validation.md)。該紀錄只描述當次離線驗收環境，不代表即時對話 CLI 的驗證狀態。
 
-Context Intake 的 SQLite persistence 僅供明確注入 repository 的呼叫端選用；現有 CLI 不會自動建立或選擇資料庫。若自行使用檔案資料庫，建議放在已忽略的 `runtime-data/`（例如 `runtime-data/intake.sqlite3`），不要放入真實個案資料或提交資料庫檔。舊 Registry 版本且仍有 Active Category 的 Session 不可直接以新版 Registry 恢復；保留資料需配對舊 Registry，或另行審查 migration。Commit C 的本輪命令、環境與未執行項目記錄見[驗收紀錄](docs/context-intake-correction-validation.md)。
+舊 Registry 版本且仍有 Active Category 的 Session 不可直接以新版 Registry 恢復；保留資料需配對舊 Registry，或另行審查 migration。Commit C 的本輪命令、環境與未執行項目記錄見[驗收紀錄](docs/context-intake-correction-validation.md)。
 
 CDC 愛滋公開問答的蒐集範圍、執行方式、原始快照與資料使用限制見[資料蒐集說明](docs/data-collection.md)。
 

@@ -19,7 +19,7 @@ from clinical_warrant.modules.context_intake.domain.state import (
 )
 
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 _SCHEMA = (
     """CREATE TABLE participants (
@@ -38,6 +38,7 @@ _SCHEMA = (
         active_catalog_version TEXT,
         pending_question_json TEXT,
         pending_conflict_json TEXT,
+        awaiting_case_restatement INTEGER NOT NULL DEFAULT 0 CHECK (awaiting_case_restatement IN (0, 1)),
         UNIQUE (participant_id, session_id),
         FOREIGN KEY (participant_id, active_case_id)
             REFERENCES case_contexts(participant_id, case_id)
@@ -100,19 +101,25 @@ _SCHEMA = (
 
 
 def initialize_database(connection: sqlite3.Connection) -> None:
-    """Create the v1 schema once; refuse unknown versions without rebuilding data."""
+    """Create the current schema or transactionally upgrade the supported v1 schema."""
     connection.execute("PRAGMA foreign_keys = ON")
     if connection.execute("PRAGMA foreign_keys").fetchone()[0] != 1:
         raise RuntimeError("SQLite foreign key enforcement must be enabled outside a transaction")
     version = connection.execute("PRAGMA user_version").fetchone()[0]
     if version == SCHEMA_VERSION:
         return
-    if version != 0:
+    if version not in (0, 1):
         raise RuntimeError(f"unsupported Context Intake schema version: {version}")
     connection.execute("BEGIN IMMEDIATE")
     try:
-        for statement in _SCHEMA:
-            connection.execute(statement)
+        if version == 0:
+            for statement in _SCHEMA:
+                connection.execute(statement)
+        else:
+            connection.execute(
+                "ALTER TABLE sessions ADD COLUMN awaiting_case_restatement "
+                "INTEGER NOT NULL DEFAULT 0 CHECK (awaiting_case_restatement IN (0, 1))"
+            )
         connection.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
         connection.commit()
     except Exception:
@@ -223,17 +230,23 @@ class SQLiteContextIntakeRepository:
                 and event.category_id == session.active_category_id
             ), None)
             db.execute(
-                """INSERT INTO sessions VALUES (?, ?, ?, ?, ?, ?, ?)
+                """INSERT INTO sessions (
+                    session_id, participant_id, active_case_id, active_category_id,
+                    active_catalog_version, pending_question_json, pending_conflict_json,
+                    awaiting_case_restatement
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(session_id) DO UPDATE SET
                     active_case_id=excluded.active_case_id,
                     active_category_id=excluded.active_category_id,
                     active_catalog_version=excluded.active_catalog_version,
                     pending_question_json=excluded.pending_question_json,
-                    pending_conflict_json=excluded.pending_conflict_json""",
+                    pending_conflict_json=excluded.pending_conflict_json,
+                    awaiting_case_restatement=excluded.awaiting_case_restatement""",
                 (session.session_id, session.participant_id, session.active_case_id,
                  session.active_category_id, active_version,
                  _pending_question_json(session.pending_question),
-                 _pending_conflict_json(session.pending_conflict)),
+                 _pending_conflict_json(session.pending_conflict),
+                 int(session.awaiting_case_restatement)),
             )
 
             expected_events = []
@@ -356,6 +369,7 @@ class SQLiteContextIntakeRepository:
             session["session_id"], session["participant_id"], cases,
             session["active_case_id"], session["active_category_id"],
             pending_question, pending_conflict, tuple(events),
+            bool(session["awaiting_case_restatement"]),
         )
 
     def get_case(self, case_id: str, participant_id: str) -> CaseState | None:
@@ -380,7 +394,8 @@ class SQLiteContextIntakeRepository:
             db.execute(
                 """UPDATE sessions SET active_case_id=NULL, active_category_id=NULL,
                     active_catalog_version=NULL,
-                    pending_question_json=NULL, pending_conflict_json=NULL
+                    pending_question_json=NULL, pending_conflict_json=NULL,
+                    awaiting_case_restatement=0
                     WHERE participant_id=? AND active_case_id=?""", (owner, case_id)
             )
             db.execute("DELETE FROM case_attributes WHERE case_id=?", (case_id,))

@@ -339,13 +339,15 @@ def test_pending_new_case_route_with_fieldless_or_unknown_classification_preserv
 
     assert second.route_decision.action == "new_case"
     assert expected_clarification in second.clarification
-    assert second.session is first.session
     assert second.session.active_case_id == first.session.active_case_id
     assert second.session.pending_question == first.session.pending_question
+    assert second.session.cases == first.session.cases
+    assert second.session.turn_events == first.session.turn_events
+    assert second.session.awaiting_case_restatement is True
     assert classifier.calls == ["我有一次可能的暴露", "另一個問題"]
     assert len(router.requests) == 2
     assert len(extractor.requests) == 1
-    assert len(repository.saved) == saved_count
+    assert len(repository.saved) == saved_count + 1
 
 
 def test_explicit_new_event_creates_separate_case_instead_of_merging():
@@ -423,7 +425,10 @@ def test_uncertain_event_identity_asks_clarification_without_merging_or_persisti
     assert second.clarification.startswith("您指的是原本那次，還是新的事件？")
     assert second.session.active_case_id == first.session.active_case_id
     assert len(second.session.cases) == 1
-    assert len(repository.saved) == before
+    assert second.session.awaiting_case_restatement is True
+    assert second.session.cases == first.session.cases
+    assert second.session.turn_events == first.session.turn_events
+    assert len(repository.saved) == before + 1
     assert len(extractor.requests) == 1
     assert len(classifier.calls) == 2 and len(router.requests) == 2
 
@@ -448,8 +453,10 @@ def test_clarification_requires_full_event_restatement_and_short_answer_does_not
     assert clarification.route_decision.action == "clarify"
     assert "重新完整描述事件及發生時間" in clarification.clarification
     assert "新的" in clarification.clarification
-    assert clarification.session is first.session
-    assert len(repository.saved) == first_save_count
+    assert clarification.session.awaiting_case_restatement is True
+    assert clarification.session.cases == first.session.cases
+    assert clarification.session.turn_events == first.session.turn_events
+    assert len(repository.saved) == first_save_count + 1
     assert clarification.session.pending_question is None
     assert clarification.session.pending_conflict is None
 
@@ -458,13 +465,14 @@ def test_clarification_requires_full_event_restatement_and_short_answer_does_not
     )
 
     assert short_answer.clarification
-    assert short_answer.session is first.session
+    assert short_answer.session.awaiting_case_restatement is True
+    assert short_answer.session.cases == first.session.cases
     assert len(short_answer.session.cases) == 1
     assert short_answer.session.active_case_id == first.session.active_case_id
     assert short_answer.session.cases[first.session.active_case_id].attributes[
         "exposure_datetime"
     ].value == "昨天"
-    assert len(repository.saved) == first_save_count
+    assert len(repository.saved) == first_save_count + 1
     assert len(extractor.requests) == 1
     assert len(classifier.calls) == 3
     assert len(router.requests) == 2
@@ -495,16 +503,17 @@ def test_pending_clarify_short_answer_cannot_fill_old_field_before_full_new_even
     )
     assert clarified.route_decision.action == "clarify"
     assert clarified.session.pending_question == old_question
+    assert clarified.session.awaiting_case_restatement is True
 
     short = orchestrator.process_turn(
         participant_id="p1", session_id="s1", message="新的",
     )
     assert short.clarification
-    assert short.session is first.session
+    assert short.session.awaiting_case_restatement is True
     assert short.session.pending_question == old_question
     assert short.session.cases[old_case_id].attributes == {}
     assert len(extractor.requests) == 1
-    assert len(repository.saved) == 1
+    assert len(repository.saved) == 2
     assert len(router.requests) == 2
 
     full = orchestrator.process_turn(
@@ -522,7 +531,7 @@ def test_pending_clarify_short_answer_cannot_fill_old_field_before_full_new_even
     ]
     assert len(router.requests) == 3
     assert len(extractor.requests) == 2
-    assert len(repository.saved) == 2
+    assert len(repository.saved) == 3
 
 
 def test_failed_router_after_clarification_keeps_marker_for_safe_retry():
@@ -555,7 +564,7 @@ def test_failed_router_after_clarification_keeps_marker_for_safe_retry():
     assert len(repository.saved) == saved_count
     assert len(extractor.requests) == 1
     # A short reply after the failed full restatement remains a clarification,
-    # which proves the in-memory marker was not cleared by the router failure.
+    # which proves the persisted marker was not cleared by the router failure.
     short_retry = orchestrator.process_turn(
         participant_id="p1", session_id="s1", message="新的",
     )
@@ -576,7 +585,7 @@ def test_failed_router_after_clarification_keeps_marker_for_safe_retry():
     assert len(classifier.calls) == 5
     assert len(router.requests) == 4
     assert len(extractor.requests) == 2
-    assert len(repository.saved) == 2
+    assert len(repository.saved) == 3
 
 
 def test_no_case_route_clears_active_association_without_creating_or_extracting_case():

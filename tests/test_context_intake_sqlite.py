@@ -60,7 +60,7 @@ def test_initialization_creates_six_tables_and_is_idempotent():
     )}
     assert tables == {"participants", "sessions", "case_contexts", "turn_events",
                       "case_attributes", "attribute_history"}
-    assert connection.execute("PRAGMA user_version").fetchone()[0] == 1
+    assert connection.execute("PRAGMA user_version").fetchone()[0] == 2
     assert connection.execute("PRAGMA foreign_keys").fetchone()[0] == 1
 
 
@@ -72,6 +72,64 @@ def test_unknown_schema_version_is_rejected_without_downgrade():
         initialize_database(connection)
 
     assert connection.execute("PRAGMA user_version").fetchone()[0] == 99
+
+
+def test_v1_schema_migration_preserves_sessions_and_defaults_restatement_flag():
+    connection = sqlite3.connect(":memory:")
+    connection.execute("PRAGMA foreign_keys = ON")
+    connection.execute("""CREATE TABLE sessions (
+        session_id TEXT PRIMARY KEY,
+        participant_id TEXT NOT NULL,
+        active_case_id TEXT,
+        active_category_id TEXT,
+        active_catalog_version TEXT,
+        pending_question_json TEXT,
+        pending_conflict_json TEXT
+    )""")
+    connection.execute(
+        "INSERT INTO sessions VALUES (?, ?, ?, ?, ?, ?, ?)",
+        ("session-v1", "participant-v1", None, None, None, None, None),
+    )
+    connection.execute("PRAGMA user_version = 1")
+    connection.commit()
+
+    initialize_database(connection)
+
+    columns = {row[1] for row in connection.execute("PRAGMA table_info(sessions)")}
+    assert "awaiting_case_restatement" in columns
+    assert connection.execute("PRAGMA user_version").fetchone()[0] == 2
+    assert connection.execute(
+        "SELECT session_id, participant_id, awaiting_case_restatement FROM sessions"
+    ).fetchone() == ("session-v1", "participant-v1", 0)
+
+
+def test_v1_migration_failure_rolls_back_schema_version_and_existing_row():
+    connection = sqlite3.connect(":memory:")
+    connection.execute("PRAGMA foreign_keys = ON")
+    connection.execute("""CREATE TABLE sessions (
+        session_id TEXT PRIMARY KEY,
+        participant_id TEXT NOT NULL,
+        active_case_id TEXT,
+        active_category_id TEXT,
+        active_catalog_version TEXT,
+        pending_question_json TEXT,
+        pending_conflict_json TEXT,
+        awaiting_case_restatement INTEGER NOT NULL DEFAULT 0
+    )""")
+    connection.execute(
+        "INSERT INTO sessions VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        ("session-v1", "participant-v1", None, None, None, None, None, 1),
+    )
+    connection.execute("PRAGMA user_version = 1")
+    connection.commit()
+
+    with pytest.raises(sqlite3.OperationalError):
+        initialize_database(connection)
+
+    assert connection.execute("PRAGMA user_version").fetchone()[0] == 1
+    assert connection.execute(
+        "SELECT session_id, awaiting_case_restatement FROM sessions"
+    ).fetchone() == ("session-v1", 1)
 
 
 def test_unknown_turn_has_no_active_catalog_version():
@@ -116,6 +174,22 @@ def test_session_pending_attributes_and_events_round_trip():
     assert [row[0] for row in connection.execute(
         "SELECT turn_order FROM turn_events WHERE session_id='session-1' ORDER BY turn_order"
     )] == [0, 1, 2]
+
+
+def test_case_restatement_gate_round_trips_across_repository_reload():
+    connection, repo = repository()
+    original = SessionState(
+        "session-gated", "participant-1", awaiting_case_restatement=True,
+    )
+
+    repo.save_session(original)
+    loaded = repo.load_session("session-gated")
+
+    assert loaded == original
+    assert loaded.awaiting_case_restatement is True
+    assert connection.execute(
+        "SELECT awaiting_case_restatement FROM sessions WHERE session_id='session-gated'"
+    ).fetchone() == (1,)
 
 
 def test_pending_conflict_round_trips_boolean_and_integer_candidates():

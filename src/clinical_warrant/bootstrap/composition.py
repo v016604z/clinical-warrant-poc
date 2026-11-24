@@ -125,6 +125,29 @@ def build_context_intake_orchestrator(
     return ConversationOrchestrator(intake_service, case_router)
 
 
+def build_context_intake_chat_runtime(*, db_path: str | Path, threshold: float = 0.5):
+    """Create the live chat orchestrator backed by a local SQLite database."""
+    import sqlite3
+
+    from clinical_warrant.modules.context_intake.infrastructure.sqlite_repository import (
+        SQLiteContextIntakeRepository,
+    )
+
+    path = Path(db_path)
+    if str(db_path) != ":memory:":
+        path.parent.mkdir(parents=True, exist_ok=True)
+    connection = sqlite3.connect(str(db_path))
+    try:
+        repository = SQLiteContextIntakeRepository(connection)
+        orchestrator = build_context_intake_orchestrator(
+            threshold=threshold, repository=repository
+        )
+    except Exception:
+        connection.close()
+        raise
+    return orchestrator, connection
+
+
 def evaluate_scenarios(
     cases: tuple[EvaluationCase, ...],
     engine: WarrantEngine,

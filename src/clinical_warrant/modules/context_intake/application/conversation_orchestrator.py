@@ -44,7 +44,6 @@ class ConversationOrchestrator:
     def __init__(self, intake_service: ContextIntakeService, case_router: CaseRouter) -> None:
         self.intake_service = intake_service
         self.case_router = case_router
-        self._awaiting_case_clarification: set[tuple[str, str]] = set()
 
     def process_turn(
         self,
@@ -87,7 +86,6 @@ class ConversationOrchestrator:
             raise ValueError("session participant does not match participant_id")
         if current is None:
             current = SessionState(session_id=session_id, participant_id=participant_id)
-        clarification_key = (participant_id, session_id)
 
         # These structured controls resolve an existing state transition and do
         # not represent a question to classify or a case to route.
@@ -97,16 +95,14 @@ class ConversationOrchestrator:
                 confirm_conflict=confirm_conflict, keep_existing=keep_existing,
                 correct_fields=correct_fields, urgent_handoff=urgent_handoff,
             )
-            self._awaiting_case_clarification.discard(clarification_key)
             return ConversationTurnResult(result.session, result.category_id, None, result, result.clarification)
 
-        if clarification_key in self._awaiting_case_clarification:
+        if current.awaiting_case_restatement:
             return self._process_restatement(
                 participant_id=participant_id,
                 message=message,
                 session_id=session_id,
                 current=current,
-                marker_key=clarification_key,
                 clear_case=clear_case,
                 correct_fields=correct_fields,
             )
@@ -121,7 +117,7 @@ class ConversationOrchestrator:
             if decision.action == "clarify":
                 clarification = _clarification_with_restatement(decision.clarification_question)
                 decision = CaseRouteDecision("clarify", clarification)
-                self._awaiting_case_clarification.add(clarification_key)
+                current = self.intake_service.set_pending_case_restatement(participant_id, session_id)
                 return ConversationTurnResult(
                     current, pending_category.category_id, decision,
                     clarification=clarification,
@@ -142,7 +138,7 @@ class ConversationOrchestrator:
             category_id = None if classification.is_unknown else classification.top1_category_id
             if decision.action == "new_case":
                 if category_id is None:
-                    self._awaiting_case_clarification.add(clarification_key)
+                    current = self.intake_service.set_pending_case_restatement(participant_id, session_id)
                     return ConversationTurnResult(
                         current, None, decision,
                         clarification=_clarification_with_restatement(
@@ -150,7 +146,7 @@ class ConversationOrchestrator:
                         ),
                     )
                 if not self.intake_service.registry.get(category_id).fields:
-                    self._awaiting_case_clarification.add(clarification_key)
+                    current = self.intake_service.set_pending_case_restatement(participant_id, session_id)
                     return ConversationTurnResult(
                         current, category_id, decision,
                         clarification=_clarification_with_restatement(
@@ -179,11 +175,10 @@ class ConversationOrchestrator:
                     clear_case=True, new_question=new_question, correct_fields=correct_fields,
                     classification=classification,
                 )
-                self._awaiting_case_clarification.discard(clarification_key)
                 return ConversationTurnResult(result.session, None, None, result, result.clarification)
             # An unknown or very short answer must not create a case or attach
             # facts to the active case. Explicit clear_case was handled above.
-            self._awaiting_case_clarification.add(clarification_key)
+            current = self.intake_service.set_pending_case_restatement(participant_id, session_id)
             return ConversationTurnResult(
                 current, None, None,
                 clarification=_clarification_with_restatement(
@@ -199,7 +194,6 @@ class ConversationOrchestrator:
                 clear_case=True, new_question=new_question, correct_fields=correct_fields,
                 classification=classification,
             )
-            self._awaiting_case_clarification.discard(clarification_key)
             return ConversationTurnResult(result.session, category_id, None, result, result.clarification)
 
         category = self.intake_service.registry.get(category_id)
@@ -208,7 +202,7 @@ class ConversationOrchestrator:
         if decision.action == "clarify":
             clarification = _clarification_with_restatement(decision.clarification_question)
             decision = CaseRouteDecision("clarify", clarification)
-            self._awaiting_case_clarification.add(clarification_key)
+            current = self.intake_service.set_pending_case_restatement(participant_id, session_id)
             return ConversationTurnResult(
                 current, category_id, decision, clarification=clarification,
             )
@@ -232,7 +226,6 @@ class ConversationOrchestrator:
             correct_fields=correct_fields,
             classification=classification,
         )
-        self._awaiting_case_clarification.discard(clarification_key)
         return ConversationTurnResult(result.session, category_id, decision, result, result.clarification)
 
     def _process_restatement(
@@ -242,7 +235,6 @@ class ConversationOrchestrator:
         message: str,
         session_id: str,
         current: SessionState,
-        marker_key: tuple[str, str],
         clear_case: bool,
         correct_fields: tuple[str, ...],
     ) -> ConversationTurnResult:
@@ -254,7 +246,6 @@ class ConversationOrchestrator:
                 participant_id=participant_id, message=message, session_id=session_id,
                 clear_case=True, correct_fields=correct_fields, classification=classification,
             )
-            self._awaiting_case_clarification.discard(marker_key)
             return ConversationTurnResult(result.session, category_id, None, result, result.clarification)
         if category_id is None:
             return ConversationTurnResult(
@@ -291,7 +282,6 @@ class ConversationOrchestrator:
             correct_fields=correct_fields,
             classification=classification,
         )
-        self._awaiting_case_clarification.discard(marker_key)
         return ConversationTurnResult(result.session, category_id, decision, result, result.clarification)
 
     def _intake(self, **kwargs) -> IntakeTurnResult:

@@ -136,6 +136,9 @@ class ContextIntakeService:
                 current = SessionState(session_id=session_id, participant_id=participant_id)
         elif current.participant_id != participant_id:
             raise ValueError("session participant does not match participant_id")
+        # Any turn that reaches the service has passed the orchestrator's
+        # restatement gate, so its successful snapshot clears that gate.
+        current = replace(current, awaiting_case_restatement=False)
         turn_id = self.id_factory()
 
         # This is a caller-provided routing signal, not a medical urgency
@@ -347,6 +350,71 @@ class ContextIntakeService:
         if self.repository is not None:
             self.repository.save_session(session)
         self._sessions[session.session_id] = session
+
+    def set_pending_case_restatement(
+        self, participant_id: str, session_id: str, pending: bool = True,
+    ) -> SessionState:
+        """Persist a non-transcript gate requiring a full event restatement."""
+        if type(pending) is not bool:
+            raise ValueError("pending must be a boolean")
+        current = self._session_for(participant_id, session_id)
+        updated = replace(current, awaiting_case_restatement=pending)
+        self._commit(updated)
+        return updated
+
+    def select_case(self, participant_id: str, session_id: str, case_id: str) -> SessionState:
+        """Select an existing participant-owned case and clear pending questions."""
+        current = self._session_for(participant_id, session_id)
+        case = current.cases.get(case_id)
+        if case is None or case.participant_id != participant_id:
+            raise ValueError("case does not belong to this participant")
+        case_events = [event for event in current.turn_events if event.case_id == case_id]
+        if not case_events:
+            raise ValueError("case has no turn event in this session")
+        latest = case_events[-1]
+        category_id = latest.category_id
+        if latest.catalog_version != self.registry.version:
+            raise ValueError("case uses a different Category Registry version")
+        if category_id is not None:
+            self.registry.get(category_id)
+        updated = replace(
+            current,
+            active_case_id=case_id,
+            active_category_id=category_id,
+            pending_question=None,
+            pending_conflict=None,
+            awaiting_case_restatement=False,
+        )
+        self._commit(updated)
+        return updated
+
+    def clear_active_case(self, participant_id: str, session_id: str) -> SessionState:
+        """Clear the active association without creating a synthetic turn event."""
+        current = self._session_for(participant_id, session_id)
+        updated = replace(
+            current,
+            active_case_id=None,
+            active_category_id=None,
+            pending_question=None,
+            pending_conflict=None,
+            awaiting_case_restatement=False,
+        )
+        self._commit(updated)
+        return updated
+
+    def _session_for(self, participant_id: str, session_id: str) -> SessionState:
+        if not isinstance(participant_id, str) or not participant_id.strip():
+            raise ValueError("participant_id must be a non-empty string")
+        if not isinstance(session_id, str) or not session_id.strip():
+            raise ValueError("session_id must be a non-empty string")
+        current = self._sessions.get(session_id)
+        if current is None and self.repository is not None:
+            current = self.repository.load_session(session_id)
+            if current is not None:
+                self._validate_restored_session(current)
+        if current is not None and current.participant_id != participant_id:
+            raise ValueError("session participant does not match participant_id")
+        return current or SessionState(session_id=session_id, participant_id=participant_id)
 
     def _validate_restored_session(self, session: SessionState) -> None:
         """Reject active state that cannot be interpreted by the current Registry."""
