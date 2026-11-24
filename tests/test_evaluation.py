@@ -27,7 +27,7 @@ from clinical_warrant.bootstrap.composition import evaluate_scenarios
 from clinical_warrant.modules.evaluation.infrastructure.report_writer import publish_report
 
 
-DATASET = Path(__file__).parents[1] / "evaluation" / "synthetic_hiv_cases.jsonl"
+DATASET = Path(__file__).parents[1] / "evaluation" / "v1" / "synthetic_hiv_cases.jsonl"
 
 
 def test_synthetic_dataset_is_separate_and_covers_categories_and_decisions() -> None:

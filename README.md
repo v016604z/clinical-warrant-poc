@@ -81,6 +81,8 @@ Context Intake 的 14 類分類、個案欄位收集、Coverage 公式與分階�
 
 互動中輸入自由文字；`:case` 查看目前個案，`:use CASE_ID` 切換，`:clear` 清除目前關聯但保留既有個案，`:exit` 離開。每輪顯示 Category、選取/已知欄位、補問與 Coverage。OpenAI API 發生錯誤時，該輪不會寫入未完成狀態。不要在共享電腦或未受保護的資料夾保存真實個案資料。
 
+Commit 5 的 synthetic SQLite 端到端 runner、可重現命令、報告欄位與測試結果解讀見[驗收文件](docs/context-intake-commit5-validation.md)。該 runner 使用 Fake classifier/provider，不呼叫外部 API；結果只驗證工程流程，不代表真實模型品質或臨床效能。
+
 離線示範使用固定的合成多輪對話 fixture，接線的是 fixture classifier / extractor，不呼叫真實模型、不連網，也不代表實際使用者或臨床評估。`demo --step` 只在每輪暫停供人工檢視，仍會自動依 fixture 回放，不能輸入自由文字。
 
 ```powershell
@@ -97,7 +99,7 @@ Context Intake 的 14 類分類、個案欄位收集、Coverage 公式與分階�
 
 CDC 愛滋公開問答的蒐集範圍、執行方式、原始快照與資料使用限制見[資料蒐集說明](docs/data-collection.md)。
 
-可複用 RAG Knowledge Base 的階段與驗收範圍見[實作計畫](docs/clinical_warrant_rag_kb_pipeline_plan.md)；來源、文件與區塊契約及版本策略見[資料契約 v1](docs/rag-kb-schema.md)。離線命令、權利設定、review evidence 與失敗診斷見[KB 使用與驗收](docs/rag-kb-usage.md)。Commit 6 CDC 與跨來源端到端驗收已完成；全套測試為 384 passed、1 skipped（真實模型 smoke test 為 opt-in）。
+可複用 RAG Knowledge Base 的階段與驗收範圍見[實作計畫](docs/clinical_warrant_rag_kb_pipeline_plan.md)；來源、文件與區塊契約及版本策略見[資料契約 v1](docs/rag-kb-schema.md)。離線命令、權利設定、review evidence 與失敗診斷見[KB 使用與驗收](docs/rag-kb-usage.md)。Commit 6 的 CDC／跨來源驗收曾記錄 384 passed、1 skipped；此歷史結果不代表目前全套測試狀態，最新 Context Intake 驗收見[Commit 5 驗收文件](docs/context-intake-commit5-validation.md)。
 
 ### KB command line
 

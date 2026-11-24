@@ -124,7 +124,7 @@ def calibrate_threshold(
             for result in results
         ]
         metrics = _metrics(cases, predictions, labels, category_ids)
-        scored.append((metrics["macro_f1_all"], threshold, metrics))
+        scored.append((metrics["macro_f1_all_15"], threshold, metrics))
     best_score = max(item[0] for item in scored)
     best = min((item for item in scored if item[0] == best_score), key=lambda item: item[1])
     return {

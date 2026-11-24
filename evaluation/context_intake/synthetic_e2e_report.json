@@ -1,0 +1,231 @@
+{
+  "schema_version": "1.0",
+  "metadata": {
+    "evaluation_type": "synthetic_offline_application_sqlite_e2e",
+    "scenario_id": "synthetic-sqlite-pending-question-and-new-case",
+    "fixture_sha256": "1bb6eabe98b3c1b7b06b72ffe6aeb0fc5a882c6389e64a841932e88639280fb2",
+    "catalog_version": "e0cb8d6531d3063dd4e3e40698a8b0239eed7356a30e3985935c7413ca3ffa2d",
+    "classifier_id": "synthetic-fake-classifier",
+    "router_id": "OpenAICaseRouter with FakeResponsesAdapter",
+    "extractor_id": "OpenAIExtractor with FakeResponsesAdapter",
+    "storage": "temporary SQLite file, reopened before each turn",
+    "real_model_or_clinical_performance": false
+  },
+  "metrics": {
+    "turn_count": 5,
+    "passed_expected_checks": true,
+    "classifier_calls": 2,
+    "fake_provider_adapter_calls": 10,
+    "fake_adapter_calls_by_schema": {
+      "context_intake_case_route": 5,
+      "context_intake_extraction": 5
+    },
+    "external_api_calls": 0,
+    "session_restores_from_sqlite": 4,
+    "repeated_clarification_count": 1,
+    "coverage": [
+      {
+        "case_index": 0,
+        "category_id": "personal_exposure_risk",
+        "catalog_count": 14,
+        "selected_count": 2,
+        "known_count": 2,
+        "selected_known_count": 2,
+        "coverage_rate": 0.14285714285714285
+      },
+      {
+        "case_index": 1,
+        "category_id": "personal_exposure_risk",
+        "catalog_count": 14,
+        "selected_count": 2,
+        "known_count": 2,
+        "selected_known_count": 2,
+        "coverage_rate": 0.14285714285714285
+      }
+    ],
+    "token_usage": {
+      "input_tokens": null,
+      "output_tokens": null,
+      "total_tokens": null,
+      "status": "unavailable; fake adapter does not return provider usage"
+    },
+    "latency": {
+      "local_fake_adapter_ms": [
+        0.068,
+        0.042,
+        0.029,
+        0.039,
+        0.029,
+        0.037,
+        0.019,
+        0.033,
+        0.017,
+        0.021
+      ],
+      "local_fake_adapter_total_ms": 0.334,
+      "network_api_latency_ms": null,
+      "note": "Measured fake adapter execution only; not model or network latency."
+    },
+    "estimated_model_cost_usd": null,
+    "actual_external_api_cost_usd": 0.0,
+    "cost_note": "No external API calls were made; model cost is not estimated without real token usage."
+  },
+  "predictions": [
+    {
+      "turn_id": "turn-1-new-case-with-missing-route",
+      "classification_called": true,
+      "classification": {
+        "category_id": "personal_exposure_risk",
+        "top1_similarity": 0.91,
+        "is_unknown": false
+      },
+      "category_id": "personal_exposure_risk",
+      "route_action": "new_case",
+      "selected_fields": [
+        "exposure_datetime",
+        "exposure_route"
+      ],
+      "extracted_attributes": {
+        "exposure_datetime": "昨天"
+      },
+      "active_case_index": 0,
+      "cases": [
+        {
+          "exposure_datetime": "昨天"
+        }
+      ],
+      "pending_field": "exposure_route",
+      "repeated_clarification_count": 0,
+      "active_case_attributes": {
+        "exposure_datetime": "昨天"
+      },
+      "sqlite_session_restored": false
+    },
+    {
+      "turn_id": "turn-2-repeat-pending-question",
+      "classification_called": false,
+      "classification": null,
+      "category_id": "personal_exposure_risk",
+      "route_action": "continue_case",
+      "selected_fields": [
+        "exposure_route"
+      ],
+      "extracted_attributes": {},
+      "active_case_index": 0,
+      "cases": [
+        {
+          "exposure_datetime": "昨天"
+        }
+      ],
+      "pending_field": "exposure_route",
+      "repeated_clarification_count": 1,
+      "active_case_attributes": {
+        "exposure_datetime": "昨天"
+      },
+      "sqlite_session_restored": true
+    },
+    {
+      "turn_id": "turn-3-answer-pending-question",
+      "classification_called": false,
+      "classification": null,
+      "category_id": "personal_exposure_risk",
+      "route_action": "continue_case",
+      "selected_fields": [
+        "exposure_route"
+      ],
+      "extracted_attributes": {
+        "exposure_route": "陰道性行為"
+      },
+      "active_case_index": 0,
+      "cases": [
+        {
+          "exposure_datetime": "昨天",
+          "exposure_route": "陰道性行為"
+        }
+      ],
+      "pending_field": null,
+      "repeated_clarification_count": 0,
+      "active_case_attributes": {
+        "exposure_datetime": "昨天",
+        "exposure_route": "陰道性行為"
+      },
+      "sqlite_session_restored": true
+    },
+    {
+      "turn_id": "turn-4-new-distinct-event",
+      "classification_called": true,
+      "classification": {
+        "category_id": "personal_exposure_risk",
+        "top1_similarity": 0.91,
+        "is_unknown": false
+      },
+      "category_id": "personal_exposure_risk",
+      "route_action": "new_case",
+      "selected_fields": [
+        "exposure_datetime",
+        "exposure_route"
+      ],
+      "extracted_attributes": {
+        "exposure_datetime": "今天"
+      },
+      "active_case_index": 1,
+      "cases": [
+        {
+          "exposure_datetime": "昨天",
+          "exposure_route": "陰道性行為"
+        },
+        {
+          "exposure_datetime": "今天"
+        }
+      ],
+      "pending_field": "exposure_route",
+      "repeated_clarification_count": 0,
+      "active_case_attributes": {
+        "exposure_datetime": "今天"
+      },
+      "sqlite_session_restored": true
+    },
+    {
+      "turn_id": "turn-5-answer-new-case-question",
+      "classification_called": false,
+      "classification": null,
+      "category_id": "personal_exposure_risk",
+      "route_action": "continue_case",
+      "selected_fields": [
+        "exposure_route"
+      ],
+      "extracted_attributes": {
+        "exposure_route": "共用針具"
+      },
+      "active_case_index": 1,
+      "cases": [
+        {
+          "exposure_datetime": "昨天",
+          "exposure_route": "陰道性行為"
+        },
+        {
+          "exposure_datetime": "今天",
+          "exposure_route": "共用針具"
+        }
+      ],
+      "pending_field": null,
+      "repeated_clarification_count": 0,
+      "active_case_attributes": {
+        "exposure_datetime": "今天",
+        "exposure_route": "共用針具"
+      },
+      "sqlite_session_restored": true
+    }
+  ],
+  "errors": [],
+  "session": {
+    "restored_at_end": true,
+    "case_count": 2,
+    "turn_event_count": 5,
+    "active_case_index": 1
+  },
+  "limitations": [
+    "All messages, classifications, route decisions, and extraction outputs are synthetic fixtures.",
+    "Passing checks validate application wiring and SQLite behavior only; they do not measure model or clinical performance."
+  ]
+}

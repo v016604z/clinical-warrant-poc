@@ -1,0 +1,134 @@
+{
+  "schema_version": "1.0",
+  "scenario_id": "synthetic-sqlite-pending-question-and-new-case",
+  "participant_id": "synthetic-participant",
+  "session_id": "synthetic-session",
+  "steps": [
+    {
+      "turn_id": "turn-1-new-case-with-missing-route",
+      "message": "我昨天有一次可能的暴露",
+      "classification": {"category_id": "personal_exposure_risk"},
+      "route_response": {"action": "new_case", "evidence": "我昨天有一次可能的暴露", "clarification_question": null},
+      "extractor_response": {
+        "selected_fields": ["exposure_datetime", "exposure_route"],
+        "extracted_attributes": {"exposure_datetime": "昨天"},
+        "evidence": {"exposure_datetime": "昨天"},
+        "selection_reason": "合成流程：提供時間但未提供暴露方式",
+        "clarification_question": "請問暴露方式是什麼？",
+        "clarification_field_key": "exposure_route"
+      },
+      "expected": {
+        "category_id": "personal_exposure_risk",
+        "route_action": "new_case",
+        "selected_fields": ["exposure_datetime", "exposure_route"],
+        "extracted_attributes": {"exposure_datetime": "昨天"},
+        "active_case_index": 0,
+        "cases": [{"exposure_datetime": "昨天"}],
+        "pending_field": "exposure_route",
+        "repeated_clarification_count": 0
+      }
+    },
+    {
+      "turn_id": "turn-2-repeat-pending-question",
+      "message": "我不確定",
+      "classification": null,
+      "route_response": {"action": "continue_case", "evidence": "我不確定", "clarification_question": null},
+      "extractor_response": {
+        "selected_fields": ["exposure_route"],
+        "extracted_attributes": {},
+        "evidence": {},
+        "selection_reason": "合成流程：使用者尚未提供暴露方式",
+        "clarification_question": "請問暴露方式是什麼？",
+        "clarification_field_key": "exposure_route"
+      },
+      "expected": {
+        "category_id": "personal_exposure_risk",
+        "route_action": "continue_case",
+        "selected_fields": ["exposure_route"],
+        "extracted_attributes": {},
+        "active_case_index": 0,
+        "cases": [{"exposure_datetime": "昨天"}],
+        "pending_field": "exposure_route",
+        "repeated_clarification_count": 1
+      }
+    },
+    {
+      "turn_id": "turn-3-answer-pending-question",
+      "message": "應該是陰道性行為",
+      "classification": null,
+      "route_response": {"action": "continue_case", "evidence": "應該是陰道性行為", "clarification_question": null},
+      "extractor_response": {
+        "selected_fields": ["exposure_route"],
+        "extracted_attributes": {"exposure_route": "陰道性行為"},
+        "evidence": {"exposure_route": "陰道性行為"},
+        "selection_reason": "合成流程：回答待確認欄位",
+        "clarification_question": null,
+        "clarification_field_key": null
+      },
+      "expected": {
+        "category_id": "personal_exposure_risk",
+        "route_action": "continue_case",
+        "selected_fields": ["exposure_route"],
+        "extracted_attributes": {"exposure_route": "陰道性行為"},
+        "active_case_index": 0,
+        "cases": [{"exposure_datetime": "昨天", "exposure_route": "陰道性行為"}],
+        "pending_field": null,
+        "repeated_clarification_count": 0
+      }
+    },
+    {
+      "turn_id": "turn-4-new-distinct-event",
+      "message": "今天又有另一件可能的暴露",
+      "classification": {"category_id": "personal_exposure_risk"},
+      "route_response": {"action": "new_case", "evidence": "今天又有另一件可能的暴露", "clarification_question": null},
+      "extractor_response": {
+        "selected_fields": ["exposure_datetime", "exposure_route"],
+        "extracted_attributes": {"exposure_datetime": "今天"},
+        "evidence": {"exposure_datetime": "今天"},
+        "selection_reason": "合成流程：明確指出另一次事件並提供時間",
+        "clarification_question": "這次的暴露方式是什麼？",
+        "clarification_field_key": "exposure_route"
+      },
+      "expected": {
+        "category_id": "personal_exposure_risk",
+        "route_action": "new_case",
+        "selected_fields": ["exposure_datetime", "exposure_route"],
+        "extracted_attributes": {"exposure_datetime": "今天"},
+        "active_case_index": 1,
+        "cases": [
+          {"exposure_datetime": "昨天", "exposure_route": "陰道性行為"},
+          {"exposure_datetime": "今天"}
+        ],
+        "pending_field": "exposure_route",
+        "repeated_clarification_count": 0
+      }
+    },
+    {
+      "turn_id": "turn-5-answer-new-case-question",
+      "message": "這次是共用針具",
+      "classification": null,
+      "route_response": {"action": "continue_case", "evidence": "這次是共用針具", "clarification_question": null},
+      "extractor_response": {
+        "selected_fields": ["exposure_route"],
+        "extracted_attributes": {"exposure_route": "共用針具"},
+        "evidence": {"exposure_route": "共用針具"},
+        "selection_reason": "合成流程：回答新事件的待確認欄位",
+        "clarification_question": null,
+        "clarification_field_key": null
+      },
+      "expected": {
+        "category_id": "personal_exposure_risk",
+        "route_action": "continue_case",
+        "selected_fields": ["exposure_route"],
+        "extracted_attributes": {"exposure_route": "共用針具"},
+        "active_case_index": 1,
+        "cases": [
+          {"exposure_datetime": "昨天", "exposure_route": "陰道性行為"},
+          {"exposure_datetime": "今天", "exposure_route": "共用針具"}
+        ],
+        "pending_field": null,
+        "repeated_clarification_count": 0
+      }
+    }
+  ]
+}
